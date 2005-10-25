@@ -5,6 +5,8 @@ using Tame.Scheme.Data;
 
 namespace Tame.Scheme.Syntax.Transformer
 {
+	// TODO: presently, matching () against () causes an exception
+
 	/// <summary>
 	/// Represents a syntax transformation.
 	/// </summary>
