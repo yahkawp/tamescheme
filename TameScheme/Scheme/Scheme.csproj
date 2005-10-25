@@ -299,6 +299,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Syntax\IQuoted.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Syntax\ISyntax.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
