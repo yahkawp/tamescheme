@@ -237,7 +237,8 @@ namespace Tame.Scheme.Data
 		{
 			public PairEnumerator(Pair firstPair)
 			{
-				this.firstPair = this.currentPair = firstPair;
+				this.firstPair = firstPair;
+				this.currentPair = null;
 			}
 
 			Pair firstPair, currentPair;
@@ -246,7 +247,7 @@ namespace Tame.Scheme.Data
 
 			public void Reset()
 			{
-				currentPair = firstPair;
+				currentPair = null;
 			}
 
 			public object Current
@@ -259,12 +260,15 @@ namespace Tame.Scheme.Data
 
 			public bool MoveNext()
 			{
-				currentPair = (Pair)firstPair.Cdr;
-
-				if (currentPair == null)
+				if (firstPair == null || (currentPair != null && currentPair.Cdr == null))
 					return false;
+	
+				if (currentPair == null) 
+					currentPair = firstPair;
 				else
-					return true;
+					currentPair = (Pair)currentPair.Cdr;
+
+				return true;
 			}
 
 			#endregion
