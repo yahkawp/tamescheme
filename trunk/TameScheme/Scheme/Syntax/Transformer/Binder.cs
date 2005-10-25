@@ -5,6 +5,9 @@ using Tame.Scheme.Data;
 
 namespace Tame.Scheme.Syntax.Transformer
 {
+	// TODO: investigate binding in (let ((x 1)) (let ((x 2)) x))
+	// I have a doubt as to whether or not behaviour will always be correct in instances like this
+
 	/// <summary>
 	/// The job of the binder is to take syntax transformed through a Transformation and find any elements that were inserted literally and
 	/// are in a binding context and rename them. This satisfies the R5RS conditions for hygenic macros.
