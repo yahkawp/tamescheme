@@ -46,5 +46,22 @@ namespace Tame.Scheme.Data
 		{
 			get { return environment; }
 		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is LiteralSymbol) return symbol.Equals(((LiteralSymbol)obj).Symbol);
+
+			return false;
+		}
+
+		public override int GetHashCode()
+		{
+			return symbol.GetHashCode() ^ typeof(LiteralSymbol).GetHashCode();
+		}
+
+		public override string ToString()
+		{
+			return symbol.ToString();
+		}
 	}
 }

@@ -54,7 +54,10 @@ namespace Tame.Scheme.Data
 			lock (symbolTable.SyncRoot)
 			{
 				// Throw an exception if this symbol is not in the table
-				if (number < 0 || number >= symbols.Count) throw new NonExistentSymbolException(number);
+				if (number >= symbols.Count) throw new NonExistentSymbolException(number);
+
+				// Temporary symbols have negative values
+				if (number < 0) return string.Format("#[temporary {0}]", -number);
 
 				// Retrieve the name from the table
 				return (string)symbols[number];

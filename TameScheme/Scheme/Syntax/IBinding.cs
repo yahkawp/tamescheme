@@ -11,6 +11,12 @@ namespace Tame.Scheme.Syntax
 	/// </remarks>
 	public interface IBinding : ISyntax
 	{
-		void UpdateBindingForScheme(object scheme, Transformer.Binder.BindingState state);
+		/// <summary>
+		/// Given scheme supposed to represent this syntax (no pattern matching will have been performed), update state to reflect the
+		/// values that have been bound.
+		/// </summary>
+		/// <param name="syntaxEnv">The results of matching against the patterns provided for this syntax</param>
+		/// <param name="state">The binding state for this section of scheme</param>
+		void UpdateBindingForScheme(SyntaxEnvironment syntaxEnv, Transformer.Binder.BindingState state);
 	}
 }
