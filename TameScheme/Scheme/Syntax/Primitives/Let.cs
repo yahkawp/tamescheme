@@ -35,7 +35,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// Implementation of the 'let', 'let*' and 'letrec' scheme syntaxes
 	/// </summary>
 	[SchemeSyntax("()", "(((variable expression) ...) firstStatement statements ...)")]
-	public class Let : ISyntax, IQuoted, IBinding
+	public class Let : ISyntax, IBinding
 	{
 		public enum Type
 		{
@@ -184,45 +184,63 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		#endregion
 
-		#region IQuoted Members
-
-		public object QuoteScheme(object scheme, Tame.Scheme.Syntax.Transformer.Binder.BindingState bindState)
-		{
-			// TODO: if let, then the variable definitions are bound to the outer environment
-			// TODO: if let* then bindings apply only to the right
-			// TODO: if letrec, then bindings apply throughout
-
-			return scheme;
-		}
-
-		#endregion
-
 		#region IBinding Members
 
-		public void UpdateBindingForScheme(SyntaxEnvironment env, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
+		public object BindScheme(object scheme, SyntaxEnvironment env, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
 		{
-			// Get the variable list
-			SyntaxNode variables = env[variable];
+			// Build the rebound variable list
+			Data.Pair oldVariables = (Data.Pair)((Data.Pair)scheme).Car;
 
-			if (variables == null) return;
-			variables = variables.Parent;
-			if (variables == null) return;
+			// Special case: if there are no variables
+			if (oldVariables == null) return new Data.Pair(null, state.Bind(((Data.Pair)scheme).Cdr));
+
+			if (letType == Type.Letrec)
+			{
+				// Variable bindings are self-referential: add them immediately to our binding state
+				foreach (Data.Pair variablePair in oldVariables)
+				{
+					if (variablePair.Car is Data.LiteralSymbol)
+					{
+						// LiteralSymbols need to be rebound to temporary variables
+						state.BindSymbol(variablePair.Car, state.TemporarySymbol());
+					}
+				}
+			}
 
 			// For each variable...
-			while (variables != null)
-			{
-				// Get the symbolic representation
-				object varSymbol = variables.Child.Value;
+			ArrayList newVariableList = new ArrayList();								// We convert this later into the actual scheme involved
 
-				// If it's a literal symbol, we need to rebind it to a temporary value
-				if (varSymbol is Data.LiteralSymbol)
+			foreach (Data.Pair variablePair in oldVariables)
+			{
+				// The name and the assignment for this variable
+				object newVariable = variablePair.Car;
+				object newAssignment = ((Data.Pair)variablePair.Cdr).Car;
+
+				if (letType != Type.Let)
 				{
-					state.BindSymbol(varSymbol, state.TemporarySymbol());
+					// Letrec and LetStar both rebind their assignments (let assigns from 'outside')
+					newAssignment = state.Bind(newAssignment);
 				}
 
-				// Get the next variable
-				variables = variables.Sibling;
+				if (letType != Type.Letrec)
+				{
+					// (If this is letrec, the names are already assigned)
+					if (newVariable is Data.LiteralSymbol)
+					{
+						// Reassign this value
+						state.BindSymbol(newVariable, state.TemporarySymbol());
+					}
+				}
+
+				// Rebind the variable
+				newVariable = state.Bind(newVariable);
+
+				// Add the value for this binding
+				newVariableList.Add(new Data.Pair(newVariable, new Data.Pair(newAssignment, null)));
 			}
+
+			// Produce the result (the variable list we just produced, followed by the rebound code
+			return new Data.Pair(new Data.Pair(newVariableList), state.Bind(((Data.Pair)scheme).Cdr));
 		}
 
 		#endregion

@@ -1,3 +1,28 @@
+// +----------------------------------------------------------------------------+
+// |                               = TAMESCHEME =                               |
+// | Class that renames bound variables in macros                     Binder.cs |
+// +----------------------------------------------------------------------------+
+// | Copyright (c) 2005 Andrew Hunter                                           |
+// |                                                                            |
+// | Permission is hereby granted, free of charge, to any person obtaining a    |
+// | copy of this software and associated documentation files (the "Software"), |
+// | to deal in the Software without restriction, including without limitation  |
+// | the rights to use, copy, modify, merge, publish, distribute, sublicense,   |
+// | and/or sell copies of the Software, and to permit persons to whom the      |
+// | Software is furnished to do so, subject to the following conditions:       |
+// |                                                                            |
+// | The above copyright notice and this permission notice shall be included in |
+// | all copies or substantial portions of the Software.                        |
+// |                                                                            |
+// | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR |
+// | IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   |
+// | FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL    |
+// | THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER |
+// | LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING    |
+// | FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER        |
+// | DEALINGS IN THE SOFTWARE.                                                  |
+// +----------------------------------------------------------------------------+
+
 using System;
 using System.Collections;
 
@@ -33,19 +58,22 @@ namespace Tame.Scheme.Syntax.Transformer
 		/// </summary>
 		public class BindingState
 		{
-			internal BindingState(Binder owner)
+			internal BindingState(Binder owner, Data.Environment topLevel)
 			{
 				this.owner = owner;
+				this.topLevel = topLevel;
 			}
 			internal BindingState(BindingState previousState)
 			{
 				this.previousState = previousState;
 				this.owner = previousState.owner;
+				this.topLevel = previousState.topLevel;
 			}
 
 			internal Hashtable reboundSymbols = new Hashtable();					// Maps symbols to symbols
 			internal BindingState previousState = null;								// The 'previous' state in the heirarchy of states
 			internal Binder owner = null;											// The 'owner' (used to assign temporary variable names)
+			internal Data.Environment topLevel = null;								// The 'top-level' environment (used when invoking binding manually)
 
 			/// <summary>
 			/// Requests that a symbol be bound to another within this binding context
@@ -105,6 +133,16 @@ namespace Tame.Scheme.Syntax.Transformer
 			{
 				return owner.NewTemporarySymbol();
 			}
+
+			/// <summary>
+			/// Invokes binding on the given scheme.
+			/// </summary>
+			/// <param name="scheme">The scheme whose bindings need to be updated</param>
+			/// <returns>The same scheme with free symbols changed to temporaries</returns>
+			public object Bind(object scheme)
+			{
+				return owner.BindScheme(scheme, topLevel, this);
+			}
 		}
 
 		/// <summary>
@@ -116,7 +154,7 @@ namespace Tame.Scheme.Syntax.Transformer
 		/// <returns>A rewritten scheme expression</returns>
 		public object BindScheme(object scheme, Data.Environment topLevel)
 		{
-			return BindScheme(scheme, topLevel, new BindingState(this));
+			return BindScheme(scheme, topLevel, new BindingState(this, topLevel));
 		}
 
 		private object BindScheme(object scheme, Data.Environment topLevel, BindingState state)
@@ -150,21 +188,26 @@ namespace Tame.Scheme.Syntax.Transformer
 
 				if (firstSymbolValue != null && firstSymbolValue is SchemeSyntax)
 				{
-					// Try to match (even without binding, this should be valid scheme)
-					SyntaxEnvironment matchEnvironment;
-					int syntaxMatch = ((SchemeSyntax)firstSymbolValue).Syntax.Match(schemePair.Cdr, out matchEnvironment);
-
-					// Do nothing if there's no match
-					if (syntaxMatch < 0) return scheme;
-
 					// Get the implementation
 					ISyntax syntaxImplementation = ((SchemeSyntax)firstSymbolValue).Implementation;
+
+					// Try to match (even without binding, this should be valid scheme)
+					SyntaxEnvironment matchEnvironment = null;
+
+					if (syntaxImplementation is IBinding || syntaxImplementation is IQuoted)
+					{
+						// We only actually use the match if this is a binding or quoted syntax
+						int syntaxMatch = ((SchemeSyntax)firstSymbolValue).Syntax.Match(schemePair.Cdr, out matchEnvironment);
+
+						// Do nothing if there's no match
+						if (syntaxMatch < 0) return scheme;
+					}
 
 					// The first symbol represents some syntax: we may have to rename bound variables, or deal with quoted symbols
 					BindingState outerState = state;								// The state in which the symbol representing the syntax is bound
 
 					// Quote anything that needs quoting
-					if (syntaxImplementation is IQuoted) scheme = ((IQuoted)syntaxImplementation).QuoteScheme(scheme, state);
+					if (syntaxImplementation is IQuoted) scheme = ((IQuoted)syntaxImplementation).QuoteScheme(scheme, matchEnvironment, state);
 
 					// If this is binding syntax, handle that
 					if (syntaxImplementation is IBinding)
@@ -173,52 +216,54 @@ namespace Tame.Scheme.Syntax.Transformer
 						state = new BindingState(state);
 
 						// ... which it is given an opportunity to modify
-						((IBinding)syntaxImplementation).UpdateBindingForScheme(matchEnvironment, state);
+						return new Pair(schemePair.Car, ((IBinding)syntaxImplementation).BindScheme(schemePair.Cdr, matchEnvironment, state));
 					}
-
-					// Quoting can now proceed much as for functions (except the first element is bound in the 'old' state)
-					// TODO: these could be treated exactly the same, in fact
-					Pair newList = null;											// First element in the new list
-					Pair newListEnd = null;											// Last element in the new list
-
-					Pair listElement = schemePair;
-
-					while (listElement != null)
+					else
 					{
-						// Construct a new element with suitable binding
-						Pair thisNewElement = null;
+						// Quoting can now proceed much as for functions (except the first element is bound in the 'old' state)
+						// TODO: these could be treated exactly the same, in fact
+						Pair newList = null;											// First element in the new list
+						Pair newListEnd = null;											// Last element in the new list
 
-						// Append to the list (importantly note that the first element, representing the syntax, is bound to the 'outer' state)
-						if (newList == null)
+						Pair listElement = schemePair;
+
+						while (listElement != null)
 						{
-							thisNewElement = new Pair(BindScheme(listElement.Car, topLevel, outerState), null);
+							// Construct a new element with suitable binding
+							Pair thisNewElement = null;
 
-							newListEnd = newList = thisNewElement;
-						}
-						else
-						{
-							thisNewElement = new Pair(BindScheme(listElement.Car, topLevel, state), null);
+							// Append to the list (importantly note that the first element, representing the syntax, is bound to the 'outer' state)
+							if (newList == null)
+							{
+								thisNewElement = new Pair(BindScheme(listElement.Car, topLevel, outerState), null);
 
-							newListEnd.Cdr = thisNewElement;
-							newListEnd = thisNewElement;
+								newListEnd = newList = thisNewElement;
+							}
+							else
+							{
+								thisNewElement = new Pair(BindScheme(listElement.Car, topLevel, state), null);
+
+								newListEnd.Cdr = thisNewElement;
+								newListEnd = thisNewElement;
+							}
+
+							// Move to the next element
+							if (listElement.Cdr == null || listElement.Cdr is Pair)
+							{
+								listElement = (Pair)listElement.Cdr;
+							}
+							else
+							{
+								// This list is improper: bind the final element
+								newListEnd.Cdr = BindScheme(listElement.Cdr, topLevel, state);
+
+								listElement = null;
+							}
 						}
 
-						// Move to the next element
-						if (listElement.Cdr == null || listElement.Cdr is Pair)
-						{
-							listElement = (Pair)listElement.Cdr;
-						}
-						else
-						{
-							// This list is improper: bind the final element
-							newListEnd.Cdr = BindScheme(listElement.Cdr, topLevel, state);
-
-							listElement = null;
-						}
+						// The result is the list we just constructed
+						return newList;
 					}
-
-					// The result is the list we just constructed
-					return newList;
 				}
 				else
 				{
