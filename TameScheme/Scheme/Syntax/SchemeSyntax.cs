@@ -30,12 +30,15 @@ namespace Tame.Scheme.Syntax
 	/// <summary>
 	/// Class that links Syntax and ISyntax objects together
 	/// </summary>
-	public sealed class SchemeSyntax
+	public class SchemeSyntax
 	{
 		public SchemeSyntax(Syntax itemSyntax, ISyntax itemImplementation)
 		{
 			this.itemSyntax = itemSyntax;
 			this.itemImplementation = itemImplementation;
+
+			// Special case: you can subclass this and use the ISyntax interface to create a unified object
+			if (itemImplementation == null && this is ISyntax) this.itemImplementation = (ISyntax)this;
 		}
 
 		Syntax itemSyntax;

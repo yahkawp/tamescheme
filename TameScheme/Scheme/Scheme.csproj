@@ -349,6 +349,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Syntax\Primitives\DefineSyntax.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Syntax\Primitives\If.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -360,6 +365,11 @@
                 />
                 <File
                     RelPath = "Syntax\Primitives\Let.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Syntax\Primitives\UserSyntax.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
