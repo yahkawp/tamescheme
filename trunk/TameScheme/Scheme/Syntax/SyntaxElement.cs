@@ -361,7 +361,22 @@ namespace Tame.Scheme.Syntax
 			{
 				case ElementType.Literal:
 					// (We don't bother storing these in the syntax environment - not sure that collecting, say, a bunch of 'true' values is particularly useful)
-					return element.Equals(matchAgainst);
+					if (!element.Equals(matchAgainst))
+					{
+						// An exception: ISymbolic entries can also match an identical Symbol
+						if (element is Data.ISymbolic)
+						{
+							return ((Data.ISymbolic)element).Symbol.Equals(matchAgainst);
+						}
+						else
+						{
+							return false;
+						}
+					}
+					else
+					{
+						return true;
+					}
 
 				case ElementType.BoundSymbol:
 					boundEnvironment.StartSymbol((Data.Symbol)element);

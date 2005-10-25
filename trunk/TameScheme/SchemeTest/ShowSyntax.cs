@@ -56,7 +56,13 @@ namespace Tame.SchemeTest
 					Console.Out.WriteLine(syntaxTransformer.ToString());
 
 					object syntaxResult = syntaxTransformer.Transform(newEnv.SyntaxTree);
-					
+
+					Console.Out.WriteLine(syntaxResult.ToString());
+
+					Binder testBinder = new Binder();
+
+					syntaxResult = testBinder.BindScheme(syntaxResult, topLevel);
+
 					res = new BExpression(new Operation(Op.Push, syntaxResult));
 				}
 				else

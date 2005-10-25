@@ -19,6 +19,12 @@ namespace Tame.Scheme.Syntax.Transformer
 	{
 		public Binder() { }
 
+		int temporarySymbol = -1;
+		private Symbol NewTemporarySymbol()
+		{
+			return new Symbol(temporarySymbol--);
+		}
+
 		/// <summary>
 		/// Class used to represent the current state of a binding operation
 		/// </summary>
@@ -87,6 +93,15 @@ namespace Tame.Scheme.Syntax.Transformer
 					return symbol;
 				}
 			}
+
+			/// <summary>
+			/// Constructs a new temporary symbol
+			/// </summary>
+			/// <returns>A previously unused temporary symbol</returns>
+			public Symbol TemporarySymbol()
+			{
+				return owner.NewTemporarySymbol();
+			}
 		}
 
 		/// <summary>
@@ -113,35 +128,49 @@ namespace Tame.Scheme.Syntax.Transformer
 				if (firstElement is Symbol)
 				{
 					// Look up the symbol value in the top-level environment (we're only interested in syntax at this point)
-					firstSymbolValue = topLevel[(Symbol)firstElement];
+					if (topLevel.Contains((Symbol)firstElement))
+						firstSymbolValue = topLevel[(Symbol)firstElement];
 				}
 				else if (firstElement is LiteralSymbol)
 				{
 					// Look up in the 'literal' environment (where the syntax was created)
-					firstSymbolValue = ((LiteralSymbol)firstElement).Environment[((LiteralSymbol)firstElement).Symbol];
+					Data.Environment symbolEnv = ((LiteralSymbol)firstElement).Environment;
+					if (symbolEnv.Contains(((LiteralSymbol)firstElement).Symbol))
+						firstSymbolValue = symbolEnv[((LiteralSymbol)firstElement).Symbol];
 				}
 				else if (firstElement is ISymbolic)
 				{
 					// Other symbolic values: also look up in the top-level environment
-					firstSymbolValue = topLevel[((ISymbolic)firstElement).Symbol];
+					if (topLevel.Contains((Symbol)firstElement))
+						firstSymbolValue = topLevel[((ISymbolic)firstElement).Symbol];
 				}
 
-				if (firstSymbolValue != null && firstSymbolValue is ISyntax)
+				if (firstSymbolValue != null && firstSymbolValue is SchemeSyntax)
 				{
+					// Try to match (even without binding, this should be valid scheme)
+					SyntaxEnvironment matchEnvironment;
+					int syntaxMatch = ((SchemeSyntax)firstSymbolValue).Syntax.Match(schemePair.Cdr, out matchEnvironment);
+
+					// Do nothing if there's no match
+					if (syntaxMatch < 0) return scheme;
+
+					// Get the implementation
+					ISyntax syntaxImplementation = ((SchemeSyntax)firstSymbolValue).Implementation;
+
 					// The first symbol represents some syntax: we may have to rename bound variables, or deal with quoted symbols
 					BindingState outerState = state;								// The state in which the symbol representing the syntax is bound
 
 					// Quote anything that needs quoting
-					if (firstSymbolValue is IQuoted) scheme = ((IQuoted)firstSymbolValue).QuoteScheme(scheme, state);
+					if (syntaxImplementation is IQuoted) scheme = ((IQuoted)syntaxImplementation).QuoteScheme(scheme, state);
 
 					// If this is binding syntax, handle that
-					if (firstSymbolValue is IBinding)
+					if (syntaxImplementation is IBinding)
 					{
 						// This syntax has its very own binding state
 						state = new BindingState(state);
 
 						// ... which it is given an opportunity to modify
-						((IBinding)firstSymbolValue).UpdateBindingForScheme(scheme, state);
+						((IBinding)syntaxImplementation).UpdateBindingForScheme(matchEnvironment, state);
 					}
 
 					// Quoting can now proceed much as for functions (except the first element is bound in the 'old' state)

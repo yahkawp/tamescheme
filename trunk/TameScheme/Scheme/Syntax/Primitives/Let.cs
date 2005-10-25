@@ -35,7 +35,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// Implementation of the 'let', 'let*' and 'letrec' scheme syntaxes
 	/// </summary>
 	[SchemeSyntax("()", "(((variable expression) ...) firstStatement statements ...)")]
-	public class Let : ISyntax
+	public class Let : ISyntax, IQuoted, IBinding
 	{
 		public enum Type
 		{
@@ -180,6 +180,49 @@ namespace Tame.Scheme.Syntax.Primitives
 
 			// Return the result
 			return letExpr;
+		}
+
+		#endregion
+
+		#region IQuoted Members
+
+		public object QuoteScheme(object scheme, Tame.Scheme.Syntax.Transformer.Binder.BindingState bindState)
+		{
+			// TODO: if let, then the variable definitions are bound to the outer environment
+			// TODO: if let* then bindings apply only to the right
+			// TODO: if letrec, then bindings apply throughout
+
+			return scheme;
+		}
+
+		#endregion
+
+		#region IBinding Members
+
+		public void UpdateBindingForScheme(SyntaxEnvironment env, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
+		{
+			// Get the variable list
+			SyntaxNode variables = env[variable];
+
+			if (variables == null) return;
+			variables = variables.Parent;
+			if (variables == null) return;
+
+			// For each variable...
+			while (variables != null)
+			{
+				// Get the symbolic representation
+				object varSymbol = variables.Child.Value;
+
+				// If it's a literal symbol, we need to rebind it to a temporary value
+				if (varSymbol is Data.LiteralSymbol)
+				{
+					state.BindSymbol(varSymbol, state.TemporarySymbol());
+				}
+
+				// Get the next variable
+				variables = variables.Sibling;
+			}
 		}
 
 		#endregion
