@@ -43,6 +43,7 @@ namespace Tame.Scheme.Syntax.Transformer
 			/// </summary>
 			public void BindSymbol(object symbol, object newSymbol)
 			{
+				reboundSymbols[symbol] = newSymbol;
 			}
 
 			/// <summary>
@@ -88,6 +89,13 @@ namespace Tame.Scheme.Syntax.Transformer
 			}
 		}
 
+		/// <summary>
+		/// Takes a scheme expression, usually produced by a syntax Transformation, finds any expressions that bind LiteralSymbols and replaces them
+		/// with temporary symbols.
+		/// </summary>
+		/// <param name="scheme">The scheme expression to change the bindings on</param>
+		/// <param name="topLevel">The top-level environment this will be evaluated in</param>
+		/// <returns>A rewritten scheme expression</returns>
 		public object BindScheme(object scheme, Data.Environment topLevel)
 		{
 			return BindScheme(scheme, topLevel, new BindingState(this));
