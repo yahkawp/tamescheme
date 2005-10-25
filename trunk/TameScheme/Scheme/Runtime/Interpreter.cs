@@ -87,6 +87,7 @@ namespace Tame.Scheme.Runtime
 		// Definitions
 		static ISyntax schemeLambda = new Syntax.Primitives.Lambda();
 		static ISyntax schemeDefine = new Syntax.Primitives.Define();
+		static ISyntax schemeDefineSyntax = new Syntax.Primitives.DefineSyntax();
 		static ISyntax schemeLet = new Syntax.Primitives.Let(Syntax.Primitives.Let.Type.Let);
 		static ISyntax schemeLetStar = new Syntax.Primitives.Let(Syntax.Primitives.Let.Type.LetStar);
 		static ISyntax schemeLetrec = new Syntax.Primitives.Let(Syntax.Primitives.Let.Type.Letrec);
@@ -135,6 +136,7 @@ namespace Tame.Scheme.Runtime
 			// Definitions
 			DefineSyntax(schemeLambda);
 			DefineSyntax(schemeDefine);
+			DefineSyntax(schemeDefineSyntax);
 
 			DefineSyntax("let", schemeLet);
 			DefineSyntax("let*", schemeLetStar);

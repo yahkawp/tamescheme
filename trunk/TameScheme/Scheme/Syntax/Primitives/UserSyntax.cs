@@ -1,6 +1,6 @@
 // +----------------------------------------------------------------------------+
 // |                               = TAMESCHEME =                               |
-// | Object representing a set of valid syntaxes                      Syntax.cs |
+// | User-defined syntax                                          UserSyntax.cs |
 // +----------------------------------------------------------------------------+
 // | Copyright (c) 2005 Andrew Hunter                                           |
 // |                                                                            |
@@ -26,38 +26,43 @@
 using System;
 using System.Collections;
 
-namespace Tame.Scheme.Syntax
+using Tame.Scheme.Runtime;
+using Tame.Scheme.Syntax.Transformer;
+
+namespace Tame.Scheme.Syntax.Primitives
 {
 	/// <summary>
-	/// Object representing a syntax for a keyword in scheme.
+	/// UserSyntax represents syntax defined by the define-syntax operator.
 	/// </summary>
-	public class Syntax
+	public class UserSyntax : SchemeSyntax, ISyntax
 	{
-		public Syntax(params SyntaxElement[] element)
+		public UserSyntax(Syntax syntaxMatcher, ArrayList transformers) : base(syntaxMatcher, null)
 		{
-			this.element = new SyntaxElement[element.Length];
-			element.CopyTo(this.element, 0);
+			this.transformers = transformers;
 		}
 
-		public Syntax(ICollection elements)
+		ArrayList transformers;
+
+		#region ISyntax Members
+
+		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, Tame.Scheme.Data.Environment topLevel, Tame.Scheme.Data.Environment localEnvironment, int syntaxMatch)
 		{
-			this.element = new SyntaxElement[elements.Count];
-			elements.CopyTo(this.element, 0);
+			// Get the transformation to use
+			Transformation matchingTransformer = (Transformation)transformers[syntaxMatch];
+
+			// Perform the transformation
+			object translatedScheme = matchingTransformer.Transform(env.SyntaxTree);
+
+			// TODO: we need a unified binder (we shouldn't be creating a new one here)
+			Binder binder = new Binder();
+
+			// Rename any temporary variables
+			translatedScheme = binder.BindScheme(translatedScheme, topLevel);
+
+			// Compile the result
+			return BExpression.BuildExpression(translatedScheme, topLevel, localEnvironment);
 		}
 
-		public int Match(object scheme, out SyntaxEnvironment bindingEnvironment)
-		{
-			int x = 0;
-			foreach (SyntaxElement elem in element)
-			{
-				if (elem.Match(scheme, out bindingEnvironment)) return x;
-				x++;
-			}
-
-			bindingEnvironment = null;
-			return -1;
-		}
-
-		SyntaxElement[] element;
+		#endregion
 	}
 }
