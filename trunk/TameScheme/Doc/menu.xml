@@ -4,6 +4,14 @@
   </topic>
   <topic name="using" url="/using/index.html"></topic>
   <topic name="embedding" url="/embedding/index.html">
+    <topic name="The Interpreter" url="/embedding/interpreter.html"></topic>
+    <topic name="Types" url="/embedding/types.html">
+      <topic name="Pairs" url="/embedding/pairs.html"></topic>
+      <topic name="Symbols" url="/embedding/symbols.html"></topic>
+      <topic name="Numbers" url="/embedding/numbers.html"></topic>
+      <topic name="Environments" url="/embedding/environments.html"></topic>
+      <topic name="Unspecified values" url="/embedding/unspecified.html"></topic>
+    </topic>
   </topic>
   <topic name="developing" url="/developing/index.html">
   </topic>
