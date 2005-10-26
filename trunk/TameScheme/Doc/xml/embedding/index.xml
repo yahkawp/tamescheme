@@ -1,164 +1,20 @@
 <?xml version="1.0"?>
 <page subtopic="Software projects" topic="embedding" layout="../../menu.xml">
-  <title>Software Tamed - Embedding TameScheme in other applications</title>
+  <title>Embedding TameScheme in other applications</title>
 
   <text>
   
     <h2>Embedding Scheme in other applications</h2>
     
     <p>
-      This section describes how the SoftwareTamed.Scheme assembly operates
+      This section describes how the Tame.Scheme assembly operates
       within other applications.
     </p>
-    
-    <p>
-      Eventually this section will develop into a series of pages describing the
-      various aspects of the interpreter itself.
-    </p>
-    
-    <h2>Types</h2>
-    
-    <p>
-      TameScheme is based on .NETs own type system. Most .NET types make sense
-      to TameScheme, giving it a much richer set of types than most scheme
-      systems. Most types have no special meaning to the interpreter, but some
-      types have some specific meaning.
-    </p>
-    
-    <p>
-      The interpreter just passes 'unknown' types through; ie, the result of
-      evaluating a <class>DateTime</class> object, for example, is just the
-      <class>DateTime</class> object.
-    </p>
-    
-    <p>(An eventual extension will be the notion of 'evaluatable' classes
-    which can provide a different means of evaluation if they're encountered)</p>
-    
-    <h3>Pairs</h3>
-    
-    <p>
-      The <class>Pair</class> class represents a scheme pair. It consists of a
-      <variable>Car</variable> and a <variable>Cdr</variable> field, which can
-      both be any type of object. As far as Scheme itself is concerned, this is
-      all there is to a pair.
-    </p>
-    
-    <p>
-      However, a scheme pair has a few properties that can be better exposed via
-      .NET interfaces. Consequently, the <class>Pair</class> implements the
-      <interface>IList</interface>, allowing it to be used in many circumstances
-      where a .NET list class can be. There are some 'oddities' related to the
-      slightly differing nature of a Pair to a 'standard' .NET list which may
-      limit the usefulness of these functions.
-    </p>
-    
-    <p>
-      Improper lists are not .NET lists. For convienience, no error is generated
-      unless the 'improper' element is accessed, however, so improper lists may
-      be useful in some circumstances. Neither are self-referential lists: these
-      do not produce errors but may result in infinite loops in some cases.
-    </p>
-    
-    <p>
-      The .NET list interface is designed on the assumption that the 'list' is
-      contained by the class and is not (as in the case of Pairs) the class
-      itself. This means that it is not sensible to remove the only element
-      in a scheme list containing a single value. The .NET 'null' value
-      represents an empty list, and the scheme specification states that
-      an empty list is not a Pair. Use <code>myPair = myPair.Cdr</code> as code
-      to remove the first element in a list wherever you possibly can.
-    </p>
-    
-    <p>
-      Normally removing (or inserting) an element will just result in an elements
-      Cdr being changed, but this is not always possible, so some operations will
-      result in an element being overwritten. In particular, inserting or
-      removing at the beginning of a Pair list will result in the first element
-      being overwritten with the new value. The consequences are subtle, but
-      may be significant in some circumstances.
-    </p>
-    
-    <p align="center">
-      <img src="removing-cdrs.png" /><br />
-      <b>Consequences of removing parts of a Pair</b>
-    </p>
-    
-    <p>
-      Given the pair <scheme>(1 2 3)</scheme>, stored in the object <variable>somePair</variable>, 
-      the result of <code>somePair.Remove(1)</code> is that somePair.Cdr is changed
-      to point to <scheme>(3)</scheme> (the tail of the pair). <code>somePair.Cdr.Remove(0)</code>
-      however, has a new effect. It changes the pair representing <scheme>(2 3)</scheme>
-      (the Cdr of pair) with the pair <scheme>(3)</scheme>. <code>somePair.Cdr</code>
-      is NOT changed, but instead its value is modified.
-    </p>
-    
-    <p>
-      Pairs can be constructed from any object implementing the ICollection
-      interface. This produces a well-formed scheme list from the contents
-      of the collection.
-    </p>
-    
-    <h3>
-      Symbols
-    </h3>
-    
-    <p>
-      The <class>Symbol</class> is used to represent scheme symbols. It effectively
-      contains a single number: a reference into the <class>SymbolTable</class>
-      class. There is only one symbol table per process: so each symbol is
-      uniquely identified by its number within that process.
-    </p>
-    
-    <h3>Numbers</h3>
-    
-    <p>
-      The .NET number classes (int, float, etc) represent the corresponding
-      scheme number types. In addition, there are three scheme number classes
-      representing types of number that are part of the set of scheme types
-      but not available from .NET.
-    </p>
-    
-    <p>
-      These classes are <class>Rational</class>, <class>RationalComplex</class> and
-      <class>Complex</class>, which represent respectively an exact rational number,
-      an exact complex number and an inexact complex number.
-    </p>
-    
-    <p>
-      Note that presently a decimal is treated as an exact floating point number.
-      However, TameScheme is not presently capable of promoting it to a 
-      <class>Rational</class>, which limits its usefulness. (.NET 1.1 does
-      not appear to provide introspection functions that are required for this)
-    </p>
-    
-    <p>The number classes all implement the <interface>INumber</interface> interface
-    which provides a common means of manipulating them, in addition to some
-    class-specific functions.</p>
-    
-    <h3>Environments</h3>
-    
-    <h3>Unspecified values</h3>
-    
-    <h2>The Interpreter</h2>
-    
-    <h3>Read</h3>
-    
-    <h3>Eval</h3>
-    
-    <h3>Print</h3>
-    
-    <!--
-      
-      TODO: 'evaluatable' classes (and add the IEvaluate interface)
-      TODO: exceptions
-      TODO: threading
-      
-      -->
   </text>
 
   <footer>
     <p>
-      Email: <a href="mailto:andrew@software-tamed.co.uk">andrew@software-tamed.co.uk</a>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
     </p>
   </footer>
  </page>

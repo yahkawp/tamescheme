@@ -100,7 +100,7 @@
       
       <xsl:if test="descendant::topic[@name=$pagetopic]">
         <ul>
-          <xsl:apply-templates select="descendant::topic[@name=$pagetopic]" mode="menuchildren" />
+          <xsl:apply-templates select="descendant::topic[@name=$pagetopic]/../*" mode="menuchildren" />
         </ul>
       </xsl:if>
         
