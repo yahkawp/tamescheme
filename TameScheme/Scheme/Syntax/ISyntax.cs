@@ -37,10 +37,9 @@ namespace Tame.Scheme.Syntax
 		/// Builds an BExpression when the syntax element is matched with the given environment
 		/// </summary>
 		/// <param name="env">The syntax environment built while matching</param>
-		/// <param name="topLevel">The environment this expression is being built in</param>
-		/// <param name="localEnvironment">null, or the stub of the 'local' environment (extra symbols recently defined) the expression is being built in</param>
+		/// <param name="state">The current state of the compilation</param>
 		/// <param name="syntaxMatch">The index of the match in the Syntax object</param>
 		/// <returns>An BExpression for the syntax</returns>
-		Runtime.BExpression MakeExpression(SyntaxEnvironment env, Data.Environment topLevel, Data.Environment localEnvironment, int syntaxMatch);
+		Runtime.BExpression MakeExpression(SyntaxEnvironment env, Runtime.CompileState state, int syntaxMatch);
 	}
 }

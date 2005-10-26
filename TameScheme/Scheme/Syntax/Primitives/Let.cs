@@ -55,14 +55,16 @@ namespace Tame.Scheme.Syntax.Primitives
 		static Data.Symbol firstStatement = new Data.Symbol("firstStatement");
 		static Data.Symbol statements = new Data.Symbol("statements");
 
-		public BExpression MakeExpression(SyntaxEnvironment env, Tame.Scheme.Data.Environment topLevel, Data.Environment local, int syntaxMatch)
+		public BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
 			// First part of a let is to create and load the new environment
 			ArrayList loadEnvironment = new ArrayList();
 			SyntaxNode variables = env[variable].Parent;
 
 			// Create a new local environment for the expressions within the let statement
-			Data.Environment letLocal = new Data.Environment(local);
+			Data.Environment letLocal = new Data.Environment(state.Local);
+			CompileState letState = new CompileState(state);
+			letState.Local = letLocal;
 
 			// When the let is in a tail context, no new environment is pushed (but the previous environment is overwritten instead)
 
@@ -120,7 +122,7 @@ namespace Tame.Scheme.Syntax.Primitives
 					letLocal[varSym] = Data.Unspecified.Value;
 
 					// Evaluate this variable
-					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, topLevel, letLocal);
+					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, letState);
 					loadEnvironment.AddRange(varValueExpr.NonTail().expression);
 
 					// Store it for let* (for let and letrec, defer until we get to the later LoadEnvironment)
@@ -162,7 +164,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			while (statement != null)
 			{
 				// Evaluate lastStatement
-				letExpr = letExpr.Add(BExpression.BuildExpression(lastStatement, topLevel, letLocal).NonTail());
+				letExpr = letExpr.Add(BExpression.BuildExpression(lastStatement, letState).NonTail());
 
 				// Pop the result
 				letExpr = letExpr.Add(new Operation(Op.Pop));
@@ -173,7 +175,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// The very last statement is in tail context (and the result isn't popped)
-			letExpr = letExpr.Add(BExpression.BuildExpression(lastStatement, topLevel, letLocal));
+			letExpr = letExpr.Add(BExpression.BuildExpression(lastStatement, letState));
 
 			// Pop the environment we pushed
 			letExpr = letExpr.Add(new Operation(Op.PopEnvironment, null, true));

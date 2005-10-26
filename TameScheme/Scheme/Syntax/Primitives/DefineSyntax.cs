@@ -48,7 +48,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		#region ISyntax Members
 
-		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, Tame.Scheme.Data.Environment topLevel, Tame.Scheme.Data.Environment localEnvironment, int syntaxMatch)
+		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
 			// Get the name of the syntax we're defining
 			Symbol syntaxName = null;
@@ -104,7 +104,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				SyntaxElement thisMatcher = SyntaxElement.MakeElementFromScheme(matchPattern, literalList);
 
 				// Generate the transformation to produce this syntax
-				Transformation thisTransformer = new SyntaxCompiler(thisMatcher).Compile(matchTemplate, topLevel);
+				Transformation thisTransformer = new SyntaxCompiler(thisMatcher).Compile(matchTemplate, state.TopLevel);
 
 				// Add to our collection of results
 				syntaxMatchers.Add(thisMatcher);

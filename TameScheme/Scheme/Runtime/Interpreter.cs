@@ -261,7 +261,7 @@ namespace Tame.Scheme.Runtime
 		{
 			lock (this)
 			{
-				BExpression sexpr = BExpression.BuildExpression(expression, topLevel, null);
+				BExpression sexpr = BExpression.BuildExpression(expression, topLevel);
 
 				return Evaluate(sexpr);
 			}

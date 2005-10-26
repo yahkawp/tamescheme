@@ -47,7 +47,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		static long labelNumber = 0;
 
-		public Runtime.BExpression MakeExpression(SyntaxEnvironment env, Data.Environment topLevel, Data.Environment local, int syntaxMatch)
+		public Runtime.BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
 			object condObj = null;
 			object thenObj = null;
@@ -64,9 +64,9 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// Build the expressions for the various components
-			BExpression condExpr = BExpression.BuildExpression(condObj, topLevel, local);
-			BExpression thenExpr = BExpression.BuildExpression(thenObj, topLevel, local);
-			BExpression elseExpr = elseObj==Data.Unspecified.Value?null:BExpression.BuildExpression(elseObj, topLevel, local);
+			BExpression condExpr = BExpression.BuildExpression(condObj, state);
+			BExpression thenExpr = BExpression.BuildExpression(thenObj, state);
+			BExpression elseExpr = elseObj==Data.Unspecified.Value?null:BExpression.BuildExpression(elseObj, state);
 
 			// Labels for the various parts of the if
 			string thenLabel = "_then_" + labelNumber.ToString();

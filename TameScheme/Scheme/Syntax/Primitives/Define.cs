@@ -48,7 +48,7 @@ namespace Tame.Scheme.Syntax.Primitives
 		static Data.Symbol variableSymbol = new Data.Symbol("variable");
 		static Data.Symbol expressionSymbol = new Data.Symbol("expression");
 
-		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, Tame.Scheme.Data.Environment topLevel, Tame.Scheme.Data.Environment local, int syntaxMatch)
+		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
 			if (syntaxMatch == functionSyntax)
 			{
@@ -67,7 +67,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				if (!(variable is Data.Symbol)) throw new Exception.SyntaxError("Attempt to define an object (" + Runtime.Interpreter.ToString(variable) + ") that is not a symbol");
 
 				// The BExpression from evaluating the expression
-				BExpression expr = BExpression.BuildExpression(expression, topLevel, local).NonTail();
+				BExpression expr = BExpression.BuildExpression(expression, state).NonTail();
 
 				// The BExpression that defines the result and pushes the defined symbol onto the stack
 				Operation[] defineOps = new Operation[2];

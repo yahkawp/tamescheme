@@ -46,7 +46,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		#region ISyntax Members
 
-		public BExpression MakeExpression(SyntaxEnvironment env, Tame.Scheme.Data.Environment topLevel, Data.Environment local, int syntaxMatch)
+		public BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
 			// Load the argumetns from the frame
 			ArrayList lambdaOperations = new ArrayList();			// Initial operations in the lambda expression
@@ -56,7 +56,9 @@ namespace Tame.Scheme.Syntax.Primitives
 			object args = env[argsSymbol].Value;					// The 'args' syntax parameter
 
 			// Create a new local environment from the arguments
-			Data.Environment argumentEnvironment = new Data.Environment(local);
+			Data.Environment argumentEnvironment = new Data.Environment(state.Local);
+			CompileState lambdaState = new CompileState(state);
+			lambdaState.Local = argumentEnvironment;
 
 			// Read the list of arguments
 			while (args != null)
@@ -120,7 +122,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				}
 
 				// Compile the next statement
-				lastExpression = BExpression.BuildExpression(statement.Value, topLevel, argumentEnvironment);
+				lastExpression = BExpression.BuildExpression(statement.Value, lambdaState);
 
 				// Move to the next statement
 				statement = statement.Sibling;

@@ -45,7 +45,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		#region ISyntax Members
 
-		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, Tame.Scheme.Data.Environment topLevel, Tame.Scheme.Data.Environment localEnvironment, int syntaxMatch)
+		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
 			// Get the transformation to use
 			Transformation matchingTransformer = (Transformation)transformers[syntaxMatch];
@@ -53,14 +53,11 @@ namespace Tame.Scheme.Syntax.Primitives
 			// Perform the transformation
 			object translatedScheme = matchingTransformer.Transform(env.SyntaxTree);
 
-			// TODO: we need a unified binder (we shouldn't be creating a new one here)
-			Binder binder = new Binder();
-
 			// Rename any temporary variables
-			translatedScheme = binder.BindScheme(translatedScheme, topLevel);
+			translatedScheme = state.TemporaryBinder.BindScheme(translatedScheme, state.TopLevel);
 
 			// Compile the result
-			return BExpression.BuildExpression(translatedScheme, topLevel, localEnvironment);
+			return BExpression.BuildExpression(translatedScheme, state);
 		}
 
 		#endregion
