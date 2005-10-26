@@ -56,7 +56,7 @@ fi
 
 echo -n "*** Initialising $HTMLDIR "
 mkdir $HTMLDIR || exit 1
-cp -R $XMLDIR/* $HTMLDIR/
+cp -Ra $XMLDIR/* $HTMLDIR/
 echo "- Done."
 
 # Used to do things this way - it's slow, so I wrote a utility to do this

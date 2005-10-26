@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="using" layout="../../menu.xml">
+  <title>Software Tamed - Using TameScheme</title>
+
+  <text>
+    <h2>Using TameScheme</h2>
+    
+    <p>
+      These pages will detail the TameScheme language itself, focussing on
+      extensions to the 
+      <a href="http://www.schemers.org/Documents/Standards/R5RS/">R5RS</a>
+      specification. At present, the language itself is underdeveloped,
+      so there's not a lot of interest here yet.
+    </p>
+    
+    <p>
+      The current revision of TameScheme implements 'if' as a syntactical
+      element and '+' as a function, in addition to a mostly complete parser.
+      There's a simple test program that you can enter expressions into using
+      these constructs. While this is currently a very small subset of scheme,
+      it serves to test the framework on which the rest of the language will
+      be based.
+    </p>
+    
+    <h2>Future language revisions</h2>
+    
+    <p>
+      Once the R5RS specification is complete, or mostly complete, it is my
+      intention to add .NET specific extensions to scheme. Initially, these
+      will allow creation and manipulation of .NET objects, but the intention
+      is to eventually add a compiler capable of producing .NET classes.
+    </p>
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@software-tamed.co.uk">andrew@software-tamed.co.uk</a>
+    </p>
+  </footer>
+</page>

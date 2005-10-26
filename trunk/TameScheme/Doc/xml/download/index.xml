@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="download" layout="../../menu.xml">
+  <title>Software Tamed - Downloading TameScheme</title>
+
+  <text>
+    <h2>Stable releases</h2>
+    
+    <p>There are no stable releases yet</p>
+    
+    <h2>Developmental releases</h2>
+    
+    <p>There are no developmental releases yet</p>
+    
+    <h2>Snapshot</h2>
+    
+    <p>
+      You can retrieve the most recent version of the TameScheme source code
+      from the <a href="http://sourceforge.net/projects/tamescheme">CVS repository</a>,
+      hosted on SourceForge.
+    </p>
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@software-tamed.co.uk">andrew@software-tamed.co.uk</a>
+    </p>
+  </footer>
+ </page>
+ 
