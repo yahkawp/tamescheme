@@ -474,7 +474,7 @@ namespace Tame.Scheme.Syntax
 						list = (Data.Pair)currentMatch;
 
 						// Match this element against the last item
-						ellipsisItem.Match(list.Car, boundEnvironment, true);
+						if (!ellipsisItem.Match(list.Car, boundEnvironment, true)) return false;
 
 						// Move to the next element
 						currentMatch = list.Cdr;
