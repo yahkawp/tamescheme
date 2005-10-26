@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="developing" layout="../../menu.xml">
+  <title>Software Tamed - Developing TameScheme</title>
+
+  <text>
+  
+  <h2>Developing TameScheme</h2>
+  
+  <p>
+    These pages will provide details on developing extensions to TameScheme:
+    adding new functions or syntax with .NET and general scheme hacking.
+    Readers of this section should also consult the 'Embedding' section, which
+    describes how TameScheme and .NET usually talk to each other.
+  </p>
+  
+  <p>
+    This section will develop into a series of pages eventually, describing
+    the inner workings of TameScheme.
+  </p>
+  
+  <h3>BExpressions</h3>
+  
+  <p>
+    The <class>BExpression</class> class represents a 'compiled' BExpression, containing
+    operations in an intermediate language detailing how the expression
+    should be executed. Presently, BExpressions must be compiled in this way:
+    it's not possible to execute a scheme expression directly.
+  </p>
+  
+  <p>
+    BExpressions are built using '<method>BuildExpression</method>' static method: this has
+    two jobs: the compilation of 'simple' forms (such as symbols, function
+    calls, etc), and the recognition of syntax. Syntax forms build their own
+    BExpressions. lambda, for example, just creates an BExpression that pushes
+    the object representing the function onto the stack. if creates a more
+    complicated expression that performs a comparison.
+  </p>
+  
+  <p>
+    Syntax elements are expected to be in the Environment specified as a parameter
+    to the <method>BuildExpression</method> function. These are <class>SchemeSyntax</class> objects: this class
+    links together a <class>Syntax</class> object (describing the syntax patterns to match) and
+    an object implementing the <interface>ISyntax</interface> interface (describing the <class>BExpression</class> to
+    build for the specified syntax). <interface>ISyntax</interface> objects take a matched syntax
+    string and produce a <class>BExpression</class> that must leave a single object on the stack.
+  </p>
+  
+  <p>
+    Take the 'if' syntax, for example. This is defined with a SyntaxElement
+    representing the syntax <scheme>((cond then) (cond then else))</scheme>, and
+    the <class>If</class> <interface>ISyntax</interface> class. The <class>If</class>
+    class produces an <class>BExpression</class> that evaluates the BExpression, then eveluates the <scheme>then</scheme>
+    or <scheme>else</scheme> portions of the expression depending on the result.
+  </p>
+  
+  <h3>Operations</h3>
+  
+  <p>
+    Each <class>BExpression</class> consists of a list of operations. These are in effect 'one-address'
+    code. They consist of an operation from the <enum>Op</enum> enumeration, a parameter
+    and a <variable>canBeTail</variable> flag. The <variable>canBeTail</variable> flag
+    represents if the operation is at the 'tail' of an expression, and is used when
+    changing an BExpression to its tail context equivalent.
+  </p>
+  
+  <h3>SContinuations</h3>
+  
+  <p>
+    The <class>SContinuation</class> class has the job of evaluating <class>BExpression</class>s.
+    Normally, these are created automatically by the <class>Interpreter</class>, but there
+    may be circumstances where you need to create these manually.
+  </p>
+  
+  <p>
+    <class>SContinuation</class>s represent the scheme notion of a continuation. They contain the
+    state of the interpreter at a given point in an evaluation, and so can be cloned
+    and stored.
+  </p>
+  
+  <p>
+    The <interface>IContinuation</interface> is provided to allow alternative means of
+    implementing scheme expressions to be implemented. Eventual developments of this
+    might be a <class>CContinuation</class> class: 'compiled' continuation, or a
+    continuation in a .NET context. A continuation class that deals with scheme
+    expressions directly rather than in a semi-compiled form is also a possibility
+    (this would allow for 'recoverable' errors as found in many scheme systems.
+    However, some earlier experimentation with this was producing a very slow interpreter).
+  </p>
+  
+  <!-- 
+      TODO: full details on the syntax system. Operation dictionary. Writing procedures.
+      Tail expressions. BExpressions to and from scheme. Continuation frames and stacks.
+      Exceptions. SProcedures vs IProcedures.
+      
+      Mixing continuations. (ie, CContinuation -> SContinuation for example)
+    -->
+  
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@software-tamed.co.uk">andrew@software-tamed.co.uk</a>
+    </p>
+  </footer>
+ </page>
+ 

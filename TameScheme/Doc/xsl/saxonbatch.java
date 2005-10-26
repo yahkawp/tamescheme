@@ -89,7 +89,9 @@ public class saxonbatch {
         while (xmlFiles.size() > 0) {
             File theFile = (File)xmlFiles.getFirst();
             xmlFiles.removeFirst();
-            
+       		
+       		long originalModificationDate = theFile.lastModified();
+       		
             String outputFile = theFile.getAbsolutePath();
             outputFile = outputFile.substring(0, outputFile.length() - 4);
             outputFile = outputFile.concat(".html");
@@ -104,6 +106,9 @@ public class saxonbatch {
  
                 System.out.print("O");
                 System.out.flush();
+                
+                File outputResult = new File(outputFile);
+                outputResult.setLastModified(originalModificationDate);
             } catch (TransformerException e) {
                 Object details[] = { theFile, e };
                 transformerExceptions.addLast(details);

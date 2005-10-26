@@ -1,7 +1,23 @@
 <?xml version="1.0"?>
-<page topic="status" layout="../menu.xml">
+<page topic="about" layout="../menu.xml">
   <title>TameScheme</title>
 
   <text>
+    <h2>Welcome to TameScheme</h2>
+    
+    <p>
+      TameScheme is a Scheme interpreter written in C#. It is designed to
+      provide an easily-embeddable scheme interpreter for .NET projects
+      that wish to add scripting, as well as being a competent implementation
+      in its own right.
+    </p>
+    
+    <p>
+      At present, it is under development and implements a fairly limited subset
+      of the R5RS specification. The goal is to produce an interpreter with
+      complete R5RS compliance. You may also be interested in the 
+      <a href="http://sourceforge.net/projects/tamescheme">project page</a>
+      for TameScheme on SourceForge.
+    </p>
   </text>
 </page>

@@ -1,10 +1,6 @@
 <?xml version="1.0"?>
 <menu>
   <topic name="about" url="/index.html">
-    <topic name="status" url="/status.html" />
-    <topic name="news" url="/news.html">
-      <topic name="test"><topic name="test2"></topic></topic>
-    </topic>
   </topic>
   <topic name="using" url="/using/index.html"></topic>
   <topic name="embedding" url="/embedding/index.html">
