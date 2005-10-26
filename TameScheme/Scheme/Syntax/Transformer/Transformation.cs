@@ -291,7 +291,7 @@ namespace Tame.Scheme.Syntax.Transformer
 				}
 
 				// Sanity check
-				if (currentNode == null)
+				if (currentNode == null && syntaxTree.Child != null)
 				{
 					throw new InvalidOperationException("While transforming syntax: moved to a null node (this is a bug: either the syntax transformation code is bad, or was performed on a SyntaxNode generated from an incorrect pattern)");
 				}
