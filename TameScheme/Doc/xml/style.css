@@ -1,0 +1,143 @@
+/*
+ * TameScheme documentation stylesheet
+ *
+ * Written by Andrew Hunter
+ */
+
+/* General styles */
+
+body {
+  font-family: Andale Mono, Lucida Console, Courier, mono;
+  background: white;
+  font-size: 80%;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+  color: #000088
+}
+
+a.selected {
+  text-decoration: none;
+  color: #880000;
+}
+
+/* The header */
+
+div.heading {
+	text-align: center;
+  	margin-left: 13em;
+  	padding-left: 1px;
+  	padding-right: 24px;
+}
+
+div.heading p {
+	margin: 0;
+	padding: 0;
+}
+
+div.heading ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+div.heading ul li {
+	display: inline;
+}
+
+
+/* The sidebar */
+
+div.sidebar {
+  	margin: 0;
+  	padding-top: 3.5em;
+  	padding-left: 2em;
+  	padding-right: 0px;
+  	width: 13em;
+  	float: left;
+  	font-size: 90%;
+}
+
+div.sidebar ul {
+ 	list-style: none;
+  	margin-left: 0px;
+ 	padding-left: 0px;
+}
+
+div.sidebar ul ul {
+  	padding-left: 2em;
+}
+
+div.sidebar .topic {
+	font-size: 120%;
+}
+
+/* The body text */
+
+div.bodytext {
+  	margin-top: 20px;
+  	margin-left: 13em;
+  	padding-left: 1px;
+  	padding-right: 24px;
+	font-family: Trebuchet, Trebuchet MS, helvetica, arial;
+}
+
+div.bodytext_middle {
+  	padding: 8px;
+  	background: #F0FAFF
+}
+
+div.bodytext_middle p {
+	margin: 0px;
+	padding: 0px;
+	marigin-top: 1em;
+	margin-bottom: 1em;
+}
+
+div.bodytext_l {
+  	background: transparent url(imgs/content_l.gif) top left repeat-y;
+  	padding-left: 20px;
+}
+
+div.bodytext_r {
+  	background: transparent url(imgs/content_r.gif) top right repeat-y;
+  	padding-right: 20px;
+}
+
+div.bodytext_t {
+  	background: transparent url(imgs/content_t.gif) top left repeat-x;
+  	height: 20px;
+  	margin: 0px;
+  	padding-left: 0px;
+}
+
+div.bodytext_b {
+  	background: transparent url(imgs/content_b.gif) top left repeat-x;
+  	height: 20px;
+}
+
+div.bodytext_tl {
+  	background: transparent url(imgs/content_tl.gif) top left no-repeat;
+  	padding-left: 17px;
+}
+
+div.bodytext_tr {
+	background: transparent url(imgs/content_tr.gif) top right no-repeat;
+	padding-right: 20px;
+	height: 20px;
+}
+
+div.bodytext_bl {
+	background: transparent url(imgs/content_bl.gif) bottom left no-repeat;
+	padding-left: 20px;
+	height: 20px;
+}
+
+div.bodytext_br {
+	background: transparent url(imgs/content_br.gif) bottom right no-repeat;
+	padding-right: 20px;
+	height: 20px;
+}
