@@ -38,6 +38,7 @@ namespace Tame.Scheme.Runtime
 		Pop,							// pop - pops an object from the stack and discards it
 		Push,							// push a - pushes object a onto the stack
 		PushSymbol,						// push-symbol a - pushes the value of symbol number a onto the stack
+		PushLiteralSymbol,				// push-literal-symbol a - pushes the value of a from a specific environment onto the stack
 		PushFrameItem,					// push-frame-item a - pushes frame item a (an int) onto the stack
 		PushFrameList,					// push-frame-list a - pushes frame list a onto the stack (ie everything after a in the frame as a list)
 		Define,							// define a - defines a (a symbol) to the value of the top object on the stack
@@ -151,6 +152,7 @@ namespace Tame.Scheme.Runtime
 				case Op.PushFrameItem: opName = "push-frame-item"; break;
 				case Op.PushFrameList: opName = "push-frame-list"; break;
 				case Op.PushSymbol: opName = "push-symbol"; break;
+				case Op.PushLiteralSymbol: opName = "push-literal-symbol"; break;
 				case Op.Stop: opName = "stop"; break;
 				case Op.TailCallIProcedure: opName = "tail-call-iprocedure"; break;
 				case Op.UseEnvironment: opName = "use-environment"; break;

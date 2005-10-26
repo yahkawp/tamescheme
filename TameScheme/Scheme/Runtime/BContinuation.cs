@@ -157,6 +157,15 @@ namespace Tame.Scheme.Runtime
 							evaluationStack.Push(currentFrame.environment[(int)opArg]);
 							break;
 
+						case Op.PushLiteralSymbol:
+							object[] literalTuple = (object[])opArg;
+
+							int literalSymbolNumber = (int)literalTuple[0];
+							Data.Environment literalEnv = (Data.Environment)literalTuple[1];
+
+							evaluationStack.Push(literalEnv[literalSymbolNumber]);
+							break;
+
 						case Op.TailCallIProcedure:
 						case Op.CallIProcedure:
 							// Fetch the procedure object from the top of the stack
