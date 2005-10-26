@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="Numbers" layout="../../menu.xml">
+  <title>Numbers</title>
+
+  <text>    
+    <h2>Numbers</h2>
+    
+    <p>
+      The .NET number classes (int, float, etc) represent the corresponding
+      scheme number types. In addition, there are three scheme number classes
+      representing types of number that are part of the set of scheme types
+      but not available from .NET.
+    </p>
+    
+    <p>
+      These classes are <class>Rational</class>, <class>RationalComplex</class> and
+      <class>Complex</class>, which represent respectively an exact rational number,
+      an exact complex number and an inexact complex number.
+    </p>
+    
+    <p>
+      Note that presently a decimal is treated as an exact floating point number.
+      However, TameScheme is not presently capable of promoting it to a 
+      <class>Rational</class>, which limits its usefulness. (.NET 1.1 does
+      not appear to provide introspection functions that are required for this)
+    </p>
+    
+    <p>The number classes all implement the <interface>INumber</interface> interface
+    which provides a common means of manipulating them, in addition to some
+    class-specific functions.</p>    
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
+    </p>
+  </footer>
+ </page>
+ 

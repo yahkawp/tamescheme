@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="Pairs" layout="../../menu.xml">
+  <title>Pairs</title>
+
+  <text>
+    <h3>Pairs</h3>
+    
+    <p>
+      The <class>Pair</class> class represents a scheme pair. It consists of a
+      <variable>Car</variable> and a <variable>Cdr</variable> field, which can
+      both be any type of object. As far as Scheme itself is concerned, this is
+      all there is to a pair.
+    </p>
+    
+    <p>
+      However, a scheme pair has a few properties that can be better exposed via
+      .NET interfaces. Consequently, the <class>Pair</class> implements the
+      <interface>IList</interface>, allowing it to be used in many circumstances
+      where a .NET list class can be. There are some 'oddities' related to the
+      slightly differing nature of a Pair to a 'standard' .NET list which may
+      limit the usefulness of these functions.
+    </p>
+    
+    <p>
+      Improper lists are not .NET lists. For convienience, no error is generated
+      unless the 'improper' element is accessed, however, so improper lists may
+      be useful in some circumstances. Neither are self-referential lists: these
+      do not produce errors but may result in infinite loops in some cases.
+    </p>
+    
+    <p>
+      The .NET list interface is designed on the assumption that the 'list' is
+      contained by the class and is not (as in the case of Pairs) the class
+      itself. This means that it is not sensible to remove the only element
+      in a scheme list containing a single value. The .NET 'null' value
+      represents an empty list, and the scheme specification states that
+      an empty list is not a Pair. Use <code>myPair = myPair.Cdr</code> as code
+      to remove the first element in a list wherever you possibly can.
+    </p>
+    
+    <p>
+      Normally removing (or inserting) an element will just result in an elements
+      Cdr being changed, but this is not always possible, so some operations will
+      result in an element being overwritten. In particular, inserting or
+      removing at the beginning of a Pair list will result in the first element
+      being overwritten with the new value. The consequences are subtle, but
+      may be significant in some circumstances.
+    </p>
+    
+    <p align="center">
+      <img src="removing-cdrs.png" /><br />
+      <b>Consequences of removing parts of a Pair</b>
+    </p>
+    
+    <p>
+      Given the pair <scheme>(1 2 3)</scheme>, stored in the object <variable>somePair</variable>, 
+      the result of <code>somePair.Remove(1)</code> is that somePair.Cdr is changed
+      to point to <scheme>(3)</scheme> (the tail of the pair). <code>somePair.Cdr.Remove(0)</code>
+      however, has a new effect. It changes the pair representing <scheme>(2 3)</scheme>
+      (the Cdr of pair) with the pair <scheme>(3)</scheme>. <code>somePair.Cdr</code>
+      is NOT changed, but instead its value is modified.
+    </p>
+    
+    <p>
+      Pairs can be constructed from any object implementing the ICollection
+      interface. This produces a well-formed scheme list from the contents
+      of the collection.
+    </p>
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
+    </p>
+  </footer>
+ </page>
+ 

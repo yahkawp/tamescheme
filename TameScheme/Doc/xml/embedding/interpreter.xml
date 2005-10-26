@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="The Interpreter" layout="../../menu.xml">
+  <title>The Interpreter</title>
+
+  <text>
+  
+    <h2>The Interpreter</h2>
+    
+    <h3>Read</h3>
+    
+    <h3>Eval</h3>
+    
+    <h3>Print</h3>
+    
+    <!--
+      
+      TODO: 'evaluatable' classes (and add the IEvaluate interface)
+      TODO: exceptions
+      TODO: threading
+      
+      -->
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
+    </p>
+  </footer>
+</page>
+ 

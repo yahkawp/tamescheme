@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="Symbols" layout="../../menu.xml">
+  <title>Symbols</title>
+
+  <text>
+    <h2>
+      Symbols
+    </h2>
+    
+    <p>
+      The <class>Symbol</class> is used to represent scheme symbols. It effectively
+      contains a single number: a reference into the <class>SymbolTable</class>
+      class. There is only one symbol table per process: so each symbol is
+      uniquely identified by its number within that process.
+    </p>
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
+    </p>
+  </footer>
+ </page>
+ 

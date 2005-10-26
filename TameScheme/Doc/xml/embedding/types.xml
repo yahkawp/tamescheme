@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="Types" layout="../../menu.xml">
+  <title>Types</title>
+
+  <text>
+    <h2>Types</h2>
+    
+    <p>
+      TameScheme is based on .NETs own type system. Most .NET types make sense
+      to TameScheme, giving it a much richer set of types than most scheme
+      systems. Most types have no special meaning to the interpreter, but some
+      types have some specific meaning.
+    </p>
+    
+    <p>
+      The interpreter just passes 'unknown' types through; ie, the result of
+      evaluating a <class>DateTime</class> object, for example, is just the
+      <class>DateTime</class> object.
+    </p>
+    
+    <p>(An eventual extension will be the notion of 'evaluatable' classes
+    which can provide a different means of evaluation if they're encountered)</p>
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
+    </p>
+  </footer>
+ </page>
+ 
