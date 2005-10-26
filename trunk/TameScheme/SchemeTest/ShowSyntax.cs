@@ -20,7 +20,7 @@ namespace Tame.SchemeTest
 
 		#region ISyntax Members
 
-		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, Tame.Scheme.Data.Environment topLevel, Tame.Scheme.Data.Environment localEnvironment, int syntaxMatch)
+		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
 			BExpression res;
 
@@ -50,7 +50,7 @@ namespace Tame.SchemeTest
 
 				if (matcher.Match(matchAgainst, out newEnv))
 				{
-					Transformation syntaxTransformer = compiler.Compile(template, topLevel);
+					Transformation syntaxTransformer = compiler.Compile(template, state.TopLevel);
 
 					Console.Out.WriteLine(newEnv.SyntaxTree.ToString());
 					Console.Out.WriteLine(syntaxTransformer.ToString());
@@ -61,7 +61,7 @@ namespace Tame.SchemeTest
 
 					Binder testBinder = new Binder();
 
-					syntaxResult = testBinder.BindScheme(syntaxResult, topLevel);
+					syntaxResult = testBinder.BindScheme(syntaxResult, state.TopLevel);
 
 					res = new BExpression(new Operation(Op.Push, syntaxResult));
 				}

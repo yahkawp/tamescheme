@@ -254,12 +254,20 @@ namespace Tame.Scheme.Runtime
 
 		#region Building expressions
 
+		public static BExpression BuildExpression(object expression, Data.Environment topLevel)
+		{
+			CompileState state = new CompileState();
+
+			state.TopLevel = topLevel;
+
+			return BuildExpression(expression, state);
+		}
+
 		/// <summary>
 		/// Builds a scheme BExpression from a .NET object
 		/// </summary>
 		/// <param name="expression">The expression to build from</param>
-		/// <param name="topLevel">The top-level environment to build in</param>
-		/// <param name="local">The stub of the local environment the expression will execute in</param>
+		/// <param name="state">The environment to build the expression in</param>
 		/// <returns>A new BExpression object</returns>
 		/// <remarks>
 		/// A stub environment is one that contains entries for the symbols that will be defined, but where the definitions themselves are
@@ -271,7 +279,7 @@ namespace Tame.Scheme.Runtime
 		/// A future revision may define something to go in the 'local' environment (it is, in particular, only possible to determine that
 		/// a variable exists in a frame, not where it exists at the moment)
 		/// </remarks>
-		public static BExpression BuildExpression(object expression, Data.Environment topLevel, Data.Environment local)
+		public static BExpression BuildExpression(object expression, CompileState state)
 		{
 			// The array of operations that make up the new expression
 			ArrayList operations = new ArrayList();
@@ -308,9 +316,19 @@ namespace Tame.Scheme.Runtime
 
 				if (currentPair.Car is Data.Symbol)
 				{
-					if (topLevel.Contains((Data.Symbol)currentPair.Car))
+					if (state.TopLevel.Contains((Data.Symbol)currentPair.Car))
 					{
-						object maybeSyntax = topLevel[(Data.Symbol)currentPair.Car];
+						object maybeSyntax = state.TopLevel[(Data.Symbol)currentPair.Car];
+						if (maybeSyntax is Syntax.SchemeSyntax) syntax = (Syntax.SchemeSyntax)maybeSyntax;
+					}
+				}
+				else if (currentPair.Car is Data.LiteralSymbol)
+				{
+					Data.LiteralSymbol litSym = (Data.LiteralSymbol)(currentPair.Car);
+
+					if (litSym.Environment.Contains(litSym.Symbol))
+					{
+						object maybeSyntax = litSym.Environment[litSym.Symbol];
 						if (maybeSyntax is Syntax.SchemeSyntax) syntax = (Syntax.SchemeSyntax)maybeSyntax;
 					}
 				}
@@ -325,7 +343,7 @@ namespace Tame.Scheme.Runtime
 					if (match >= 0)
 					{
 						// Build the expression from the syntax
-						BExpression syntaxExpression = syntax.Implementation.MakeExpression(syntaxEnvironment, topLevel, local, match);
+						BExpression syntaxExpression = syntax.Implementation.MakeExpression(syntaxEnvironment, state, match);
 
 						operations.AddRange(syntaxExpression.expression);
 					}
@@ -353,7 +371,7 @@ namespace Tame.Scheme.Runtime
 					while (currentPair != null)
 					{
 						// Create the expression for the current pair Car value
-						BExpression pairExpr = BuildExpression(currentPair.Car, topLevel, local);
+						BExpression pairExpr = BuildExpression(currentPair.Car, state);
 
 						// Add the expresion
 						operations.AddRange(pairExpr.expression);
@@ -365,7 +383,7 @@ namespace Tame.Scheme.Runtime
 					}
 
 					// Push the procedure on to the stack
-					BExpression iprocedureExpr = BuildExpression(iprocedure.Car, topLevel, local);
+					BExpression iprocedureExpr = BuildExpression(iprocedure.Car, state);
 					operations.AddRange(iprocedureExpr.expression);
 
 					// Clear the 'tail' bit for each operation
