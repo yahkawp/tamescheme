@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# LogicalShift site builder
+# Site builder
 # Written by Andrew Hunter
 
 # Variables
@@ -43,7 +43,7 @@ fi
 
 # OKGO
 
-echo "LogicalShift site generator version 0.1"
+echo "Site generator version 0.2"
 echo "Written by Andrew Hunter"
 echo
 
@@ -82,8 +82,17 @@ echo "- Done."
 
 java -classpath $CLASSPATH saxonbatch $STYLESHEET $HTMLDIR
 
+echo
 echo -n "*** Erasing backup files "
 find ${HTMLDIR} -name "*~" -exec rm "{}" ";"
+echo "- Done."
+
+echo -n "*** Erasing CVS files "
+find ${HTMLDIR} -name "CVS" -type d -exec rm -r "{}" ";" 2>/dev/null
+echo "- Done."
+
+echo -n "*** Erasing invisible files "
+find ${HTMLDIR} -name ".*" -type f -exec rm "{}" ";"
 echo "- Done."
 
 echo
