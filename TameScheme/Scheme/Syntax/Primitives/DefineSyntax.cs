@@ -124,7 +124,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			Operation[] defineOps = new Operation[3];
 
 			defineOps[0] = new Operation(Op.Push, newSyntax);
-			defineOps[1] = new Operation(Op.Define, ((Data.Symbol)syntaxName).SymbolNumber);
+			defineOps[1] = new Operation(Op.DefineBinding, state.TopLevel.BindingForSymbol((Data.Symbol)syntaxName));
 			defineOps[2] = new Operation(Op.Push, (Data.Symbol)syntaxName);
 
 			return new BExpression(defineOps);

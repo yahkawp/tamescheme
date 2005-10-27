@@ -350,9 +350,19 @@ namespace Tame.Scheme.Runtime
 							currentFrame = (Frame)frameStack.Pop();
 							break;
 
+							/*
 						case Op.Define:
 							// Define the symbol in 'a'
 							currentFrame.environment[(int)opArg] = evaluationStack.Pop();
+							break;
+							*/
+
+						case Op.DefineBinding:
+							((Data.Environment.Binding)opArg).SetValue(evaluationStack.Pop());
+							break;
+
+						case Op.DefineRelative:
+							((Data.Environment.RelativeBinding)opArg).SetValueInEnvironment(currentFrame.environment, evaluationStack.Pop());
 							break;
 
 						default: throw new Exception.UnknownOperationException("Unknown operation: " +currentExpression.expr.expression[currentExpression.pc].ToString());
