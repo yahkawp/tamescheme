@@ -27,6 +27,8 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 
+// TODO: tail calls are completely broken. My idea was a bad one :-(
+
 namespace Tame.Scheme.Runtime
 {
 	/// <summary>
@@ -39,6 +41,7 @@ namespace Tame.Scheme.Runtime
 		// Basic operations
 		Pop,							// pop - pops an object from the stack and discards it
 		Push,							// push a - pushes object a onto the stack
+		PushContext,					// push-context a - pushes object a (which must implement IContextual) to the stack
 		PushBindingValue,				// push-binding-value a - pushes the value of a literal binding onto the stack
 		PushRelativeValue,				// push-relative-value a - pushes the value of a relative binding onto the stack
 		PushFrameItem,					// push-frame-item a - pushes frame item a (an int) onto the stack
@@ -239,23 +242,18 @@ namespace Tame.Scheme.Runtime
 				case Op.Branch: opName= "branch"; break;
 				case Op.BranchLabel: opName = "branch-label"; break;
 				case Op.Label: opName = "label"; break;
-				//case Op.LoadEnvironment: opName = "load-environment"; break;
-				//case Op.LoadStackEnvironment: opName = "load-stack-environment"; break;
-				//case Op.LoadEnvironmentList: opName = "load-environment-list"; break;
 				case Op.Nop: opName = "nop"; break;
 				case Op.Pop: opName = "pop"; break;
 				case Op.PopFrame: opName = "pop-frame"; break;
 				case Op.PopEnvironment: opName = "pop-environment"; break;
 				case Op.Push: opName = "push"; break;
+				case Op.PushContext: opName = "push-context"; break;
 				case Op.CreateEnvironment: opName = "create-environment"; break;
 				case Op.CreateAndLoadEnvironment: opName = "create-load-environment"; break;
 				case Op.CreateAndLoadEnvironmentList: opName = "create-load-environment-list"; break;
 				case Op.CreateAndLoadEnvironmentStack: opName = "create-load-environment-stack"; break;
-				//case Op.PushEnvironment: opName = "push-environment"; break;
 				case Op.PushFrameItem: opName = "push-frame-item"; break;
 				case Op.PushFrameList: opName = "push-frame-list"; break;
-				//case Op.PushSymbol: opName = "push-symbol"; break;
-				//case Op.PushLiteralSymbol: opName = "push-literal-symbol"; break;
 				case Op.PushBindingValue: opName = "push-binding-value"; break;
 				case Op.PushRelativeValue: opName = "push-relative-value"; break;
 				case Op.Stop: opName = "stop"; break;

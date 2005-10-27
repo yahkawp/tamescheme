@@ -1,6 +1,6 @@
 // +----------------------------------------------------------------------------+
 // |                               = TAMESCHEME =                               |
-// | Interpreted scheme procedure                                 BProcedure.cs |
+// | 'Contextual' objects                                        IContextual.cs |
 // +----------------------------------------------------------------------------+
 // | Copyright (c) 2005 Andrew Hunter                                           |
 // |                                                                            |
@@ -25,68 +25,29 @@
 
 using System;
 
-namespace Tame.Scheme.Procedure
+namespace Tame.Scheme.Runtime
 {
 	/// <summary>
-	/// BProcedure is a procedure implemented by a (interpreted) S-Expression
+	/// Contextual objects are scheme objects that need to know the environment they were in when they were defined.
 	/// </summary>
 	/// <remarks>
-	/// BProcedures are special-cased by the interpreter, but implement the IProcedure interface as well
+	/// Functions are the most classic example of a contextual object. These types of scheme object may be informed of
+	/// the current environment when they are pushed to the stack for the first time. You will usually need to define
+	/// an ISyntax object for creating them that uses the push-context operation at the appropriate moment.
 	/// </remarks>
-	public sealed class BProcedure : IProcedure, Runtime.IContextual
+	public interface IContextual
 	{
-		public BProcedure(Runtime.BExpression procedureDefinition)
-		{
-			this.procedureDefinition = procedureDefinition;
-		}
+		/// <summary>
+		/// Returns a copy of this object with the given context
+		/// </summary>
+		/// <param name="context">The environment representing the new context</param>
+		/// <returns>A new object with the specified context</returns>
+		IContextual PlaceInContext(Data.Environment context);
 
-		internal Runtime.BExpression procedureDefinition;
-
-		public Runtime.BExpression ProcedureDefinition
-		{
-			get
-			{
-				return procedureDefinition;
-			}
-		}
-
-		#region IProcedure Members
-
-		public object Call(Data.Environment env, ref object[] args)
-		{
-			// Create the environment for this procedure
-			Data.Environment procedureEnv = new Data.Environment(env);
-
-			// Build a continuation
-			Runtime.BContinuation cont = new Runtime.BContinuation(procedureDefinition, procedureEnv, args);
-
-			// Run it, and return the result
-			return cont.Continue();
-		}
-
-		#endregion
-
-		public override string ToString()
-		{
-			return procedureDefinition.ToString();
-		}
-
-		#region IContextual Members
-
-		Data.Environment env = null;
-
-		public Runtime.IContextual PlaceInContext(Data.Environment context)
-		{
-			// Construct a new procedure in the specified context (which has the same behaviour as this one)
-			BProcedure newProcedure = new BProcedure(procedureDefinition);
-			newProcedure.env = context;
-
-			// Return the result
-			return newProcedure;
-		}
-
-		public Data.Environment Environment { get { return env; } }
-
-		#endregion
+		
+		/// <summary>
+		/// The environment that represents the context of this object
+		/// </summary>
+		Data.Environment Environment { get; }
 	}
 }

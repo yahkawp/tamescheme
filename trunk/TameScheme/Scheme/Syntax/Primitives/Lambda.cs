@@ -29,8 +29,6 @@ using System.Collections;
 using Tame.Scheme.Procedure;
 using Tame.Scheme.Runtime;
 
-// TODO: quite important: this won't work ATM: (define oops (let ((x 1)) (lambda () x))) - the function produced will evaluate in the wrong environment!
-
 namespace Tame.Scheme.Syntax.Primitives
 {
 	/// <summary>
@@ -142,7 +140,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			lambdaExpression = lambdaExpression.RemoveNops();
 
 			// The BExpression result of a lambda expression is a new SProcecure
-			return new BExpression(new Operation(Op.Push, new BProcedure(lambdaExpression)));
+			return new BExpression(new Operation(Op.PushContext, new BProcedure(lambdaExpression)));
 		}
 
 		#endregion
