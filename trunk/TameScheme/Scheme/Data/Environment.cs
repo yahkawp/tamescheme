@@ -127,7 +127,7 @@ namespace Tame.Scheme.Data
 			}
 			set
 			{
-				envTable[symbol.SymbolNumber] = value;
+				this[symbol.SymbolNumber] = value;
 			}
 		}
 
@@ -224,14 +224,16 @@ namespace Tame.Scheme.Data
 		/// </remarks>
 		public struct Binding
 		{
-			internal Binding(ArrayList values, int offset)
+			internal Binding(Environment env, int offset, int symbolNumber)
 			{
-				this.values = values;
+				this.env = env;
 				this.offset = offset;
+				this.symbolNumber = symbolNumber;
 			}
 
 			int offset;
-			ArrayList values;
+			Environment env;
+			int symbolNumber;
 
 			/// <summary>
 			/// Gets/sets the value associated with this binding
@@ -240,12 +242,21 @@ namespace Tame.Scheme.Data
 			{
 				get
 				{
-					return values[offset];
+					return env.values[offset];
 				}
 				set
 				{
-					values[offset] = value;
+					env.values[offset] = value;
 				}
+			}
+
+			/// <summary>
+			/// Sets the value associated with this binding (works around a .NET bug, I think)
+			/// </summary>
+			/// <param name="value"></param>
+			public void SetValue(object value)
+			{
+				env.values[offset] = value;
 			}
 
 			/// <summary>
@@ -257,7 +268,7 @@ namespace Tame.Scheme.Data
 				{
 					Binding otherBinding = (Binding) obj;
 
-					return (otherBinding.offset==offset) && (otherBinding.values==values);
+					return (otherBinding.offset==offset) && (otherBinding.env==env);
 				}
 
 				return false;
@@ -265,7 +276,7 @@ namespace Tame.Scheme.Data
 
 			public override int GetHashCode()
 			{
-				return offset.GetHashCode()^values.GetHashCode();
+				return offset.GetHashCode()^env.values.GetHashCode();
 			}
 
 		}
@@ -350,7 +361,7 @@ namespace Tame.Scheme.Data
 		{
 			if (envTable.Contains(symbol.SymbolNumber))
 			{
-				return new Binding(values, (int)envTable[symbol.SymbolNumber]);
+				return new Binding(this, (int)envTable[symbol.SymbolNumber], symbol.SymbolNumber);
 			}
 			else
 			{
@@ -361,7 +372,7 @@ namespace Tame.Scheme.Data
 				else
 				{
 					this[symbol] = Unspecified.Value;
-					return new Binding(values, (int)envTable[symbol.SymbolNumber]);
+					return new Binding(this, (int)envTable[symbol.SymbolNumber], symbol.SymbolNumber);
 				}
 			}
 		}

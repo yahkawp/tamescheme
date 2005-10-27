@@ -41,7 +41,9 @@ namespace Tame.Scheme.Runtime
 		PushLiteralSymbol,				// push-literal-symbol a - pushes the value of a from a specific environment onto the stack
 		PushFrameItem,					// push-frame-item a - pushes frame item a (an int) onto the stack
 		PushFrameList,					// push-frame-list a - pushes frame list a onto the stack (ie everything after a in the frame as a list)
-		Define,							// define a - defines a (a symbol) to the value of the top object on the stack
+		//Define,							// define a - defines a (a symbol) to the value of the top object on the stack
+		DefineBinding,					// define-binding a - defines a (an Environment.Binding) to the value of the top object on the stack
+		DefineRelative,					// define-relative a - defines a (an Environment.RelativeBinding, relative to the current uppermost environment) to the value of the top object on the stack
 		CallIProcedure,					// call-iprocedure a - calls the scheme procedure on the top of the stack using a values from the stack as arguments. Pushes a new frame and environment. tail-call-iprocedure is the tail equivalent
 		PushEnvironment,				// push-environment - pushes a new, empty environment on to the stack
 		PopEnvironment,					// pop-environment - pops the last environment from the stack
@@ -134,7 +136,9 @@ namespace Tame.Scheme.Runtime
 			switch (operation)
 			{
 				case Op.CallIProcedure: opName = "call-iprocedure"; break;
-				case Op.Define: opName = "define"; break;
+				//case Op.Define: opName = "define"; break;
+				case Op.DefineBinding: opName = "define-binding"; break;
+				case Op.DefineRelative: opName = "define-relative"; break;
 				case Op.If: opName = "if"; break;
 				case Op.IfLabel: opName= "if-label"; break;
 				case Op.Branch: opName= "branch"; break;

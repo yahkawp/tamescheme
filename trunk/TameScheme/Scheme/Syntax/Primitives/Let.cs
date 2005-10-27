@@ -128,7 +128,7 @@ namespace Tame.Scheme.Syntax.Primitives
 					// Store it for let* (for let and letrec, defer until we get to the later LoadEnvironment)
 					if (letType == Type.LetStar)
 					{
-						loadEnvironment.Add(new Operation(Op.Define, varSym.SymbolNumber));
+						loadEnvironment.Add(new Operation(Op.DefineRelative, letLocal.RelativeBindingForSymbol(varSym)));
 					}
 					else
 					{
@@ -170,7 +170,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				letExpr = letExpr.Add(new Operation(Op.Pop));
 
 				// Move lastStatement on to the next statement
-				lastStatement = statement;
+				lastStatement = statement.Value;
 				statement = statement.Sibling;
 			}
 
