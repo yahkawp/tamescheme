@@ -104,52 +104,6 @@ namespace Tame.Scheme.Runtime
 		}
 
 		/// <summary>
-		/// Returns a variant of this expression which is not a tail expression
-		/// </summary>
-		/// <returns>The non-tail variant of this expression</returns>
-		public BExpression NonTail()
-		{
-			// Allocate the result
-			BExpression result = new BExpression();
-			result.expression = new Operation[expression.Length];
-
-			// Copy this expression to the new expression
-			int expr = 0;
-
-			foreach (Operation op in expression)
-			{
-				result.expression[expr++] = new Operation(op.operation, op.a, false);
-			}
-
-			return result;
-		}
-
-		/// <summary>
-		/// Returns a variant of this expression transformed to a tail expression
-		/// </summary>
-		/// <returns>The tail expression variant of this expression</returns>
-		public BExpression MakeTail()
-		{
-			// Build the new expression
-			BExpression result = new BExpression();
-			result.expression = new Operation[expression.Length];
-
-			// Copy this expression to the new expression, transforming to the tail context equivalent if necessary
-			int expr = 0;
-
-			foreach (Operation op in expression)
-			{
-				if (op.canBeTail)
-					result.expression[expr++] = op.MakeTail();
-				else
-					result.expression[expr++] = op;
-			}
-
-			// Return the result
-			return result;
-		}
-
-		/// <summary>
 		/// Replaces labels with Nops and BranchLabel and IfLabels with 
 		/// </summary>
 		/// <remarks>This is one of the few operations that alters the expression in place.</remarks>
@@ -242,7 +196,7 @@ namespace Tame.Scheme.Runtime
 					if (oldDest < mapping.Count) newDest = (int)mapping[oldDest];
 
 					// Create a new branch instruction to go with it
-					newExpression[opNum] = new Operation(op.operation, newDest - 1 - opNum, op.canBeTail);
+					newExpression[opNum] = new Operation(op.operation, newDest - 1 - opNum);
 				}
 			}
 
@@ -287,19 +241,19 @@ namespace Tame.Scheme.Runtime
 			// How the expression is evaluated depends on the type of expression
 			if (expression == null)
 			{
-				operations.Add(new Operation(Op.Push, null, true));
+				operations.Add(new Operation(Op.Push, null));
 			}
 			else if (expression is Data.Symbol)
 			{
 				// Symbols are fetched from the environment and pushed onto the evaluation stack
-				operations.Add(Operation.PushSymbol((Data.Symbol)expression, state, true));
+				operations.Add(Operation.PushSymbol((Data.Symbol)expression, state));
 			}
 			else if (expression is Data.LiteralSymbol)
 			{
 				// Literal symbols are fetched from a specific environment
 				Data.LiteralSymbol literal = (Data.LiteralSymbol)expression;
 
-				operations.Add(new Operation(Op.PushBindingValue, literal.Environment.BindingForSymbol(literal.Symbol), true));
+				operations.Add(new Operation(Op.PushBindingValue, literal.Environment.BindingForSymbol(literal.Symbol)));
 			}
 			else if (expression is Data.Pair)
 			{
@@ -386,17 +340,17 @@ namespace Tame.Scheme.Runtime
 					for (int x=0; x<opCount; x++)
 					{
 						Operation op = (Operation)operations[x];
-						operations[x] = new Operation(op.operation, op.a, false);
+						operations[x] = new Operation(op.operation, op.a);
 					}
 
 					// Perform the procedure call
-					operations.Add(new Operation(Op.CallIProcedure, count, true));
+					operations.Add(new Operation(Op.CallIProcedure, count));
 				}
 			}
 			else
 			{
 				// Default action is just to push the object onto the stack
-				operations.Add(new Operation(Op.Push, expression, true));
+				operations.Add(new Operation(Op.Push, expression));
 			}
 			
 			// operations now contains the list of operations that will make up the expression

@@ -119,7 +119,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 					// Evaluate this variable
 					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, letState);
-					loadEnvironment.AddRange(varValueExpr.NonTail().expression);
+					loadEnvironment.AddRange(varValueExpr.expression);
 
 					if (letType == Type.LetStar) letLocal[varSym] = Data.Unspecified.Value;
 
@@ -164,7 +164,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			while (statement != null)
 			{
 				// Evaluate lastStatement
-				lastExpr = BExpression.BuildExpression(lastStatement, letState).NonTail();
+				lastExpr = BExpression.BuildExpression(lastStatement, letState);
 				if (letExpr == null)
 					letExpr = lastExpr;
 				else
@@ -186,7 +186,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				letExpr = letExpr.Add(lastExpr);
 
 			// Pop the environment we pushed
-			letExpr = letExpr.Add(new Operation(Op.PopEnvironment, null, true));
+			letExpr = letExpr.Add(new Operation(Op.PopEnvironment, null));
 
 			// At this point, we know exactly what the environment will look like, so we can add the operation to build it
 			switch (letType)

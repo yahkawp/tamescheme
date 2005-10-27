@@ -78,21 +78,12 @@ namespace Tame.Scheme.Runtime
 		{
 			this.operation = operation;
 			this.a = null;
-			this.canBeTail = false;
 		}
 
 		public Operation(Op operation, object a)
 		{
 			this.operation = operation;
 			this.a = a;
-			this.canBeTail = false;
-		}
-
-		public Operation(Op operation, object a, bool canBeTail)
-		{
-			this.operation = operation;
-			this.a = a;
-			this.canBeTail = canBeTail;
 		}
 
 		#region Operation data structures
@@ -127,15 +118,15 @@ namespace Tame.Scheme.Runtime
 		/// <summary>
 		/// Given a compilation state and a symbol, produces a push-binding-value or push-relative-value operation as appropriate
 		/// </summary>
-		public static Operation PushSymbol(Data.Symbol symbol, CompileState state, bool canBeTail)
+		public static Operation PushSymbol(Data.Symbol symbol, CompileState state)
 		{
 			if (state.Local != null && state.Local.Contains(symbol))
 			{
-				return new Operation(Op.PushRelativeValue, state.Local.RelativeBindingForSymbol(symbol), canBeTail);
+				return new Operation(Op.PushRelativeValue, state.Local.RelativeBindingForSymbol(symbol));
 			}
 			else
 			{
-				return new Operation(Op.PushBindingValue, state.TopLevel.BindingForSymbol(symbol), canBeTail);
+				return new Operation(Op.PushBindingValue, state.TopLevel.BindingForSymbol(symbol));
 			}
 		}
 
@@ -200,31 +191,6 @@ namespace Tame.Scheme.Runtime
 		public object a;
 
 		/// <summary>
-		/// True if this operation can be a tail operation
-		/// </summary>
-		public bool canBeTail;
-
-		/// <summary>
-		/// Converts this operation to a tail-context version
-		/// </summary>
-		public Operation MakeTail()
-		{
-			// Normally, this is only called on operations with canBeTail set, but we allow it for any operation
-
-			// These are the operations that transform
-			switch (operation)
-			{
-				case Op.CallIProcedure: return new Operation(Op.TailCallIProcedure, a);			// Tail call procedures (replace instead of push frames)
-				//case Op.PushEnvironment: return new Operation(Op.Nop);							// In tail contexts, we don't push new environments (ie, let in a tail context)
-				case Op.PopEnvironment: return new Operation(Op.Nop);							// ... neither do we pop old ones (ie, let in a tail context)
-				case Op.PopFrame: return new Operation(Op.Nop);
-			}
-
-			// Default is no change
-			return this;
-		}
-
-		/// <summary>
 		/// Creates a string version of this operation
 		/// </summary>
 		public override string ToString()
@@ -234,7 +200,6 @@ namespace Tame.Scheme.Runtime
 			switch (operation)
 			{
 				case Op.CallIProcedure: opName = "call-iprocedure"; break;
-				//case Op.Define: opName = "define"; break;
 				case Op.DefineBinding: opName = "define-binding"; break;
 				case Op.DefineRelative: opName = "define-relative"; break;
 				case Op.If: opName = "if"; break;
@@ -266,7 +231,6 @@ namespace Tame.Scheme.Runtime
 			string res;
 
 			res = "(" + opName;
-			if (canBeTail) res += "*";
 			if (a != null) res += " " + Interpreter.ToString(a);
 
 			return res + ")";

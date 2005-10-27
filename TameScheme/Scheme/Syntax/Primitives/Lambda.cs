@@ -116,7 +116,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				if (lastExpression != null)
 				{
 					// Append the last expression to this expression
-					lambdaExpression = lambdaExpression.Add(lastExpression.NonTail());
+					lambdaExpression = lambdaExpression.Add(lastExpression);
 					
 					// Discard the result
 					lambdaExpression = lambdaExpression.Add(new Operation(Op.Pop));
@@ -130,7 +130,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// Append the last expression.
-			lambdaExpression = lambdaExpression.Add(lastExpression.MakeTail());
+			lambdaExpression = lambdaExpression.Add(lastExpression);
 
 			// Pop the stack before returning
 			lambdaExpression = lambdaExpression.Add(new Operation(Op.PopFrame));

@@ -75,7 +75,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			labelNumber++;
 
 			// Paste them together
-			BExpression result = condExpr.NonTail();										// Begin with the condition (which is not in a tail context)
+			BExpression result = condExpr;													// Begin with the condition (which is not in a tail context)
 
 			result = result.Add(new Operation(Op.IfLabel, thenLabel));						// Branch to the then clause if we're successful
 			if (elseExpr != null)	

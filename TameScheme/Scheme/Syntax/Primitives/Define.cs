@@ -67,7 +67,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				if (!(variable is Data.Symbol)) throw new Exception.SyntaxError("Attempt to define an object (" + Runtime.Interpreter.ToString(variable) + ") that is not a symbol");
 
 				// The BExpression from evaluating the expression
-				BExpression expr = BExpression.BuildExpression(expression, state).NonTail();
+				BExpression expr = BExpression.BuildExpression(expression, state);
 
 				// The BExpression that defines the result and pushes the defined symbol onto the stack
 				Operation[] defineOps = new Operation[2];
