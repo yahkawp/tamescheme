@@ -292,19 +292,14 @@ namespace Tame.Scheme.Runtime
 			else if (expression is Data.Symbol)
 			{
 				// Symbols are fetched from the environment and pushed onto the evaluation stack
-				operations.Add(new Operation(Op.PushSymbol, ((Data.Symbol)expression).SymbolNumber, true));
+				operations.Add(Operation.PushSymbol((Data.Symbol)expression, state, true));
 			}
 			else if (expression is Data.LiteralSymbol)
 			{
 				// Literal symbols are fetched from a specific environment
 				Data.LiteralSymbol literal = (Data.LiteralSymbol)expression;
 
-				object[] literalTuple = new object[2];
-
-				literalTuple[0] = literal.Symbol.SymbolNumber;
-				literalTuple[1] = literal.Environment;
-
-				operations.Add(new Operation(Op.PushLiteralSymbol, literalTuple, true));
+				operations.Add(new Operation(Op.PushBindingValue, literal.Environment.BindingForSymbol(literal.Symbol), true));
 			}
 			else if (expression is Data.Pair)
 			{
