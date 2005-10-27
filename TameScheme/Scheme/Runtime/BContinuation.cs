@@ -152,6 +152,7 @@ namespace Tame.Scheme.Runtime
 							evaluationStack.Push(currentFrame.args[(int)opArg]);
 							break;
 
+							/*
 						case Op.PushSymbol:
 							// Fetch the value of a symbol from the current environment
 							evaluationStack.Push(currentFrame.environment[(int)opArg]);
@@ -164,6 +165,15 @@ namespace Tame.Scheme.Runtime
 							Data.Environment literalEnv = (Data.Environment)literalTuple[1];
 
 							evaluationStack.Push(literalEnv[literalSymbolNumber]);
+							break;
+							*/
+
+						case Op.PushBindingValue:
+							evaluationStack.Push(((Data.Environment.Binding)opArg).Value);
+							break;
+
+						case Op.PushRelativeValue:
+							evaluationStack.Push(((Data.Environment.RelativeBinding)opArg).ValueInEnvironment(currentFrame.environment));
 							break;
 
 						case Op.TailCallIProcedure:

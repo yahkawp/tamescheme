@@ -37,8 +37,10 @@ namespace Tame.Scheme.Runtime
 		// Basic operations
 		Pop,							// pop - pops an object from the stack and discards it
 		Push,							// push a - pushes object a onto the stack
-		PushSymbol,						// push-symbol a - pushes the value of symbol number a onto the stack
-		PushLiteralSymbol,				// push-literal-symbol a - pushes the value of a from a specific environment onto the stack
+		PushBindingValue,				// push-binding-value a - pushes the value of a literal binding onto the stack
+		PushRelativeValue,				// push-relative-value a - pushes the value of a relative binding onto the stack
+		//PushSymbol,					// push-symbol a - pushes the value of symbol number a onto the stack
+		//PushLiteralSymbol,			// push-literal-symbol a - pushes the value of a from a specific environment onto the stack
 		PushFrameItem,					// push-frame-item a - pushes frame item a (an int) onto the stack
 		PushFrameList,					// push-frame-list a - pushes frame list a onto the stack (ie everything after a in the frame as a list)
 		//Define,							// define a - defines a (a symbol) to the value of the top object on the stack
@@ -90,6 +92,22 @@ namespace Tame.Scheme.Runtime
 			this.a = a;
 			this.canBeTail = canBeTail;
 		}
+
+		#region Factory methods
+
+		public static Operation PushSymbol(Data.Symbol symbol, CompileState state, bool canBeTail)
+		{
+			if (state.Local != null && state.Local.Contains(symbol))
+			{
+				return new Operation(Op.PushRelativeValue, state.Local.RelativeBindingForSymbol(symbol), canBeTail);
+			}
+			else
+			{
+				return new Operation(Op.PushBindingValue, state.TopLevel.BindingForSymbol(symbol), canBeTail);
+			}
+		}
+
+		#endregion
 
 		/// <summary>
 		/// The actual operation to perform
@@ -155,8 +173,10 @@ namespace Tame.Scheme.Runtime
 				case Op.PushEnvironment: opName = "push-environment"; break;
 				case Op.PushFrameItem: opName = "push-frame-item"; break;
 				case Op.PushFrameList: opName = "push-frame-list"; break;
-				case Op.PushSymbol: opName = "push-symbol"; break;
-				case Op.PushLiteralSymbol: opName = "push-literal-symbol"; break;
+				//case Op.PushSymbol: opName = "push-symbol"; break;
+				//case Op.PushLiteralSymbol: opName = "push-literal-symbol"; break;
+				case Op.PushBindingValue: opName = "push-binding-value"; break;
+				case Op.PushRelativeValue: opName = "push-relative-value"; break;
 				case Op.Stop: opName = "stop"; break;
 				case Op.TailCallIProcedure: opName = "tail-call-iprocedure"; break;
 				case Op.UseEnvironment: opName = "use-environment"; break;
