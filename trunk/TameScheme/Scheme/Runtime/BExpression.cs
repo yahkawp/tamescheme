@@ -110,7 +110,7 @@ namespace Tame.Scheme.Runtime
 		public void RemoveLabels()
 		{
 			// TODO: this should be an immutable operation, too
-			// TODO: we need an ExpressionBuilder class
+			// TODO: we need an ExpressionBuilder class (which should operate like StringBuilder)
 			int pc;
 
 			// First: get the locations of all the labels
@@ -311,6 +311,7 @@ namespace Tame.Scheme.Runtime
 					Data.Pair iprocedure = (Data.Pair)expression;
 
 					// Create expressions for each of the elements of the pair
+					CompileState argState = new CompileState(state, false);
 
 					// Skip the procedure node
 					if (currentPair.Cdr != null && !(currentPair.Cdr is Data.Pair)) throw new Exception.SyntaxError("Function call expressions must be a well-formed list");
@@ -320,7 +321,7 @@ namespace Tame.Scheme.Runtime
 					while (currentPair != null)
 					{
 						// Create the expression for the current pair Car value
-						BExpression pairExpr = BuildExpression(currentPair.Car, state);
+						BExpression pairExpr = BuildExpression(currentPair.Car, argState);
 
 						// Add the expresion
 						operations.AddRange(pairExpr.expression);
@@ -332,19 +333,14 @@ namespace Tame.Scheme.Runtime
 					}
 
 					// Push the procedure on to the stack
-					BExpression iprocedureExpr = BuildExpression(iprocedure.Car, state);
+					BExpression iprocedureExpr = BuildExpression(iprocedure.Car, argState);
 					operations.AddRange(iprocedureExpr.expression);
 
-					// Clear the 'tail' bit for each operation
-					int opCount = operations.Count;
-					for (int x=0; x<opCount; x++)
-					{
-						Operation op = (Operation)operations[x];
-						operations[x] = new Operation(op.operation, op.a);
-					}
-
 					// Perform the procedure call
-					operations.Add(new Operation(Op.CallIProcedure, count));
+					if (state.TailContext)
+						operations.Add(new Operation(Op.TailCallIProcedure, count));
+					else
+						operations.Add(new Operation(Op.CallIProcedure, count));
 				}
 			}
 			else

@@ -53,6 +53,9 @@ namespace Tame.Scheme.Syntax.Primitives
 			object thenObj = null;
 			object elseObj = Data.Unspecified.Value;
 
+			// The condition is not in a tail context
+			CompileState conditionState = new CompileState(state, false);
+
 			// 'cond' and 'then' always exist
 			condObj = env[condSym].Value;
 			thenObj = env[thenSym].Value;
@@ -64,7 +67,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// Build the expressions for the various components
-			BExpression condExpr = BExpression.BuildExpression(condObj, state);
+			BExpression condExpr = BExpression.BuildExpression(condObj, conditionState);
 			BExpression thenExpr = BExpression.BuildExpression(thenObj, state);
 			BExpression elseExpr = elseObj==Data.Unspecified.Value?null:BExpression.BuildExpression(elseObj, state);
 

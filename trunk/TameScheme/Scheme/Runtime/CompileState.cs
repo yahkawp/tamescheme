@@ -32,6 +32,15 @@ namespace Tame.Scheme.Runtime
 			this.tempBinder = oldState.tempBinder;
 			this.topLevel = oldState.topLevel;
 			this.local = oldState.local;
+			this.tailContext = oldState.tailContext;
+		}
+
+		public CompileState(CompileState oldState, bool tailContext)
+		{
+			this.tempBinder = oldState.tempBinder;
+			this.topLevel = oldState.topLevel;
+			this.local = oldState.local;
+			this.tailContext = tailContext;
 		}
 
 		#region Data
@@ -39,6 +48,7 @@ namespace Tame.Scheme.Runtime
 		Binder tempBinder = null;								// The temporary value binder in use
 		Data.Environment topLevel = null;						// The top-level environment (the environment in which the compile started)
 		Data.Environment local = null;							// The local environment (a 'stub' environment, used to establish which variables are defined and when)
+		bool tailContext = false;								// Whether or not this subexpression should be compiled in tail context
 
 		#endregion
 
@@ -82,6 +92,15 @@ namespace Tame.Scheme.Runtime
 		{
 			get { return local; }
 			set { local = value; }
+		}
+
+		/// <summary>
+		/// Retrieves if this state is in tail context or not
+		/// </summary>
+		/// <remarks>To place a state in tail context, you need to construct a new one (this is to prevent inadvertent use of the tail context)</remarks>
+		public bool TailContext
+		{
+			get { return tailContext; }
 		}
 
 		#endregion
