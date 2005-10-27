@@ -36,20 +36,42 @@ namespace Tame.Scheme.Data
 	{
 		public Environment()
 		{
+			envTable = new HybridDictionary();
+			values = new ArrayList();
 		}
 
 		public Environment(Environment parent)
 		{
+			envTable = new HybridDictionary();
+			values = new ArrayList();
+
+			this.parent = parent;
+		}
+
+		public Environment(HybridDictionary symbolsToOffsets, ICollection values, Environment parent)
+		{
+			this.envTable = symbolsToOffsets;
+			this.values = new ArrayList(values);
+
 			this.parent = parent;
 		}
 
 		#region Variables
 
 		/// <summary>
-		/// The environment table
+		/// The environment table. Maps symbol numbers to address locations
 		/// </summary>
-		/// <remarks>Normally the table is small (while evaluating a procedure, for example), but sometimes can become very large</remarks>
-		HybridDictionary envTable = new HybridDictionary();
+		/// <remarks>
+		/// Normally the table is small (while evaluating a procedure, for example), but sometimes can become very large.
+		/// 
+		/// The table may also be non-existent to create an anonymous environment.
+		/// </remarks>
+		HybridDictionary envTable = null;
+
+		/// <summary>
+		/// The array of values in this environment.
+		/// </summary>
+		ArrayList values = null;
 
 		/// <summary>
 		/// The environment this one should inherit from.
@@ -80,11 +102,17 @@ namespace Tame.Scheme.Data
 					}
 				}
 
-				return envTable[symbolNumber];
+				return values[(int)envTable[symbolNumber]];
 			}
 			set
 			{
-				envTable[symbolNumber] = value;
+				if (!envTable.Contains(symbolNumber)) 
+				{
+					envTable[symbolNumber] = values.Count;
+					values.Add(Unspecified.Value);
+				}
+
+				values[(int)envTable[symbolNumber]] = value;
 			}
 		}
 
@@ -123,7 +151,7 @@ namespace Tame.Scheme.Data
 		/// </summary>
 		public void Undefine(int symbolNumber)
 		{
-			envTable.Remove(symbolNumber);
+			values[(int)envTable[symbolNumber]] = Unspecified.Value;
 		}
 
 		/// <summary>
@@ -131,7 +159,7 @@ namespace Tame.Scheme.Data
 		/// </summary>
 		public void Undefine(Symbol symbol)
 		{
-			envTable.Remove(symbol.SymbolNumber);
+			Undefine(symbol.SymbolNumber);
 		}
 
 		/// <summary>
@@ -139,7 +167,7 @@ namespace Tame.Scheme.Data
 		/// </summary>
 		public void Undefine(string symbolName)
 		{
-			envTable.Remove(SymbolTable.NumberForSymbol(symbolName));
+			Undefine(SymbolTable.NumberForSymbol(symbolName));
 		}
 
 		/// <summary>
@@ -182,6 +210,195 @@ namespace Tame.Scheme.Data
 		public void Clear()
 		{
 			envTable = new HybridDictionary();
+		}
+
+		#endregion
+
+		#region Direct bindings
+
+		/// <summary>
+		/// Represents a concrete binding: the location of a symbol in an environment
+		/// </summary>
+		/// <remarks>
+		/// These are constructed by the Environment object only
+		/// </remarks>
+		public struct Binding
+		{
+			internal Binding(ArrayList values, int offset)
+			{
+				this.values = values;
+				this.offset = offset;
+			}
+
+			int offset;
+			ArrayList values;
+
+			/// <summary>
+			/// Gets/sets the value associated with this binding
+			/// </summary>
+			public object Value
+			{
+				get
+				{
+					return values[offset];
+				}
+				set
+				{
+					values[offset] = value;
+				}
+			}
+
+			/// <summary>
+			/// Returns true if two bindings refer to the same object
+			/// </summary>
+			public override bool Equals(object obj)
+			{
+				if (obj is Binding)
+				{
+					Binding otherBinding = (Binding) obj;
+
+					return (otherBinding.offset==offset) && (otherBinding.values==values);
+				}
+
+				return false;
+			}
+
+			public override int GetHashCode()
+			{
+				return offset.GetHashCode()^values.GetHashCode();
+			}
+
+		}
+
+		/// <summary>
+		/// RelativeBinding is a more fragile version of Binding. It defines where a symbol is bound relative to an environment, whereas Binding
+		/// defines an exact location. This makes it possible to apply it to another environment with the same structure (unlike Binding, which will
+		/// only ever refer to the same environment)
+		/// </summary>
+		public struct RelativeBinding
+		{
+			internal RelativeBinding(int parentCount, int offset, int symbolNumber)
+			{
+				this.parentCount = parentCount;
+				this.offset = offset;
+				this.symbolNumber = symbolNumber;
+			}
+
+			#region Variables
+
+			int offset;
+			int parentCount;
+			int symbolNumber;
+
+			public int SymbolNumber { get { return symbolNumber; } }
+			public Symbol Symbol { get { return new Symbol(symbolNumber); } }
+
+			#endregion
+
+			#region Getting the value
+
+			/// <summary>
+			/// Retrieves the value of this binding when applied to the given environment
+			/// </summary>
+			/// <param name="env">The environment to find the value of this binding in</param>
+			/// <returns>The value of this binding</returns>
+			public object ValueInEnvironment(Environment env)
+			{
+				for (int x=0; x<offset; x++) env = env.parent;
+				return env.values[offset];
+			}
+
+			/// <summary>
+			/// Sets the value of this binding when applied to the given environment
+			/// </summary>
+			public void SetValueInEnvironment(Environment env, object value)
+			{
+				for (int x=0; x<parentCount; x++) env = env.parent;
+				env.values[offset] = value;
+			}
+
+			#endregion
+
+			#region Equality
+
+			public override bool Equals(object obj)
+			{
+				if (obj is RelativeBinding)
+				{
+					RelativeBinding objBinding = (RelativeBinding)obj;
+
+					return objBinding.offset==offset && objBinding.parentCount==parentCount;
+				}
+
+				return false;
+			}
+
+			public override int GetHashCode()
+			{
+				return offset.GetHashCode() ^ parentCount.GetHashCode();
+			}
+
+			#endregion
+		}
+
+		/// <summary>
+		/// Retrieves the Binding for a specific symbol. This can be used for faster access.
+		/// </summary>
+		/// <returns>The binding representing the location where this symbol is bound to</returns>
+		/// <remarks>Nonexistent symbols are bound to the top-level environment</remarks>
+		public Binding BindingForSymbol(Data.Symbol symbol)
+		{
+			if (envTable.Contains(symbol.SymbolNumber))
+			{
+				return new Binding(values, (int)envTable[symbol.SymbolNumber]);
+			}
+			else
+			{
+				if (parent != null)
+				{
+					return parent.BindingForSymbol(symbol);
+				}
+				else
+				{
+					this[symbol] = Unspecified.Value;
+					return new Binding(values, (int)envTable[symbol.SymbolNumber]);
+				}
+			}
+		}
+
+		private RelativeBinding RelativeBindingForSymbol(Data.Symbol symbol, int count)
+		{
+			if (envTable.Contains(symbol.SymbolNumber))
+			{
+				return new RelativeBinding(count, (int)envTable[symbol.SymbolNumber], symbol.SymbolNumber);
+			}
+			else
+			{
+				if (parent != null)
+				{
+					return parent.RelativeBindingForSymbol(symbol, count+1);
+				}
+				else
+				{
+					this[symbol] = Unspecified.Value;
+					return new RelativeBinding(count, (int)envTable[symbol.SymbolNumber], symbol.SymbolNumber);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Finds the 'relative' binding for a specific symbol.
+		/// </summary>
+		/// <param name="symbol">The symbol to find the relative binding for</param>
+		/// <returns>The relative binding for the given symbol</returns>
+		/// <remarks>
+		/// 'Relative' bindings are less concrete than regular Bindings and depend on context. They can be evaluated in the context of another
+		/// environment, provided that environment has the same 'structure' (symbols allocated in the same location for this environment
+		/// and all its parents: you can guarantee this by defining the symbols in the same order when creating the environment(s))
+		/// </remarks>
+		public RelativeBinding RelativeBindingForSymbol(Data.Symbol symbol)
+		{
+			return RelativeBindingForSymbol(symbol, 0);
 		}
 
 		#endregion
