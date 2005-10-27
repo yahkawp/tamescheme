@@ -29,6 +29,10 @@ using System.Collections;
 using Tame.Scheme.Procedure;
 using Tame.Scheme.Runtime;
 
+// TODO: an optimisation: in tail context, let need not add a new environment, but can re-use the currect local one
+// I think this is unnecessary for tail calls to be correct at present (since the let environment is discarded when a contextual BProcedure is 
+// called) - however, it may save us some cycles when executing scheme
+
 namespace Tame.Scheme.Syntax.Primitives
 {
 	/// <summary>
@@ -64,7 +68,9 @@ namespace Tame.Scheme.Syntax.Primitives
 
 			// Create a new local environment for the expressions within the let statement
 			Data.Environment letLocal = new Data.Environment(state.Local);
-			CompileState letState = new CompileState(state);
+
+			// Create the compilation state for the let expressions
+			CompileState letState = new CompileState(state, false);
 			letState.Local = letLocal;
 
 			// Specify where the operation to actually create the environment should go (we don't know the full extent of it
@@ -178,8 +184,8 @@ namespace Tame.Scheme.Syntax.Primitives
 				statement = statement.Sibling;
 			}
 
-			// The very last statement is in tail context (and the result isn't popped)
-			lastExpr = BExpression.BuildExpression(lastStatement, letState);
+			// The very last statement may be in tail context (and the result isn't popped)
+			lastExpr = BExpression.BuildExpression(lastStatement, new CompileState(letState, state.TailContext));
 			if (letExpr == null)
 				letExpr = lastExpr;
 			else

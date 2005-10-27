@@ -57,7 +57,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 			// Create a new local environment from the arguments
 			Data.Environment argumentEnvironment = new Data.Environment(state.Local);
-			CompileState lambdaState = new CompileState(state);
+			CompileState lambdaState = new CompileState(state, false);
 			lambdaState.Local = argumentEnvironment;
 
 			// Read the list of arguments
@@ -108,6 +108,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			// Build the expression from the statements
 			BExpression lambdaExpression = new BExpression(lambdaOperations);
 			BExpression lastExpression = null;
+			CompileState tailState = new CompileState(lambdaState, true);
 
 			SyntaxNode statement = env[statementSymbol];
 
@@ -122,8 +123,11 @@ namespace Tame.Scheme.Syntax.Primitives
 					lambdaExpression = lambdaExpression.Add(new Operation(Op.Pop));
 				}
 
-				// Compile the next statement
-				lastExpression = BExpression.BuildExpression(statement.Value, lambdaState);
+				// Compile the next statement (in tail context if it's the last expression)
+				if (statement.Sibling == null)
+					lastExpression = BExpression.BuildExpression(statement.Value, tailState);
+				else
+					lastExpression = BExpression.BuildExpression(statement.Value, lambdaState);
 
 				// Move to the next statement
 				statement = statement.Sibling;
