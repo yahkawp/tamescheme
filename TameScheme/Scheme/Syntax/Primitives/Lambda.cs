@@ -29,6 +29,8 @@ using System.Collections;
 using Tame.Scheme.Procedure;
 using Tame.Scheme.Runtime;
 
+// TODO: quite important: this won't work ATM: (define oops (let ((x 1)) (lambda () x))) - the function produced will evaluate in the wrong environment!
+
 namespace Tame.Scheme.Syntax.Primitives
 {
 	/// <summary>
@@ -95,14 +97,15 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// Load the environment
-			int[] symbols = new int[arguments.Count];							// The parameter to LoadEnvironment/LoadEnvironmentList is a list of symbol numbers
+			Data.Symbol[] symbols = new Data.Symbol[arguments.Count];
 
 			for (int x=0; x<arguments.Count; x++)
 			{
-				symbols[x] = ((Data.Symbol)arguments[x]).SymbolNumber;
+				symbols[x] = (Data.Symbol)arguments[x];
 			}
 
-			lambdaOperations.Add(new Operation(lastIsAList?Op.LoadEnvironmentList:Op.LoadEnvironment, symbols, false));
+			// TODO: define, let in a tail context might introduce new arguments: we need to define this later
+			lambdaOperations.Add(Operation.CreateLoadEnvironment(argumentEnvironment, symbols, lastIsAList, false));
 
 			// Build the expression from the statements
 			BExpression lambdaExpression = new BExpression(lambdaOperations);

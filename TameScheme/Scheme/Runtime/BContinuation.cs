@@ -125,6 +125,8 @@ namespace Tame.Scheme.Runtime
 		{
 			lock (this)
 			{
+				object[] newValues = null;
+
 				// Run this continuation
 				for (;currentExpression!=null; currentExpression.pc++)
 				{
@@ -316,6 +318,7 @@ namespace Tame.Scheme.Runtime
 							// Do nothing
 							break;
 
+							/*
 						case Op.LoadEnvironment:
 						{
 							// Load values into the current environment from the frame
@@ -343,6 +346,47 @@ namespace Tame.Scheme.Runtime
 						case Op.PushEnvironment:
 							// Push a new environment
 							currentFrame.environment = new Data.Environment(currentFrame.environment);
+							break;
+							*/
+
+						case Op.CreateEnvironment:
+							// Push a new environment, with the specified contents
+							Operation.NewEnvironment envDetails;
+							
+							envDetails = (Operation.NewEnvironment)opArg;
+
+							// Construct the values that go in the new environment
+							newValues = new object[envDetails.numberOfValues];
+							for (int val=0; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+
+							// Create the environment
+							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
+							break;
+
+						case Op.CreateAndLoadEnvironment:
+							// Push a new environment, with the specified contents
+							envDetails = (Operation.NewEnvironment)opArg;
+
+							// Construct the values that go in the new environment
+							newValues = new object[envDetails.numberOfValues];
+							for (int val=0; val<envDetails.numberToLoad; val++) newValues[val] = currentFrame.args[val];
+							for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+
+							// Create the environment
+							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
+							break;
+
+						case Op.CreateAndLoadEnvironmentStack:
+							// Push a new environment, with the specified contents
+							envDetails = (Operation.NewEnvironment)opArg;
+
+							// Construct the values that go in the new environment
+							newValues = new object[envDetails.numberOfValues];
+							for (int val=0; val<envDetails.numberToLoad; val++) newValues[val] = evaluationStack.Pop();
+							for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+
+							// Create the environment
+							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
 							break;
 
 						case Op.PopEnvironment:

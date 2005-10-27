@@ -24,6 +24,8 @@
 // +----------------------------------------------------------------------------+
 
 using System;
+using System.Collections;
+using System.Collections.Specialized;
 
 namespace Tame.Scheme.Runtime
 {
@@ -47,13 +49,17 @@ namespace Tame.Scheme.Runtime
 		DefineBinding,					// define-binding a - defines a (an Environment.Binding) to the value of the top object on the stack
 		DefineRelative,					// define-relative a - defines a (an Environment.RelativeBinding, relative to the current uppermost environment) to the value of the top object on the stack
 		CallIProcedure,					// call-iprocedure a - calls the scheme procedure on the top of the stack using a values from the stack as arguments. Pushes a new frame and environment. tail-call-iprocedure is the tail equivalent
-		PushEnvironment,				// push-environment - pushes a new, empty environment on to the stack
+		//PushEnvironment,				// push-environment - pushes a new, empty environment on to the stack
 		PopEnvironment,					// pop-environment - pops the last environment from the stack
 		UseEnvironment,					// use-environment a - a (an environment) is 'used' in addition to the current environment (ie, treated as an additional parent environment)
 		PopFrame,						// pop-frame - removes the currently topmost frame from the frame stack. Tail equivalent is a nop.
-		LoadEnvironment,				// load-environment a - a (an array of integers - int[]) is a list of symbol numbers. These are loaded from the frame into the current environment
-		LoadStackEnvironment,			// load-stack-environment a - a (an array of integers - int[]) is a list of symbol numbers. These are loaded from the stack into the current environment
-		LoadEnvironmentList,			// load-environment-list a - as for load-environment, but the last value
+		//LoadEnvironment,				// load-environment a - a (an array of integers - int[]) is a list of symbol numbers. These are loaded from the frame into the current environment
+		//LoadStackEnvironment,			// load-stack-environment a - a (an array of integers - int[]) is a list of symbol numbers. These are loaded from the stack into the current environment
+		//LoadEnvironmentList,			// load-environment-list a - as for load-environment, but the last value
+		CreateEnvironment,				// create-environment a - a (an Operation.NewEnvironment) is used as a template to create a new environment
+		CreateAndLoadEnvironment,		// create-and-load-environment a - a (an Operation.NewEnvironment) is used as a template to create a new environment and load the initial values from the frame
+		CreateAndLoadEnvironmentList,	// create-and-load-environment-list a - as for create-and-load-environment, except any values on the end of the frame are stored as a list
+		CreateAndLoadEnvironmentStack,	// create-and-load-environment a - as for create-and-load-environment, except values are taken from the stack
 		Stop,							// stop - stop executing this S-Expression
 
 		// Flow control operations
@@ -93,8 +99,38 @@ namespace Tame.Scheme.Runtime
 			this.canBeTail = canBeTail;
 		}
 
+		#region Operation data structures
+
+		/// <summary>
+		/// Argument to the create-*-environment operations
+		/// </summary>
+		public sealed class NewEnvironment
+		{
+			/// <summary>
+			/// Constructs a NewEnvironment class.
+			/// </summary>
+			/// <param name="symbols">A dictionary mapping symbol numbers to offsets in the value table</param>
+			/// <param name="numberOfValues">The initial length of the value table</param>
+			/// <param name="numberToLoad">The number of values to load from the frame/stack</param>
+			public NewEnvironment(HybridDictionary symbols, int numberOfValues, int numberToLoad)
+			{
+				this.symbols = symbols;
+				this.numberOfValues = numberOfValues;
+				this.numberToLoad = numberToLoad;
+			}
+
+			internal HybridDictionary symbols;
+			internal int numberOfValues;
+			internal int numberToLoad;
+		}
+
+		#endregion
+
 		#region Factory methods
 
+		/// <summary>
+		/// Given a compilation state and a symbol, produces a push-binding-value or push-relative-value operation as appropriate
+		/// </summary>
 		public static Operation PushSymbol(Data.Symbol symbol, CompileState state, bool canBeTail)
 		{
 			if (state.Local != null && state.Local.Contains(symbol))
@@ -105,6 +141,54 @@ namespace Tame.Scheme.Runtime
 			{
 				return new Operation(Op.PushBindingValue, state.TopLevel.BindingForSymbol(symbol), canBeTail);
 			}
+		}
+
+		/// <summary>
+		/// Produces a create-environment operation suitable for constructing an environment like the template (only the uppermost environment is considered)
+		/// </summary>
+		public static Operation CreateEnvironment(Data.Environment template)
+		{
+			HybridDictionary symbols = template.CopySymbols();
+			
+			// Ideally, we want symbols to be read-only, but .NET is uncertain on the concept of immutabilty
+
+			return new Operation(Op.CreateEnvironment, new NewEnvironment(symbols, template.Size, 0));
+		}
+
+		/// <summary>
+		/// Produces a create-load-environment operation suitable for constructing an environment like the template (only the uppermost environment is considered)
+		/// </summary>
+		/// <param name="template">The environment to emulate when creating the new environment</param>
+		/// <param name="variableSymbols">List of Symbols making up the environment</param>
+		/// <param name="isList">If true, stack must be false. Last variable is loaded as a list of remaining values from the frame.</param>
+		/// <param name="stack">If true, isList must be false. Values are loaded from the stack</param>
+		/// <returns>A create-load-environment operation</returns>
+		/// <remarks>
+		/// variableSymbols is primarily used for sanity checking. If in the template you created 'a' then 'b', you must load them in the
+		/// same order.
+		/// </remarks>
+		public static Operation CreateLoadEnvironment(Data.Environment template, IList variableSymbols, bool isList, bool stack)
+		{
+			HybridDictionary symbols = template.CopySymbols();
+
+			// Sanity check
+			for (int desiredOffset=0; desiredOffset<variableSymbols.Count; desiredOffset++)
+			{
+				int symbolNumber = ((Data.Symbol)variableSymbols[desiredOffset]).SymbolNumber;
+				int realOffset = (int)symbols[symbolNumber];
+
+				if (realOffset != desiredOffset)
+					throw new InvalidOperationException("Variables must be loaded into an environment in the order in which they were created");
+			}
+
+			// Create the operation
+			Op op = Op.CreateAndLoadEnvironment;
+			if (isList)
+				op = Op.CreateAndLoadEnvironmentList;
+			else if (stack)
+				op = Op.CreateAndLoadEnvironmentStack;
+
+			return new Operation(op, new NewEnvironment(symbols, template.Size, variableSymbols.Count));
 		}
 
 		#endregion
@@ -135,7 +219,7 @@ namespace Tame.Scheme.Runtime
 			switch (operation)
 			{
 				case Op.CallIProcedure: return new Operation(Op.TailCallIProcedure, a);			// Tail call procedures (replace instead of push frames)
-				case Op.PushEnvironment: return new Operation(Op.Nop);							// In tail contexts, we don't push new environments (ie, let in a tail context)
+				//case Op.PushEnvironment: return new Operation(Op.Nop);							// In tail contexts, we don't push new environments (ie, let in a tail context)
 				case Op.PopEnvironment: return new Operation(Op.Nop);							// ... neither do we pop old ones (ie, let in a tail context)
 				case Op.PopFrame: return new Operation(Op.Nop);
 			}
@@ -162,15 +246,19 @@ namespace Tame.Scheme.Runtime
 				case Op.Branch: opName= "branch"; break;
 				case Op.BranchLabel: opName = "branch-label"; break;
 				case Op.Label: opName = "label"; break;
-				case Op.LoadEnvironment: opName = "load-environment"; break;
-				case Op.LoadStackEnvironment: opName = "load-stack-environment"; break;
-				case Op.LoadEnvironmentList: opName = "load-environment-list"; break;
+				//case Op.LoadEnvironment: opName = "load-environment"; break;
+				//case Op.LoadStackEnvironment: opName = "load-stack-environment"; break;
+				//case Op.LoadEnvironmentList: opName = "load-environment-list"; break;
 				case Op.Nop: opName = "nop"; break;
 				case Op.Pop: opName = "pop"; break;
 				case Op.PopFrame: opName = "pop-frame"; break;
 				case Op.PopEnvironment: opName = "pop-environment"; break;
 				case Op.Push: opName = "push"; break;
-				case Op.PushEnvironment: opName = "push-environment"; break;
+				case Op.CreateEnvironment: opName = "create-environment"; break;
+				case Op.CreateAndLoadEnvironment: opName = "create-load-environment"; break;
+				case Op.CreateAndLoadEnvironmentList: opName = "create-load-environment-list"; break;
+				case Op.CreateAndLoadEnvironmentStack: opName = "create-load-environment-stack"; break;
+				//case Op.PushEnvironment: opName = "push-environment"; break;
 				case Op.PushFrameItem: opName = "push-frame-item"; break;
 				case Op.PushFrameList: opName = "push-frame-list"; break;
 				//case Op.PushSymbol: opName = "push-symbol"; break;
