@@ -222,7 +222,7 @@ namespace Tame.Scheme.Data
 		/// <remarks>
 		/// These are constructed by the Environment object only
 		/// </remarks>
-		public struct Binding
+		public class Binding
 		{
 			internal Binding(Environment env, int offset, int symbolNumber)
 			{
@@ -286,7 +286,7 @@ namespace Tame.Scheme.Data
 		/// defines an exact location. This makes it possible to apply it to another environment with the same structure (unlike Binding, which will
 		/// only ever refer to the same environment)
 		/// </summary>
-		public struct RelativeBinding
+		public class RelativeBinding
 		{
 			internal RelativeBinding(int parentCount, int offset, int symbolNumber)
 			{
@@ -308,6 +308,11 @@ namespace Tame.Scheme.Data
 
 			#region Getting the value
 
+			public override string ToString()
+			{
+				return string.Format("Relative {0} ^{1} ->{2}", Data.SymbolTable.SymbolForNumber(symbolNumber), parentCount, offset);
+			}
+
 			/// <summary>
 			/// Retrieves the value of this binding when applied to the given environment
 			/// </summary>
@@ -315,7 +320,7 @@ namespace Tame.Scheme.Data
 			/// <returns>The value of this binding</returns>
 			public object ValueInEnvironment(Environment env)
 			{
-				for (int x=0; x<offset; x++) env = env.parent;
+				for (int x=0; x<parentCount; x++) env = env.parent;
 				return env.values[offset];
 			}
 
@@ -410,6 +415,32 @@ namespace Tame.Scheme.Data
 		public RelativeBinding RelativeBindingForSymbol(Data.Symbol symbol)
 		{
 			return RelativeBindingForSymbol(symbol, 0);
+		}
+
+		/// <summary>
+		/// Constructs a copy of the symbol -> location dictionary used by this environment.
+		/// </summary>
+		/// <returns>A copy of the symbol dictionary</returns>
+		/// <remarks>This can be used to quickly construct environments with a similar structure to this one</remarks>
+		public HybridDictionary CopySymbols()
+		{
+			// Slow, but .NET seems to think that dictionaries aren't copyable. Sigh.
+			HybridDictionary newDictionary = new HybridDictionary();
+
+			foreach (int symbolNumber in envTable.Keys)
+			{
+				newDictionary[symbolNumber] = envTable[symbolNumber];
+			}
+
+			return newDictionary;
+		}
+
+		/// <summary>
+		/// The 'size' of this environment (number of defined values)
+		/// </summary>
+		public int Size
+		{
+			get { return values.Count; }
 		}
 
 		#endregion

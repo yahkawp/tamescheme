@@ -60,25 +60,29 @@ namespace Tame.Scheme.Syntax.Primitives
 			// First part of a let is to create and load the new environment
 			ArrayList loadEnvironment = new ArrayList();
 			SyntaxNode variables = env[variable].Parent;
+			ArrayList symbols = new ArrayList();
 
 			// Create a new local environment for the expressions within the let statement
 			Data.Environment letLocal = new Data.Environment(state.Local);
 			CompileState letState = new CompileState(state);
 			letState.Local = letLocal;
 
+			// Specify where the operation to actually create the environment should go (we don't know the full extent of it
+			// until after we've compiled all the expressions)
+			int newEnvironmentOpPos = -1;			
+
 			// When the let is in a tail context, no new environment is pushed (but the previous environment is overwritten instead)
 
-			// For let*, letrec, push the environment now
-			if (letType == Type.LetStar || letType == Type.Letrec)
+			// For let* we create the environment immediately
+			if (letType == Type.LetStar)
 			{
-				loadEnvironment.Add(new Operation(Op.PushEnvironment, null, true));
+				newEnvironmentOpPos = 0;
 			}
 
 			// Evaluate the variable expressions in turn
 			if (variables != null)
 			{
 				// (Used for let expressions: the eventual list to use with LoadEnvironment)
-				ArrayList symbols = new ArrayList();
 				SyntaxNode thisVariable = variables;
 
 				// For letrec, load undefined values first
@@ -92,11 +96,8 @@ namespace Tame.Scheme.Syntax.Primitives
 						Data.Symbol varSym = (Data.Symbol)thisVariable.Child.Value;
 
 						// Push an undefined value
-						loadEnvironment.Add(new Operation(Op.Push, Data.Unspecified.Value));
+						// loadEnvironment.Add(new Operation(Op.Push, Data.Unspecified.Value));
 						letLocal[(Data.Symbol)varSym] = Data.Unspecified.Value;
-
-						// Store it for let* and letrec (for let, defer until we get to the later LoadEnvironment)
-						symbols.Add(varSym.SymbolNumber);
 
 						// Move on
 						thisVariable = thisVariable.Sibling;
@@ -104,12 +105,8 @@ namespace Tame.Scheme.Syntax.Primitives
 
 					thisVariable = variables;
 
-					// Load the undefined values
-					int[] loadList = new int[symbols.Count];
-					symbols.CopyTo(loadList);
-					loadEnvironment.Add(new Operation(Op.LoadStackEnvironment, loadList));
-
-					symbols.Clear();
+					// This is the point where the environment is created
+					newEnvironmentOpPos = loadEnvironment.Count;
 				}
 
 				// Actually evaluate the values
@@ -119,44 +116,47 @@ namespace Tame.Scheme.Syntax.Primitives
 					if (!(thisVariable.Child.Value is Data.Symbol)) throw new Exception.SyntaxError("Variables in a let statement must be symbols (found " + Runtime.Interpreter.ToString(thisVariable.Child.Value) + ")");
 
 					Data.Symbol varSym = (Data.Symbol)thisVariable.Child.Value;
-					letLocal[varSym] = Data.Unspecified.Value;
 
 					// Evaluate this variable
 					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, letState);
 					loadEnvironment.AddRange(varValueExpr.NonTail().expression);
 
+					if (letType == Type.LetStar) letLocal[varSym] = Data.Unspecified.Value;
+
 					// Store it for let* (for let and letrec, defer until we get to the later LoadEnvironment)
-					if (letType == Type.LetStar)
+					if (letType == Type.LetStar || letType == Type.Letrec)
 					{
 						loadEnvironment.Add(new Operation(Op.DefineRelative, letLocal.RelativeBindingForSymbol(varSym)));
 					}
-					else
+					else if (letType == Type.Let)
 					{
-						symbols.Insert(0, varSym.SymbolNumber);
+						symbols.Insert(0, varSym);
 					}
 
 					thisVariable = thisVariable.Sibling;
 				}
 
-				// For let, this is the point at which we push a new environment
-				if (letType == Type.Let) loadEnvironment.Add(new Operation(Op.PushEnvironment, null, true));
-
-				// For let and letrec, load the symbols from the stack
-				if (letType == Type.Let || letType == Type.Letrec)
+				// For let, now the symbols become visible in letLocal
+				if (letType == Type.Let)
 				{
-					int[] loadList = new int[symbols.Count];
-					symbols.CopyTo(loadList);
-					loadEnvironment.Add(new Operation(Op.LoadStackEnvironment, loadList));
+					foreach (Data.Symbol symbol in symbols)
+					{
+						letLocal[symbol] = Data.Unspecified.Value;
+					}
 				}
+
+				// For let, this is the point at which we push a new environment
+				if (letType == Type.Let) newEnvironmentOpPos = loadEnvironment.Count;
 			}
 			else if (letType == Type.Let)
 			{
 				// For let, push an empty environment (this won't otherwise be done)
-				loadEnvironment.Add(new Operation(Op.PushEnvironment, null, true));
+				newEnvironmentOpPos = loadEnvironment.Count;
 			}
 
 			// loadEnvironment now contains the expression to set up the environment for this let statement
-			BExpression letExpr = new BExpression(loadEnvironment);
+			BExpression letExpr = null;
+			BExpression lastExpr = null;
 			object lastStatement = env[firstStatement].Value;
 			SyntaxNode statement = env[Let.statements];
 
@@ -164,7 +164,11 @@ namespace Tame.Scheme.Syntax.Primitives
 			while (statement != null)
 			{
 				// Evaluate lastStatement
-				letExpr = letExpr.Add(BExpression.BuildExpression(lastStatement, letState).NonTail());
+				lastExpr = BExpression.BuildExpression(lastStatement, letState).NonTail();
+				if (letExpr == null)
+					letExpr = lastExpr;
+				else
+					letExpr = letExpr.Add(lastExpr);
 
 				// Pop the result
 				letExpr = letExpr.Add(new Operation(Op.Pop));
@@ -175,13 +179,34 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// The very last statement is in tail context (and the result isn't popped)
-			letExpr = letExpr.Add(BExpression.BuildExpression(lastStatement, letState));
+			lastExpr = BExpression.BuildExpression(lastStatement, letState);
+			if (letExpr == null)
+				letExpr = lastExpr;
+			else
+				letExpr = letExpr.Add(lastExpr);
 
 			// Pop the environment we pushed
 			letExpr = letExpr.Add(new Operation(Op.PopEnvironment, null, true));
 
+			// At this point, we know exactly what the environment will look like, so we can add the operation to build it
+			switch (letType)
+			{
+				case Type.Let:
+					// Create/load from the stack
+					loadEnvironment.Insert(newEnvironmentOpPos, Operation.CreateLoadEnvironment(letLocal, symbols, false, true));
+					break;
+
+				case Type.Letrec:
+				case Type.LetStar:
+					loadEnvironment.Insert(newEnvironmentOpPos, Operation.CreateEnvironment(letLocal));
+					break;
+			}
+
+			// Add the loading expressions to the evaluation expressions
+			BExpression loadingExpr = new BExpression(loadEnvironment);
+
 			// Return the result
-			return letExpr;
+			return loadingExpr.Add(letExpr);
 		}
 
 		#endregion
