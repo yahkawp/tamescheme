@@ -154,22 +154,6 @@ namespace Tame.Scheme.Runtime
 							evaluationStack.Push(currentFrame.args[(int)opArg]);
 							break;
 
-							/*
-						case Op.PushSymbol:
-							// Fetch the value of a symbol from the current environment
-							evaluationStack.Push(currentFrame.environment[(int)opArg]);
-							break;
-
-						case Op.PushLiteralSymbol:
-							object[] literalTuple = (object[])opArg;
-
-							int literalSymbolNumber = (int)literalTuple[0];
-							Data.Environment literalEnv = (Data.Environment)literalTuple[1];
-
-							evaluationStack.Push(literalEnv[literalSymbolNumber]);
-							break;
-							*/
-
 						case Op.PushBindingValue:
 							evaluationStack.Push(((Data.Environment.Binding)opArg).Value);
 							break;
@@ -318,37 +302,6 @@ namespace Tame.Scheme.Runtime
 							// Do nothing
 							break;
 
-							/*
-						case Op.LoadEnvironment:
-						{
-							// Load values into the current environment from the frame
-							Data.Environment currentEnv = currentFrame.environment;
-							int[] argSymbols = (int[])opArg;
-							for (int x=0; x<argSymbols.Length; x++)
-							{
-								currentEnv[argSymbols[x]] = currentFrame.args[x];
-							}
-							break;
-						}
-
-						case Op.LoadStackEnvironment:
-						{
-							// Load values into the current environment from the stack
-							Data.Environment currentEnv = currentFrame.environment;
-							int[] stackSymbols = (int[])opArg;
-							for (int x=0; x<stackSymbols.Length; x++)
-							{
-								currentEnv[stackSymbols[x]] = evaluationStack.Pop();
-							}
-							break;
-						}
-
-						case Op.PushEnvironment:
-							// Push a new environment
-							currentFrame.environment = new Data.Environment(currentFrame.environment);
-							break;
-							*/
-
 						case Op.CreateEnvironment:
 							// Push a new environment, with the specified contents
 							Operation.NewEnvironment envDetails;
@@ -403,13 +356,6 @@ namespace Tame.Scheme.Runtime
 							// Pop the frame
 							currentFrame = (Frame)frameStack.Pop();
 							break;
-
-							/*
-						case Op.Define:
-							// Define the symbol in 'a'
-							currentFrame.environment[(int)opArg] = evaluationStack.Pop();
-							break;
-							*/
 
 						case Op.DefineBinding:
 							((Data.Environment.Binding)opArg).SetValue(evaluationStack.Pop());

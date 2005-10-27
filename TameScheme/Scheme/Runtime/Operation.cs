@@ -41,21 +41,14 @@ namespace Tame.Scheme.Runtime
 		Push,							// push a - pushes object a onto the stack
 		PushBindingValue,				// push-binding-value a - pushes the value of a literal binding onto the stack
 		PushRelativeValue,				// push-relative-value a - pushes the value of a relative binding onto the stack
-		//PushSymbol,					// push-symbol a - pushes the value of symbol number a onto the stack
-		//PushLiteralSymbol,			// push-literal-symbol a - pushes the value of a from a specific environment onto the stack
 		PushFrameItem,					// push-frame-item a - pushes frame item a (an int) onto the stack
 		PushFrameList,					// push-frame-list a - pushes frame list a onto the stack (ie everything after a in the frame as a list)
-		//Define,							// define a - defines a (a symbol) to the value of the top object on the stack
 		DefineBinding,					// define-binding a - defines a (an Environment.Binding) to the value of the top object on the stack
 		DefineRelative,					// define-relative a - defines a (an Environment.RelativeBinding, relative to the current uppermost environment) to the value of the top object on the stack
 		CallIProcedure,					// call-iprocedure a - calls the scheme procedure on the top of the stack using a values from the stack as arguments. Pushes a new frame and environment. tail-call-iprocedure is the tail equivalent
-		//PushEnvironment,				// push-environment - pushes a new, empty environment on to the stack
 		PopEnvironment,					// pop-environment - pops the last environment from the stack
 		UseEnvironment,					// use-environment a - a (an environment) is 'used' in addition to the current environment (ie, treated as an additional parent environment)
 		PopFrame,						// pop-frame - removes the currently topmost frame from the frame stack. Tail equivalent is a nop.
-		//LoadEnvironment,				// load-environment a - a (an array of integers - int[]) is a list of symbol numbers. These are loaded from the frame into the current environment
-		//LoadStackEnvironment,			// load-stack-environment a - a (an array of integers - int[]) is a list of symbol numbers. These are loaded from the stack into the current environment
-		//LoadEnvironmentList,			// load-environment-list a - as for load-environment, but the last value
 		CreateEnvironment,				// create-environment a - a (an Operation.NewEnvironment) is used as a template to create a new environment
 		CreateAndLoadEnvironment,		// create-and-load-environment a - a (an Operation.NewEnvironment) is used as a template to create a new environment and load the initial values from the frame
 		CreateAndLoadEnvironmentList,	// create-and-load-environment-list a - as for create-and-load-environment, except any values on the end of the frame are stored as a list
