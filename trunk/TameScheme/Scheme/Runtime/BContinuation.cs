@@ -175,6 +175,9 @@ namespace Tame.Scheme.Runtime
 							try
 							{ 
 								proc = (Procedure.IProcedure)procObj;
+
+								if (proc == null) 
+									throw new Exception.NotAProcedureException(procObj);
 							}
 							catch (System.InvalidCastException ex)
 							{
