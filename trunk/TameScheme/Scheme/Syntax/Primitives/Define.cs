@@ -28,13 +28,17 @@ using System;
 using Tame.Scheme.Procedure;
 using Tame.Scheme.Runtime;
 
+// TODO: is behaviour correct for (define-syntax maybe-wrong (syntax-rules () ((maybe-wrong y) (define x y)))) ?
+// At the moment, this will always define #[temporary 1], but should it define a different temporary each time it's evaluated?
+// This can be fixed by preserving the Binder for the life of an Interpreter, or possibly using a global Binder
+
 namespace Tame.Scheme.Syntax.Primitives
 {
 	/// <summary>
 	/// Syntax for the 'define' primitive.
 	/// </summary>
 	[PreferredName("define"), SchemeSyntax("()", "((variable . formals) statement ...)", "(variable expression)")]
-	public class Define : ISyntax
+	public class Define : ISyntax, IBinding
 	{
 		public Define()
 		{
@@ -80,6 +84,22 @@ namespace Tame.Scheme.Syntax.Primitives
 				// Result is the combination of these two expressions
 				return expr.Add(defineExpr);
 			}
+		}
+
+		#endregion
+
+		#region IBinding Members
+
+		public object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
+		{
+			// Fetch the name of the variable we're defining
+			object variable = syntaxEnv[variableSymbol].Value;
+
+			// If it's a LiteralSymbol, then rebind it
+			if (variable is Data.LiteralSymbol) state.BindSymbol(variable, state.TemporarySymbol());
+
+			// Perform the rebinding
+			return state.Bind(scheme);
 		}
 
 		#endregion
