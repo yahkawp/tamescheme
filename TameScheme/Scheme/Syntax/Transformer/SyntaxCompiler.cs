@@ -536,8 +536,16 @@ namespace Tame.Scheme.Syntax.Transformer
 						// Transformation that returns to the top of the tree (the item underneath the umbrella)
 						Transformation ellipsisFlyback = CompileMove(state, ellipsisElement);					// ... and also this move
 
+						// Work out the number of items we have to move across to get to the first ellipsis item (remember literal elements do not appear in the output tree)
+						int countToItem = 0;
+						foreach (SyntaxElement element in ellipsisUmbrella.ListOrVectorContents)
+						{
+							if (element.Type != SyntaxElement.ElementType.Literal) countToItem++;
+						}
+
 						// (Before the element) Try to move to just before the ellipsis item (STATE INCORRECT FOR RESULT)
-						bool lowCount = ellipsisUmbrella.ListOrVectorContents.Count <= 1;						// True if the very first item beneath the umbrella is also the first repeated item (needs to be handled differently)
+
+						bool lowCount = countToItem <= 1;						// True if the very first item beneath the umbrella is also the first repeated item (needs to be handled differently)
 
 						if (lowCount)
 						{
@@ -547,8 +555,10 @@ namespace Tame.Scheme.Syntax.Transformer
 						else
 						{
 							// Move to the first ellipsis item
+							// TODO: fix that oops
+
 							result.Add(SyntaxOp.Op.MoveDown);
-							result.Add(SyntaxOp.Op.MoveNumberRightOrBranch, ellipsisUmbrella.ListOrVectorContents.Count-1, ellipsisTransform.Count + ellipsisFlyback.Count + 2);
+							result.Add(SyntaxOp.Op.MoveNumberRightOrBranch, countToItem-1, ellipsisTransform.Count + ellipsisFlyback.Count + 2);
 						}
 
 						// (Actual element) Write the element itself (STATE INCORRECT FOR RESULT)
