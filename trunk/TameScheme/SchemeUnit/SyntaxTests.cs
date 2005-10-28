@@ -26,28 +26,28 @@ namespace SchemeUnit
 		public void BasicSyntax()
 		{
 			Assert.Equals(terp.Evaluate(terp.ParseScheme("(define-syntax basic-syntax (syntax-rules () ((basic-syntax) 1)))")), new Symbol("basic-syntax"));
-			Assert.Equals(terp.Evaluate(terp.ParseScheme("(basic-syntax)")), 1);
+			Assert.Equals(1, terp.Evaluate(terp.ParseScheme("(basic-syntax)")));
 		}
 
 		[Test]
 		public void BasicLiteral()
 		{
 			Assert.Equals(terp.Evaluate(terp.ParseScheme("(define-syntax basic-literal (syntax-rules (lit) ((basic-literal lit x lit) x)))")), new Symbol("basic-literal"));
-			Assert.Equals(terp.Evaluate(terp.ParseScheme("(basic-literal lit 5 lit)")), 5);
+			Assert.Equals(5, terp.Evaluate(terp.ParseScheme("(basic-literal lit 5 lit)")));
 		}
 
 		[Test]
 		public void BasicEllipsises()
 		{
 			terp.Evaluate(terp.ParseScheme("(define-syntax basic-ellipsises (syntax-rules () ((basic-ellipsises a ...) (+ a ...))))"));
-			Assert.Equals(terp.Evaluate(terp.ParseScheme("(basic-ellipsises 1 2 3 4)")), 1+2+3+4);
+			Assert.Equals(1+2+3+4, terp.Evaluate(terp.ParseScheme("(basic-ellipsises 1 2 3 4)")));
 		}
 
 		[Test]
 		public void ManyEllipsises()
 		{
 			terp.Evaluate(terp.ParseScheme("(define-syntax many-ellipsises (syntax-rules () ((many-ellipsises ((a ...) b) ...) '(((a ...) b) ...))))"));
-			Assert.Equals(terp.Evaluate(terp.ParseScheme("(many-ellipsises ((1 2 3) 4) (() 5) ((4 5) 6) (() 8))")), terp.ParseScheme("(((1 2 3) 4) (() 5) ((4 5) 6) (() 8))"));
+			Assert.Equals(terp.ParseScheme("(((1 2 3) 4) (() 5) ((4 5) 6) (() 8))"), terp.Evaluate(terp.ParseScheme("(many-ellipsises ((1 2 3) 4) (() 5) ((4 5) 6) (() 8))")));
 		}
 
 		[Test]
@@ -55,7 +55,15 @@ namespace SchemeUnit
 		{
 			// (You'll probably note that some scheme interpreters can't handle improper syntax like this
 			terp.Evaluate(terp.ParseScheme("(define-syntax basic-improper (syntax-rules () ((basic-improper . x) x)))"));
-			Assert.Equals(terp.Evaluate(terp.ParseScheme("(basic-improper + 1 2)")), 1+2);
+			Assert.Equals(1+2, terp.Evaluate(terp.ParseScheme("(basic-improper + 1 2)")));
+		}
+
+		[Test]
+		public void TempBindingQuote()
+		{
+			terp.Evaluate("(define-syntax temp-binding-quote (syntax-rules () ((temp-binding-quote) (let ((x 1)) 'x))))");
+
+			Assert.Equals(new Symbol("x"), terp.Evaluate("(temp-binding-quote)"));
 		}
 
 		[Test]
@@ -66,7 +74,7 @@ namespace SchemeUnit
 			terp.Evaluate("(define y 2)");
 
 			// Bit daft, but if temp binding fails we get (let ((x y) (y x)) (+ y y)), which is 4, and if it succeeds, we should get ... (+ temp y) ..., ie 3
-			Assert.Equals(terp.Evaluate("(temp-binding y x)"), 3);
+			Assert.Equals(3, terp.Evaluate("(temp-binding y x)"));
 		}
 
 		[Test]
@@ -76,7 +84,7 @@ namespace SchemeUnit
 			terp.Evaluate("(define x 1)");
 			terp.Evaluate("(define y 2)");
 
-			Assert.Equals(terp.Evaluate("(temp-binding y x)"), 3);
+			Assert.Equals(3,terp.Evaluate("(temp-binding y x)"));
 		}
 
 		[Test]
@@ -86,7 +94,7 @@ namespace SchemeUnit
 			terp.Evaluate("(define x 1)");
 			terp.Evaluate("(define y 2)");
 
-			Assert.Equals(terp.Evaluate("(temp-binding y x)"), 3);
+			Assert.Equals(3, terp.Evaluate("(temp-binding y x)"));
 		}
 
 		// The R5RS macro definition for cond
@@ -102,11 +110,11 @@ namespace SchemeUnit
 			string simpleTest = "(cond ((> 3 x) 1) ((< 3 x) 2) (else 3))";
 
 			terp.TopLevelEnvironment["x"] = 2;
-			Assert.Equals(terp.Evaluate(simpleTest), 1);
+			Assert.Equals(1, terp.Evaluate(simpleTest));
 			terp.TopLevelEnvironment["x"] = 4;
-			Assert.Equals(terp.Evaluate(simpleTest), 2);
+			Assert.Equals(2, terp.Evaluate(simpleTest));
 			terp.TopLevelEnvironment["x"] = 3;
-			Assert.Equals(terp.Evaluate(simpleTest), 3);
+			Assert.Equals(3, terp.Evaluate(simpleTest));
 		}
 
 		[Test]
