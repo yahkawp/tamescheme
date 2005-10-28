@@ -35,7 +35,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// Implementation of the scheme (lambda (x) x) expression.
 	/// </summary>
 	[PreferredName("lambda"), SchemeSyntax("()", "(args statement ...)")]
-	public sealed class Lambda : ISyntax
+	public sealed class Lambda : ISyntax, IBinding
 	{
 		public Lambda()
 		{
@@ -145,6 +145,53 @@ namespace Tame.Scheme.Syntax.Primitives
 
 			// The BExpression result of a lambda expression is a new SProcecure
 			return new BExpression(new Operation(Op.PushContext, new BProcedure(lambdaExpression)));
+		}
+
+		#endregion
+
+		#region IBinding Members
+
+		public object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
+		{
+			// Build the rebound variable list
+			object args = syntaxEnv[argsSymbol].Value;					// The 'args' syntax parameter
+			object lastArg = args;
+
+			if (args is Data.Pair)
+			{
+				Data.Pair thisArg = (Data.Pair)args;
+
+				lastArg = null;
+
+				while (thisArg != null)
+				{
+					// This is a rebound variable if it's
+					if (thisArg.Car is Data.LiteralSymbol)
+					{
+						state.BindSymbol(thisArg.Car, state.TemporarySymbol());
+					}
+					
+					// Move on to the next value
+					if (thisArg.Cdr == null || thisArg.Cdr is Data.Pair)
+					{
+						thisArg = (Data.Pair)thisArg.Cdr;
+					}
+					else
+					{
+						lastArg = thisArg.Cdr;
+						thisArg = null;
+					}
+				}
+			}
+
+			// The argument list might be improper: deal with this case (the improper section will be in lastArg)
+			if (lastArg != null && lastArg is Data.LiteralSymbol)
+			{
+				state.BindSymbol(lastArg, state.TemporarySymbol());
+			}
+
+			// Perform the rebinding
+			return state.Bind(scheme);
 		}
 
 		#endregion
