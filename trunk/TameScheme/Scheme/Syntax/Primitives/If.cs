@@ -71,6 +71,9 @@ namespace Tame.Scheme.Syntax.Primitives
 			BExpression thenExpr = BExpression.BuildExpression(thenObj, state);
 			BExpression elseExpr = elseObj==Data.Unspecified.Value?null:BExpression.BuildExpression(elseObj, state);
 
+#if false
+			// Labels not working??
+
 			// Labels for the various parts of the if
 			string thenLabel = "_then_" + labelNumber.ToString();
 			string finishLabel = "_finish_" + labelNumber.ToString();
@@ -89,6 +92,12 @@ namespace Tame.Scheme.Syntax.Primitives
 			result = result.Add(new Operation(Op.Label, thenLabel));						// 'then' portion starts here
 			result = result.Add(thenExpr);													// ... if cond is not #f, then the 'then' expression is reached
 			result = result.Add(new Operation(Op.Label, finishLabel));						// 'if' finishes here
+#else
+			// Paste the operations together
+			BExpression result = condExpr;
+
+			result = result.AddIf(thenExpr, elseExpr);
+#endif
 
 			return result;
 		}

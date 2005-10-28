@@ -64,6 +64,39 @@ namespace Tame.Scheme.Runtime
 		#region Creating combined and modified expressions
 
 		/// <summary>
+		/// Adds an expression that, if the value on the top of the stack is true, evaluates thenExpr, otherwise evaluates elseExpr
+		/// </summary>
+		/// <param name="thenExpr">The expression to evaluate if the topmost value is true</param>
+		/// <param name="elseExpr">The expression to evaluate otherwise</param>
+		/// <returns>An If expression</returns>
+		public BExpression AddIf(BExpression thenExpr, BExpression elseExpr)
+		{
+			// 'else' should push an unspecified value if null is passed
+			if (elseExpr == null) elseExpr = new BExpression(new Operation(Op.Push, Data.Unspecified.Value));
+
+			// Allocate the result (2 extra instructions: an If and a Branch)
+			BExpression result = new BExpression();
+			result.expression = new Operation[expression.Length + thenExpr.expression.Length + elseExpr.expression.Length + 2];
+
+			// Copy this expression to the new expression
+			expression.CopyTo(result.expression, 0);
+
+			// Skip over the 'else' part if we succeed
+			result.expression[expression.Length] = new Operation(Op.If, elseExpr.expression.Length + 1);
+
+			// If we fail, evaluate the 'else' part
+			elseExpr.expression.CopyTo(result.expression, expression.Length+1);
+
+			// ... but then skip the 'then' part
+			result.expression[expression.Length + elseExpr.expression.Length + 1] = new Operation(Op.Branch, elseExpr.expression.Length);
+
+			// finally, the 'then' part is executed if the test succeeded
+			thenExpr.expression.CopyTo(result.expression, expression.Length + elseExpr.expression.Length + 2);
+
+			return result;
+		}
+
+		/// <summary>
 		/// Adds a new expression to this one.
 		/// </summary>
 		/// <param name="expr">The expression to append to the end of this expression</param>
