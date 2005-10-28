@@ -31,7 +31,7 @@ namespace Tame.Scheme.Data
 	/// <summary>
 	/// Class representing a scheme symbol
 	/// </summary>
-	public sealed class Symbol : ISerializable
+	public sealed class Symbol : ISerializable, ISymbolic
 	{
 		public Symbol(int symbolNumber)
 		{
@@ -89,6 +89,34 @@ namespace Tame.Scheme.Data
 			return SymbolTable.SymbolForNumber(symbolNumber);
 		}
 
+
+		#endregion
+
+		#region ISymbolic Members
+
+		Tame.Scheme.Data.Symbol Tame.Scheme.Data.ISymbolic.Symbol
+		{
+			get
+			{
+				return this;
+			}
+		}
+
+		public object HashValue
+		{
+			get
+			{
+				return symbolNumber;
+			}
+		}
+		
+		public Data.Environment Location
+		{
+			get
+			{
+				return null;
+			}
+		}
 
 		#endregion
 	}

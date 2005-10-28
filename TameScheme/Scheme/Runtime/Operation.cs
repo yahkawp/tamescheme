@@ -116,17 +116,69 @@ namespace Tame.Scheme.Runtime
 		#region Factory methods
 
 		/// <summary>
-		/// Given a compilation state and a symbol, produces a push-binding-value or push-relative-value operation as appropriate
+		/// Creates an operation to define the given symbol in the 'uppermost' environment
 		/// </summary>
-		public static Operation PushSymbol(Data.Symbol symbol, CompileState state)
+		/// <param name="symbol">The symbol to define</param>
+		/// <param name="state">The compilation state (containing, importantly, the local and top-level environments)</param>
+		/// <returns>A suitable definition operation</returns>
+		public static Operation Define(Data.ISymbolic symbol, CompileState state)
 		{
-			if (state.Local != null && state.Local.Contains(symbol))
+			// Work out the environment the definition is occuring in, and create a blank entry if necessary
+			Data.Environment location = state.Local;
+			if (location == null) location = state.TopLevel;
+			if (!location.Contains(symbol)) location[symbol] = Data.Unspecified.Value;
+
+			// Work out the absolute binding, and if possible the relative one
+			Data.Environment.Binding absoluteBinding = location.BindingForSymbol(symbol);
+			Data.Environment.RelativeBinding relativeBinding = absoluteBinding.RelativeTo(state.Local, state.TopLevel);
+
+			// Use the absolute/relative binding as appropriate
+			if (relativeBinding == null)
 			{
-				return new Operation(Op.PushRelativeValue, state.Local.RelativeBindingForSymbol(symbol));
+				// Define this value in the top-level environment
+				return new Operation(Op.DefineBinding, absoluteBinding);
 			}
 			else
 			{
-				return new Operation(Op.PushBindingValue, state.TopLevel.BindingForSymbol(symbol));
+				// Define this value in the local environment
+				return new Operation(Op.DefineRelative, relativeBinding);
+			}
+		}
+
+		/// <summary>
+		/// Given a compilation state and a symbol, produces a push-binding-value or push-relative-value operation as appropriate
+		/// </summary>
+		public static Operation PushSymbol(Data.ISymbolic symbol, CompileState state)
+		{
+			// This symbol specifies an environment: push using that environment
+			if (!state.TopLevel.Contains(symbol))
+			{
+				// The symbol must at least exist in the top-level environment
+				state.TopLevel[symbol] = Data.Unspecified.Value;
+			}
+
+			// Get the absolute position of this symbol
+			Data.Environment.Binding absoluteBinding = null;			
+			if (state.Local != null && state.Local.Contains(symbol))
+			{
+				absoluteBinding = state.Local.BindingForSymbol(symbol);
+			}
+			else
+			{
+				absoluteBinding = state.TopLevel.BindingForSymbol(symbol);
+			}
+			
+			// Get the position relative to the local environment
+			Data.Environment.RelativeBinding relativeBinding = absoluteBinding.RelativeTo(state.Local, state.TopLevel);
+
+			// Add a suitable operation
+			if (relativeBinding != null)
+			{
+				return new Operation(Op.PushRelativeValue, relativeBinding);
+			}
+			else
+			{
+				return new Operation(Op.PushBindingValue, absoluteBinding);
 			}
 		}
 
@@ -161,8 +213,8 @@ namespace Tame.Scheme.Runtime
 			// Sanity check
 			for (int desiredOffset=0; desiredOffset<variableSymbols.Count; desiredOffset++)
 			{
-				int symbolNumber = ((Data.Symbol)variableSymbols[desiredOffset]).SymbolNumber;
-				int realOffset = (int)symbols[symbolNumber];
+				object symbolHash = ((Data.ISymbolic)variableSymbols[desiredOffset]).HashValue;
+				int realOffset = (int)symbols[symbolHash];
 
 				if (realOffset != desiredOffset)
 					throw new InvalidOperationException("Variables must be loaded into an environment in the order in which they were created");

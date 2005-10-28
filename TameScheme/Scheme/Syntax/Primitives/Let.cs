@@ -97,13 +97,13 @@ namespace Tame.Scheme.Syntax.Primitives
 					while (thisVariable != null)
 					{
 						// First item must be a symbol
-						if (!(thisVariable.Child.Value is Data.Symbol)) throw new Exception.SyntaxError("Variables in a let statement must be symbols (found " + Runtime.Interpreter.ToString(thisVariable.Child.Value) + ")");
+						if (!(thisVariable.Child.Value is Data.ISymbolic)) throw new Exception.SyntaxError("Variables in a let statement must be symbols (found " + Runtime.Interpreter.ToString(thisVariable.Child.Value) + ")");
 
-						Data.Symbol varSym = (Data.Symbol)thisVariable.Child.Value;
+						Data.ISymbolic varSym = (Data.ISymbolic)thisVariable.Child.Value;
 
 						// Push an undefined value
 						// loadEnvironment.Add(new Operation(Op.Push, Data.Unspecified.Value));
-						letLocal[(Data.Symbol)varSym] = Data.Unspecified.Value;
+						letLocal[(Data.ISymbolic)varSym] = Data.Unspecified.Value;
 
 						// Move on
 						thisVariable = thisVariable.Sibling;
@@ -119,9 +119,9 @@ namespace Tame.Scheme.Syntax.Primitives
 				while (thisVariable != null)
 				{
 					// First item must be a symbol
-					if (!(thisVariable.Child.Value is Data.Symbol)) throw new Exception.SyntaxError("Variables in a let statement must be symbols (found " + Runtime.Interpreter.ToString(thisVariable.Child.Value) + ")");
+					if (!(thisVariable.Child.Value is Data.ISymbolic)) throw new Exception.SyntaxError("Variables in a let statement must be symbols (found " + Runtime.Interpreter.ToString(thisVariable.Child.Value) + ")");
 
-					Data.Symbol varSym = (Data.Symbol)thisVariable.Child.Value;
+					Data.ISymbolic varSym = (Data.ISymbolic)thisVariable.Child.Value;
 
 					// Evaluate this variable
 					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, letState);
@@ -145,7 +145,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				// For let, now the symbols become visible in letLocal
 				if (letType == Type.Let)
 				{
-					foreach (Data.Symbol symbol in symbols)
+					foreach (Data.ISymbolic symbol in symbols)
 					{
 						letLocal[symbol] = Data.Unspecified.Value;
 					}

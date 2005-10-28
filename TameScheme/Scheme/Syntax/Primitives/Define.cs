@@ -64,7 +64,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				object expression = env[expressionSymbol].Value;
 
 				// The variable must be a symbol
-				if (!(variable is Data.Symbol)) throw new Exception.SyntaxError("Attempt to define an object (" + Runtime.Interpreter.ToString(variable) + ") that is not a symbol");
+				if (!(variable is Data.ISymbolic)) throw new Exception.SyntaxError("Attempt to define an object (" + Runtime.Interpreter.ToString(variable) + ") that is not a symbol");
 
 				// The BExpression from evaluating the expression
 				BExpression expr = BExpression.BuildExpression(expression, state);
@@ -72,18 +72,8 @@ namespace Tame.Scheme.Syntax.Primitives
 				// The BExpression that defines the result and pushes the defined symbol onto the stack
 				Operation[] defineOps = new Operation[2];
 
-				if (state.Local == null)
-				{
-					// Define this value in the top-level environment
-					defineOps[0] = new Operation(Op.DefineBinding, state.TopLevel.BindingForSymbol((Data.Symbol)variable));
-				}
-				else
-				{
-					// Define this value in the local environment
-					defineOps[0] = new Operation(Op.DefineRelative, state.Local.RelativeBindingForSymbol((Data.Symbol)variable));
-				}
-
-				defineOps[1] = new Operation(Op.Push, (Data.Symbol)variable);
+				defineOps[0] = Operation.Define((Data.ISymbolic)variable, state);
+				defineOps[1] = new Operation(Op.Push, (Data.ISymbolic)variable);
 
 				BExpression defineExpr = new BExpression(defineOps);
 

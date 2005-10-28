@@ -67,11 +67,11 @@ namespace Tame.Scheme.Syntax.Primitives
 				{
 					Data.Pair pair = (Data.Pair) args;
 
-					if (pair.Car is Data.Symbol)
+					if (pair.Car is Data.ISymbolic)
 					{
 						// Store this argument
 						arguments.Add(pair.Car);
-						argumentEnvironment[(Data.Symbol)pair.Car] = Data.Unspecified.Value;
+						argumentEnvironment[(Data.ISymbolic)pair.Car] = Data.Unspecified.Value;
 
 						// Move on to the next object
 						args = pair.Cdr;
@@ -81,7 +81,7 @@ namespace Tame.Scheme.Syntax.Primitives
 						throw new Exception.SyntaxError("The function arguments in a lambda expression must be symbols: " + Interpreter.ToString(pair.Cdr) + " is not a symbol");
 					}
 				}
-				else if (args is Data.Symbol)
+				else if (args is Data.ISymbolic)
 				{
 					// Improper list: mark as such, and add the argument
 					lastIsAList = true;
@@ -95,11 +95,11 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// Load the environment
-			Data.Symbol[] symbols = new Data.Symbol[arguments.Count];
+			Data.ISymbolic[] symbols = new Data.Symbol[arguments.Count];
 
 			for (int x=0; x<arguments.Count; x++)
 			{
-				symbols[x] = (Data.Symbol)arguments[x];
+				symbols[x] = (Data.ISymbolic)arguments[x];
 			}
 
 			// TODO: define, let in a tail context might introduce new arguments: we need to define this later

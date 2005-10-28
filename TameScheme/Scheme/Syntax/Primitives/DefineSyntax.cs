@@ -53,7 +53,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			// Get the name of the syntax we're defining
 			Symbol syntaxName = null;
 
-			if (!(env[name].Value is Symbol))
+			if (!(env[name].Value is ISymbolic))
 				throw new Exception.SyntaxError("(define-syntax) called to define something other than a symbol");
 
 			syntaxName = (Symbol)env[name].Value;
@@ -75,7 +75,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 			while (literalNode != null)
 			{
-				if (!(literalNode.Value is Symbol))
+				if (!(literalNode.Value is ISymbolic))
 					throw new Exception.SyntaxError("(define-syntax) called with syntax-rules that specify a value other than a symbol as literal");
 
 				literalList.Add((Symbol)literalNode.Value);
@@ -124,8 +124,8 @@ namespace Tame.Scheme.Syntax.Primitives
 			Operation[] defineOps = new Operation[3];
 
 			defineOps[0] = new Operation(Op.Push, newSyntax);
-			defineOps[1] = new Operation(Op.DefineBinding, state.TopLevel.BindingForSymbol((Data.Symbol)syntaxName));
-			defineOps[2] = new Operation(Op.Push, (Data.Symbol)syntaxName);
+			defineOps[1] = Operation.Define((Data.ISymbolic)syntaxName, state);
+			defineOps[2] = new Operation(Op.Push, (Data.ISymbolic)syntaxName);
 
 			return new BExpression(defineOps);
 		}

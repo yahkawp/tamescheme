@@ -83,51 +83,58 @@ namespace Tame.Scheme.Data
 		#region Accessing the environment
 
 		/// <summary>
-		/// Access the environment by symbol number
+		/// Access the environment by symbol hash value
 		/// </summary>
-		public object this[int symbolNumber]
+		public object this[object hashValue]
 		{
 			get
 			{
-				if (!envTable.Contains(symbolNumber))
+				if (!envTable.Contains(hashValue))
 				{
 					// Recurse if we can to the parent environment
 					if (parent != null)
 					{
-						return parent[symbolNumber];
+						return parent[hashValue];
 					}
 					else
 					{
-						throw new Exception.SymbolNotFound("Symbol \"" + SymbolTable.SymbolForNumber(symbolNumber) + "\" was not found in the environment");
+						throw new Exception.SymbolNotFound("Symbol \"" + hashValue.ToString() + "\" was not found in the environment");
 					}
 				}
 
-				return values[(int)envTable[symbolNumber]];
+				return values[(int)envTable[hashValue]];
 			}
 			set
 			{
-				if (!envTable.Contains(symbolNumber)) 
+				if (!envTable.Contains(hashValue)) 
 				{
-					envTable[symbolNumber] = values.Count;
+					envTable[hashValue] = values.Count;
 					values.Add(Unspecified.Value);
 				}
 
-				values[(int)envTable[symbolNumber]] = value;
+				values[(int)envTable[hashValue]] = value;
 			}
 		}
 
 		/// <summary>
 		/// Retrieves the value associated with a given Symbol
 		/// </summary>
-		public object this[Symbol symbol]
+		public object this[ISymbolic symbol]
 		{
 			get
 			{
-				return this[symbol.SymbolNumber];
+				try
+				{
+					return this[symbol.HashValue];
+				}
+				catch (Exception.SymbolNotFound)
+				{
+					throw new Exception.SymbolNotFound("Symbol \"" + symbol.ToString() + "\" was not found in the environment");
+				}
 			}
 			set
 			{
-				this[symbol.SymbolNumber] = value;
+				this[symbol.HashValue] = value;
 			}
 		}
 
@@ -138,28 +145,28 @@ namespace Tame.Scheme.Data
 		{
 			get
 			{
-				return this[SymbolTable.NumberForSymbol(symbolName)];
+				return this[new Symbol(symbolName)];
 			}
 			set
 			{
-				this[SymbolTable.NumberForSymbol(symbolName)] = value;
+				this[new Symbol(symbolName)] = value;
 			}
 		}
 
 		/// <summary>
-		/// Undefine a symbol by number
+		/// Undefine a symbol by its hash value
 		/// </summary>
-		public void Undefine(int symbolNumber)
+		public void Undefine(object symbolHash)
 		{
-			values[(int)envTable[symbolNumber]] = Unspecified.Value;
+			values[(int)envTable[symbolHash]] = Unspecified.Value;
 		}
 
 		/// <summary>
 		/// Undefine a symbol by number
 		/// </summary>
-		public void Undefine(Symbol symbol)
+		public void Undefine(ISymbolic symbol)
 		{
-			Undefine(symbol.SymbolNumber);
+			Undefine(symbol.HashValue);
 		}
 
 		/// <summary>
@@ -189,9 +196,9 @@ namespace Tame.Scheme.Data
 		/// Tests if the environment contains the given symbol
 		/// </summary>
 		/// <returns>true if this environment or its parents contain the given symbol</returns>
-		public bool Contains(Symbol symbol)
+		public bool Contains(ISymbolic symbol)
 		{
-			if (!envTable.Contains(symbol.SymbolNumber))
+			if (!envTable.Contains(symbol.HashValue))
 			{
 				if (parent != null)
 					return parent.Contains(symbol);
@@ -222,18 +229,18 @@ namespace Tame.Scheme.Data
 		/// <remarks>
 		/// These are constructed by the Environment object only
 		/// </remarks>
-		public class Binding
+		public sealed class Binding
 		{
-			internal Binding(Environment env, int offset, int symbolNumber)
+			internal Binding(Environment env, int offset, Data.ISymbolic symbol)
 			{
 				this.env = env;
 				this.offset = offset;
-				this.symbolNumber = symbolNumber;
+				this.symbol = symbol;
 			}
 
 			int offset;
 			Environment env;
-			int symbolNumber;
+			Data.ISymbolic symbol;
 
 			/// <summary>
 			/// Gets/sets the value associated with this binding
@@ -260,6 +267,39 @@ namespace Tame.Scheme.Data
 			}
 
 			/// <summary>
+			/// Turns this Binding into a RelativeBinding
+			/// </summary>
+			/// <param name="relativeTo">The environment to create a binding relative to</param>
+			/// <param name="topLevel">If non-null, the environment that's 'one level up' from the lowermost environment in env. Used when compiling expressions, as the top level and local environments are separate.</param>
+			/// <returns>null if no relative binding was available, </returns>
+			public RelativeBinding RelativeTo(Data.Environment relativeTo, Data.Environment topLevel)
+			{
+				int parentCount = 0;
+
+				// Search for the environment that's the same as the one this binding refers to
+				while (relativeTo != null && relativeTo != env)
+				{
+					parentCount++;
+					relativeTo = relativeTo.Parent;
+				}
+
+				if (relativeTo == null)
+				{
+					// ... continue the search in the top level environment
+					while (topLevel != null && topLevel != env)
+					{
+						parentCount++;
+						topLevel = topLevel.Parent;
+					}
+				}
+
+				if (relativeTo == null && topLevel == null) return null;
+
+				// Return the result
+				return new RelativeBinding(parentCount, offset, symbol);
+			}
+
+			/// <summary>
 			/// Returns true if two bindings refer to the same object
 			/// </summary>
 			public override bool Equals(object obj)
@@ -278,7 +318,6 @@ namespace Tame.Scheme.Data
 			{
 				return offset.GetHashCode()^env.values.GetHashCode();
 			}
-
 		}
 
 		/// <summary>
@@ -286,23 +325,22 @@ namespace Tame.Scheme.Data
 		/// defines an exact location. This makes it possible to apply it to another environment with the same structure (unlike Binding, which will
 		/// only ever refer to the same environment)
 		/// </summary>
-		public class RelativeBinding
+		public sealed class RelativeBinding
 		{
-			internal RelativeBinding(int parentCount, int offset, int symbolNumber)
+			internal RelativeBinding(int parentCount, int offset, Data.ISymbolic symbol)
 			{
 				this.parentCount = parentCount;
 				this.offset = offset;
-				this.symbolNumber = symbolNumber;
+				this.symbol = symbol;
 			}
 
 			#region Variables
 
 			int offset;
 			int parentCount;
-			int symbolNumber;
+			Data.ISymbolic symbol;
 
-			public int SymbolNumber { get { return symbolNumber; } }
-			public Symbol Symbol { get { return new Symbol(symbolNumber); } }
+			public ISymbolic Symbol { get { return symbol; } }
 
 			#endregion
 
@@ -310,7 +348,7 @@ namespace Tame.Scheme.Data
 
 			public override string ToString()
 			{
-				return string.Format("Relative {0} ^{1} ->{2}", Data.SymbolTable.SymbolForNumber(symbolNumber), parentCount, offset);
+				return string.Format("Relative {0} ^{1} ->{2}", symbol.ToString(), parentCount, offset);
 			}
 
 			/// <summary>
@@ -360,13 +398,12 @@ namespace Tame.Scheme.Data
 		/// <summary>
 		/// Retrieves the Binding for a specific symbol. This can be used for faster access.
 		/// </summary>
-		/// <returns>The binding representing the location where this symbol is bound to</returns>
-		/// <remarks>Nonexistent symbols are bound to the top-level environment</remarks>
-		public Binding BindingForSymbol(Data.Symbol symbol)
+		/// <returns>The binding representing the location where this symbol is bound to, or null if it is unbound</returns>
+		public Binding BindingForSymbol(Data.ISymbolic symbol)
 		{
-			if (envTable.Contains(symbol.SymbolNumber))
+			if (envTable.Contains(symbol.HashValue))
 			{
-				return new Binding(this, (int)envTable[symbol.SymbolNumber], symbol.SymbolNumber);
+				return new Binding(this, (int)envTable[symbol.HashValue], symbol);
 			}
 			else
 			{
@@ -376,17 +413,16 @@ namespace Tame.Scheme.Data
 				}
 				else
 				{
-					this[symbol] = Unspecified.Value;
-					return new Binding(this, (int)envTable[symbol.SymbolNumber], symbol.SymbolNumber);
+					return null;
 				}
 			}
 		}
 
-		private RelativeBinding RelativeBindingForSymbol(Data.Symbol symbol, int count)
+		private RelativeBinding RelativeBindingForSymbol(Data.ISymbolic symbol, int count)
 		{
-			if (envTable.Contains(symbol.SymbolNumber))
+			if (envTable.Contains(symbol.HashValue))
 			{
-				return new RelativeBinding(count, (int)envTable[symbol.SymbolNumber], symbol.SymbolNumber);
+				return new RelativeBinding(count, (int)envTable[symbol.HashValue], symbol);
 			}
 			else
 			{
@@ -396,8 +432,7 @@ namespace Tame.Scheme.Data
 				}
 				else
 				{
-					this[symbol] = Unspecified.Value;
-					return new RelativeBinding(count, (int)envTable[symbol.SymbolNumber], symbol.SymbolNumber);
+					return null;
 				}
 			}
 		}
@@ -412,7 +447,7 @@ namespace Tame.Scheme.Data
 		/// environment, provided that environment has the same 'structure' (symbols allocated in the same location for this environment
 		/// and all its parents: you can guarantee this by defining the symbols in the same order when creating the environment(s))
 		/// </remarks>
-		public RelativeBinding RelativeBindingForSymbol(Data.Symbol symbol)
+		public RelativeBinding RelativeBindingForSymbol(Data.ISymbolic symbol)
 		{
 			return RelativeBindingForSymbol(symbol, 0);
 		}

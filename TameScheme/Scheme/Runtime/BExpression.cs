@@ -243,17 +243,41 @@ namespace Tame.Scheme.Runtime
 			{
 				operations.Add(new Operation(Op.Push, null));
 			}
-			else if (expression is Data.Symbol)
+			else if (expression is Data.ISymbolic)
 			{
-				// Symbols are fetched from the environment and pushed onto the evaluation stack
-				operations.Add(Operation.PushSymbol((Data.Symbol)expression, state));
-			}
-			else if (expression is Data.LiteralSymbol)
-			{
-				// Literal symbols are fetched from a specific environment
-				Data.LiteralSymbol literal = (Data.LiteralSymbol)expression;
+				Data.ISymbolic iSym = (Data.ISymbolic)expression;
+				Data.Environment symbolEnv = iSym.Location;
 
-				operations.Add(new Operation(Op.PushBindingValue, literal.Environment.BindingForSymbol(literal.Symbol)));
+				if (symbolEnv == null)
+				{
+					// Use a standard PushSymbol operation
+					operations.Add(Operation.PushSymbol(iSym, state));
+				}
+				else
+				{
+					// This symbol specifies an environment: push using that environment
+					if (!state.TopLevel.Contains(iSym))
+					{
+						// The symbol must at least exist in the top-level environment
+						state.TopLevel[iSym] = Data.Unspecified.Value;
+					}
+
+					// If the symbol does not exist in the specified environment, look in the top-level environment instead
+					if (!symbolEnv.Contains(iSym)) symbolEnv = state.TopLevel;
+
+					// Generate a relative/absolute binding instruction as appropriate
+					Data.Environment.Binding absoluteBinding = symbolEnv.BindingForSymbol(iSym);
+					Data.Environment.RelativeBinding relativeBinding = absoluteBinding.RelativeTo(state.Local, state.TopLevel);
+
+					if (relativeBinding != null)
+					{
+						operations.Add(new Operation(Op.PushRelativeValue, relativeBinding));
+					}
+					else
+					{
+						operations.Add(new Operation(Op.PushBindingValue, absoluteBinding));
+					}
+				}
 			}
 			else if (expression is Data.Pair)
 			{
@@ -263,21 +287,15 @@ namespace Tame.Scheme.Runtime
 				// If the first element of the pair is a symbol, then see if this pair can be interpreted as syntax
 				Syntax.SchemeSyntax syntax = null;
 
-				if (currentPair.Car is Data.Symbol)
+				if (currentPair.Car is Data.ISymbolic)
 				{
-					if (state.TopLevel.Contains((Data.Symbol)currentPair.Car))
-					{
-						object maybeSyntax = state.TopLevel[(Data.Symbol)currentPair.Car];
-						if (maybeSyntax is Syntax.SchemeSyntax) syntax = (Syntax.SchemeSyntax)maybeSyntax;
-					}
-				}
-				else if (currentPair.Car is Data.LiteralSymbol)
-				{
-					Data.LiteralSymbol litSym = (Data.LiteralSymbol)(currentPair.Car);
+					Data.ISymbolic iSym = (Data.ISymbolic)currentPair.Car;
+					Data.Environment symbolEnvironment = iSym.Location;
+					if (symbolEnvironment == null) symbolEnvironment = state.TopLevel;
 
-					if (litSym.Environment.Contains(litSym.Symbol))
+					if (symbolEnvironment.Contains(iSym))
 					{
-						object maybeSyntax = litSym.Environment[litSym.Symbol];
+						object maybeSyntax = symbolEnvironment[iSym];
 						if (maybeSyntax is Syntax.SchemeSyntax) syntax = (Syntax.SchemeSyntax)maybeSyntax;
 					}
 				}

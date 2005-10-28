@@ -52,7 +52,7 @@ namespace Tame.Scheme.Syntax
 		/// Constructs a symbol syntax node (the children of this node should be zero or more values)
 		/// </summary>
 		/// <param name="symbol">The symbol this node should represent</param>
-		public SyntaxNode(Symbol symbol)
+		public SyntaxNode(ISymbolic symbol)
 		{
 			if (symbol == null)
 				throw new NullReferenceException("Symbol syntax nodes cannot be created with a null symbol");
@@ -79,7 +79,7 @@ namespace Tame.Scheme.Syntax
 
 		// If both of these are null, this is a list node
 		NodeType ourType;												// The type of this node
-		Symbol symbol = null;											// Iff a symbol, the symbol we're representing
+		ISymbolic symbol = null;										// Iff a symbol, the symbol we're representing
 		object value = null;											// Iff a value, the value we're representing
 
 		SyntaxNode root = null;											// The node that is the root of the tree
@@ -111,7 +111,7 @@ namespace Tame.Scheme.Syntax
 			{
 				int curOffset = currentChild.offset;
 
-				foreach (Symbol key in currentParent.symbols.Keys)
+				foreach (ISymbolic key in currentParent.symbols.Keys)
 				{
 					int curVal = (int)currentParent.symbols[key];
 
@@ -267,7 +267,7 @@ namespace Tame.Scheme.Syntax
 		/// <summary>
 		/// Retrieves the symbol this node represents
 		/// </summary>
-		public Symbol Symbol
+		public ISymbolic Symbol
 		{
 			get 
 			{ 
@@ -366,7 +366,7 @@ namespace Tame.Scheme.Syntax
 		/// <returns>null if this symbol is not present, or the child of this node that is 'nearer' to that symbol</returns>
 		/// <remarks>Can only be called on list nodes</remarks>
 		/// <exception cref="NotSupportedException">If called on a node that is not a list node</exception>
-		public SyntaxNode ChildWithSymbol(Symbol symbol)
+		public SyntaxNode ChildWithSymbol(ISymbolic symbol)
 		{
 			if (ourType != NodeType.List) throw new NotSupportedException("ChildWithSymbol can only be called on list syntax nodes");
 
@@ -383,7 +383,7 @@ namespace Tame.Scheme.Syntax
 		/// <returns>A symbol syntax node</returns>
 		/// <exception cref="InvalidOperationException">If called on a symbol node that does not match the specified symbol</exception>
 		/// <exception cref="NotSupportedException">If called on a node that is not a symbol or a list node</exception>
-		public SyntaxNode GrandchildWithSymbol(Symbol searchSymbol)
+		public SyntaxNode GrandchildWithSymbol(ISymbolic searchSymbol)
 		{
 			// If this is a symbol, and
 			if (ourType == NodeType.Symbol && symbol.Equals(searchSymbol)) return this;
