@@ -19,7 +19,7 @@ namespace Tame.Scheme.Data
 		/// <param name="env">The environment it should be looked up in</param>
 		public LiteralSymbol(ISymbolic symbol, Environment env)
 		{
-			this.symbol = symbol;
+			this.symbol = symbol.Symbol;
 			this.environment = env;
 		}
 

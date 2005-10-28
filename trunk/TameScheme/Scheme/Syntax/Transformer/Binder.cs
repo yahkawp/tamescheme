@@ -207,7 +207,11 @@ namespace Tame.Scheme.Syntax.Transformer
 					BindingState outerState = state;								// The state in which the symbol representing the syntax is bound
 
 					// Quote anything that needs quoting
-					if (syntaxImplementation is IQuoted) scheme = ((IQuoted)syntaxImplementation).QuoteScheme(scheme, matchEnvironment, state);
+					if (syntaxImplementation is IQuoted) 
+					{
+						scheme = ((IQuoted)syntaxImplementation).QuoteScheme(scheme, matchEnvironment, state);
+						schemePair = (Data.Pair) scheme;
+					}
 
 					// If this is binding syntax, handle that
 					if (syntaxImplementation is IBinding)
