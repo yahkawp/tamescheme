@@ -349,11 +349,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Syntax\TransformerSpec.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Syntax\Primitives\Define.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

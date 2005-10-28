@@ -200,18 +200,8 @@ namespace Tame.Scheme.Runtime
 								Procedure.BProcedure sproc = (Procedure.BProcedure)proc;
 								BExpression procExpr = sproc.procedureDefinition;
 
-#if false
-								// Create the environment for the new procedure (either re-use the old environment when tail-calling, or make a new one when not tail-calling)
-								Data.Environment newEnv;
-								
-								if (tail)
-									newEnv = currentFrame.environment;
-								else
-									newEnv = new Data.Environment(currentFrame.environment);
-#else
 								// The new environment is the contextual environment of this function (first thing it will do is create its own environment)
 								Data.Environment newEnv = sproc.Environment;
-#endif
 
 								// Create the new frame
 								Frame newFrame = new Frame(newEnv, args);
