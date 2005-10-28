@@ -232,6 +232,17 @@ namespace Tame.Scheme.Runtime
 		#region Evaluation
 
 		/// <summary>
+		/// Treats the given string as a scheme expression, and compiles and evaluates it
+		/// </summary>
+		/// <param name="schemeExpression">The expression to evaluate</param>
+		/// <returns>The result of parsing, compiling and evaluating the given expression</returns>
+		/// <remarks>Note that Evaluate((object)"string") has a noticably different effect</remarks>
+		public object Evaluate(string schemeExpression)
+		{
+			return Evaluate(ParseScheme(schemeExpression));
+		}
+
+		/// <summary>
 		/// Interprets an BExpression, evaluating it in the top-level environment
 		/// </summary>
 		/// <param name="expression">The BExpression to evaluate</param>

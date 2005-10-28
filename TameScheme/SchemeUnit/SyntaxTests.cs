@@ -7,7 +7,6 @@ using Tame.Scheme.Runtime;
 using Tame.Scheme.Runtime.Parse;
 using Tame.Scheme.Syntax;
 
-#if false
 namespace SchemeUnit
 {
 	/// <summary>
@@ -19,162 +18,70 @@ namespace SchemeUnit
 		public SyntaxTests()
 		{ }
 
-		static string testPattern = "((a b ...) ...)";
-		static string testMatch = "((1 2 3) (4 5) (6) (7) (8 9 10))";
+		private Interpreter terp = new Interpreter();
 
-		public object ParseSomeScheme(string scheme)
+		// These tests test the define-syntax operation, so are dependent on much of the rest of the system working
+
+		[Test]
+		public void BasicSyntax()
 		{
-			Assert.NotNull(scheme);
-
-			TokenReader schemeReader = new TokenReader(new System.IO.StringReader(scheme));
-			Parser schemeParser = new Parser();
-
-			return schemeParser.Parse(schemeReader);
+			Assert.Equals(terp.Evaluate(terp.ParseScheme("(define-syntax basic-syntax (syntax-rules () ((basic-syntax) 1)))")), new Symbol("basic-syntax"));
+			Assert.Equals(terp.Evaluate(terp.ParseScheme("(basic-syntax)")), 1);
 		}
 
 		[Test]
-		public void EllipsisDepth()
+		public void BasicEllipsises()
 		{
-			// Some simple tests of the ellipsisDepth object
-			SyntaxEnvironment.EllipsisDepth depth1 = new SyntaxEnvironment.EllipsisDepth();
-			SyntaxEnvironment.EllipsisDepth depth2 = new SyntaxEnvironment.EllipsisDepth();
-
-			depth1.StartToRepeat();
-			depth2.StartToRepeat();
-			depth1.NextElement();
-			depth2.NextElement();
-			depth1.StartToRepeat();
-			depth2.StartToRepeat();
-			depth1.NextElement();
-			depth2.NextElement();
-			depth1.NextElement();
-			depth2.NextElement();
-
-			Assert.Equals(2, depth1.Depth);
-			Assert.Equals(2, depth2.Depth);
-
-			// Check that equal depths are indeed equal
-			Assert.Equals(depth1.GetHashCode(), depth2.GetHashCode(), "EllipsisDepth hash codes for equal objects do not match");
-			Assert.True(depth1.Equals(depth1), "depth1 must equal itself");
-			Assert.True(depth2.Equals(depth2), "depth2 must equal itself");
-			Assert.True(depth1.Equals(depth2), "depth1 must equal depth2");
-			Assert.True(depth2.Equals(depth1), "depth2 must equal depth1");
-
-			// Check that cloning works
-			depth2 = new SyntaxEnvironment.EllipsisDepth(depth1);
-			Assert.Equals(2, depth2.Depth);
-			Assert.Equals(depth1.GetHashCode(), depth2.GetHashCode(), "EllipsisDepth hash codes for cloned objects do not match");
-			Assert.True(depth1.Equals(depth1), "depth1 must equal itself");
-			Assert.True(depth2.Equals(depth2), "depth2 must equal itself");
-			Assert.True(depth1.Equals(depth2), "depth1 must equal depth2 (cloned)");
-			Assert.True(depth2.Equals(depth1), "depth2 (cloned) must equal depth1");
-
-			// Check that diferent depths have different values
-			depth2.StartToRepeat();
-			depth1.FinishRepeating();
-
-			Assert.Equals(1, depth1.Depth);
-			Assert.Equals(3, depth2.Depth);
-
-			// Assert.NotEquals(depth1.GetHashCode(), depth2.GetHashCode(), "Non-equal Ellipsis depths have the same hash code");
-			Assert.False(depth1.Equals(depth2), "depth1 must not equal depth2 when different");
-			Assert.False(depth2.Equals(depth1), "depth2 must not equal depth1 when different");
+			terp.Evaluate(terp.ParseScheme("(define-syntax basic-ellipsises (syntax-rules () ((basic-ellipsises a ...) (+ a ...))))"));
+			Assert.Equals(terp.Evaluate(terp.ParseScheme("(basic-ellipsises 1 2 3 4)")), 1+2+3+4);
 		}
 
 		[Test]
-		public void SimpleMatching()
+		public void ManyEllipsises()
 		{
-			// Build the test pattern and the test list to match against
-			object testPatternParsed = ParseSomeScheme(testPattern);
-			object testMatchParsed = ParseSomeScheme(testMatch);
-
-			Assert.True(testPatternParsed is Pair, "Parser failed: Failed to produce a pair from the test pattern");
-			Assert.True(testMatchParsed is Pair, "Parser failed: Failed to produce a pair from the scheme to match against");
-
-			// Build a syntax matcher from the result
-			SyntaxElement simpleMatch = SyntaxElement.MakeElementFromScheme(testPatternParsed, new System.Collections.Hashtable());
-			Assert.NotNull(simpleMatch, "Failed to generate a SyntaxElement from the test Pattern");
-
-			// Attempt to match against the syntax
-			SyntaxEnvironment matchEnvironment = new SyntaxEnvironment();
-			Assert.True(simpleMatch.Match(testMatchParsed, out matchEnvironment), "Failed to match the test scheme against the test pattern");
-			Assert.NotNull(matchEnvironment, "Failed to produce a syntax environment from the test scheme");
-
-			// a must have the values 1 4 6 7 8
-			System.Collections.IList aValues = matchEnvironment["a"];
-			Assert.NotNull(aValues, "Failed to find any values for the pattern variable 'a'");
-			Assert.True(aValues.Count == 5, "The symbol 'a' should have matched exactly 5 other symbols");
-			Assert.True(aValues[0] is long, "aValues[0] must be an integer (is a " + aValues[0].GetType() + ")");
-			Assert.True((long)aValues[0] == 1, "aValues[0] != 1");
-			Assert.True((long)aValues[1] == 4, "aValues[1] != 4");
-			Assert.True((long)aValues[2] == 6, "aValues[2] != 6");
-			Assert.True((long)aValues[3] == 7, "aValues[3] != 7");
-			Assert.True((long)aValues[4] == 8, "aValues[4] != 8");
+			terp.Evaluate(terp.ParseScheme("(define-syntax many-ellipsises (syntax-rules () ((many-ellipsises ((a ...) b) ...) '(((a ...) b) ...))))"));
+			Assert.Equals(terp.Evaluate(terp.ParseScheme("(many-ellipsises ((1 2 3) 4) (() 5) ((4 5) 6) (() 8))")), terp.ParseScheme("(((1 2 3) 4) (() 5) ((4 5) 6) (() 8))"));
 		}
 
 		[Test]
-		public void EllipsisDepthSyntax()
+		public void BasicImproper()
 		{
-			// Build the test pattern and the test list to match against
-			object testPatternParsed = ParseSomeScheme(testPattern);
-			object testMatchParsed = ParseSomeScheme(testMatch);
-
-			Assert.True(testPatternParsed is Pair, "Parser failed: Failed to produce a pair from the test pattern");
-			Assert.True(testMatchParsed is Pair, "Parser failed: Failed to produce a pair from the scheme to match against");
-
-			// Build a syntax matcher from the result
-			SyntaxElement simpleMatch = SyntaxElement.MakeElementFromScheme(testPatternParsed, new System.Collections.Hashtable());
-			Assert.NotNull(simpleMatch, "Failed to generate a SyntaxElement from the test Pattern");
-
-			// Attempt to match against the syntax
-			SyntaxEnvironment matchEnvironment;
-			Assert.True(simpleMatch.Match(testMatchParsed, out matchEnvironment), "Failed to match the test scheme against the test pattern");
-			Assert.NotNull(matchEnvironment, "Failed to produce a syntax environment from the test scheme");
-
-			// Attempt to retrieve the 2nd value of b in the 5th list
-			SyntaxEnvironment.EllipsisDepth eDepth = new SyntaxEnvironment.EllipsisDepth();
-
-			// Try against the very first match of the 'a' symbol
-			Assert.True(matchEnvironment.Contains(new Symbol("a").SymbolNumber, eDepth), "Syntax matching failed: the symbol 'a' was never matched");
-			Assert.Equals(1, (long)matchEnvironment.GetRepeatedMatch(new Symbol("a").SymbolNumber, eDepth), "Syntax matching failed: the first value for 'a' must be 1");
-
-			// Move to the fifth pattern
-			eDepth.StartToRepeat();
-			eDepth.NextElement();
-			eDepth.NextElement();
-			eDepth.NextElement();
-			eDepth.NextElement();
-
-			// Move to the second repetition therein
-			eDepth.StartToRepeat();
-			eDepth.NextElement();
-
-			// Check the value exists
-			Assert.True(matchEnvironment.Contains(new Symbol("b").SymbolNumber, eDepth), "Syntax matching failed: The second value of b in the fifth list does not exist");
-
-			// Retrieve the value
-			long secondBValueInFifthList = (long)matchEnvironment.GetRepeatedMatch(new Symbol("b").SymbolNumber, eDepth);
-
-			Assert.Equals(10, secondBValueInFifthList, "Syntax matching failed: The second value of b in the fifth element should be 10");
+			// (You'll probably note that some scheme interpreters can't handle improper syntax like this
+			terp.Evaluate(terp.ParseScheme("(define-syntax basic-improper (syntax-rules () ((basic-improper . x) x)))"));
+			Assert.Equals(terp.Evaluate(terp.ParseScheme("(basic-improper + 1 2)")), 1+2);
 		}
 
 		[Test]
-		public void FindBinding()
+		public void TempBinding()
 		{
-			// Build the test pattern and the test list to match against
-			object testPatternParsed = ParseSomeScheme(testPattern);
+			terp.Evaluate("(define-syntax temp-binding (syntax-rules () ((temp-binding a b) (let ((x a) (y b)) (+ y a)))))");
+			terp.Evaluate("(define x 1)");
+			terp.Evaluate("(define y 2)");
 
-			Assert.True(testPatternParsed is Pair, "Parser failed: Failed to produce a pair from the test pattern");
+			// Bit daft, but if temp binding fails we get (let ((x y) (y x)) (+ y y)), which is 4, and if it succeeds, we should get ... (+ temp y) ..., ie 3
+			Assert.Equals(terp.Evaluate("(temp-binding y x)"), 3);
+		}
 
-			// Build a syntax matcher from the result
-			System.Collections.Hashtable literals = new System.Collections.Hashtable();
-			literals.Add(new Symbol("a"), true);
-			SyntaxElement simpleMatch = SyntaxElement.MakeElementFromScheme(testPatternParsed, literals);
+		[Test]
+		public void TempBindingRec()
+		{
+			terp.Evaluate("(define-syntax temp-binding (syntax-rules () ((temp-binding a b) (letrec ((x a) (y b)) (+ y a)))))");
+			terp.Evaluate("(define x 1)");
+			terp.Evaluate("(define y 2)");
 
-			// 'a' should not be a bound symbol, but 'b' should be
-			Assert.True(simpleMatch.ContainsBoundSymbol("b"), "The symbol 'b' was not bound, when it should be");
-			Assert.False(simpleMatch.ContainsBoundSymbol("a"), "The symbol 'a' was bound, when it should not be");
+			// Bit daft, but if temp binding fails we get (let ((x y) (y x)) (+ y y)), which is 4, and if it succeeds, we should get ... (+ temp y) ..., ie 3
+			Assert.Equals(terp.Evaluate("(temp-binding y x)"), 3);
+		}
+
+		[Test]
+		public void TempBindingStar()
+		{
+			terp.Evaluate("(define-syntax temp-binding (syntax-rules () ((temp-binding a b) (let* ((x a) (y b)) (+ y a)))))");
+			terp.Evaluate("(define x 1)");
+			terp.Evaluate("(define y 2)");
+
+			// Bit daft, but if temp binding fails we get (let ((x y) (y x)) (+ y y)), which is 4, and if it succeeds, we should get ... (+ temp y) ..., ie 3
+			Assert.Equals(terp.Evaluate("(temp-binding y x)"), 3);
 		}
 	}
 }
-#endif
