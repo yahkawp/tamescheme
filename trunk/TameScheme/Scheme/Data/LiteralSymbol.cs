@@ -17,7 +17,7 @@ namespace Tame.Scheme.Data
 		/// </summary>
 		/// <param name="symbol">The symbol being represented</param>
 		/// <param name="env">The environment it should be looked up in</param>
-		public LiteralSymbol(Symbol symbol, Environment env)
+		public LiteralSymbol(ISymbolic symbol, Environment env)
 		{
 			this.symbol = symbol;
 			this.environment = env;
@@ -25,7 +25,7 @@ namespace Tame.Scheme.Data
 
 		#region Data
 
-		Symbol symbol;
+		ISymbolic symbol;
 		Environment environment;
 
 		#endregion
@@ -36,7 +36,23 @@ namespace Tame.Scheme.Data
 		{
 			get
 			{
-				return symbol;
+				return symbol.Symbol;
+			}
+		}
+
+		public object HashValue
+		{
+			get
+			{
+				return symbol.HashValue;
+			}
+		}
+
+		public Data.Environment Location
+		{
+			get
+			{
+				return environment;
 			}
 		}
 

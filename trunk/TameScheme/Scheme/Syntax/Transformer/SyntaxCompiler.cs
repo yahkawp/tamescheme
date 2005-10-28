@@ -210,13 +210,13 @@ namespace Tame.Scheme.Syntax.Transformer
 		/// </summary>
 		/// <param name="template">The template to search</param>
 		/// <returns>The last bound symbol in the template, or null if there was none</returns>
-		protected Data.Symbol LastBoundSymbolForTemplate(object template)
+		protected Data.ISymbolic LastBoundSymbolForTemplate(object template)
 		{
-			if (template is Symbol)
+			if (template is ISymbolic)
 			{
 				// If this is a symbol, then return it
-				if (pattern.ContainsBoundSymbol((Symbol)template))
-					return (Symbol)template;
+				if (pattern.ContainsBoundSymbol((ISymbolic)template))
+					return (ISymbolic)template;
 				else
 					return null;
 			}
@@ -256,7 +256,7 @@ namespace Tame.Scheme.Syntax.Transformer
 
 				while ((checkObject=toCheck.Pop())!=null)
 				{
-					Symbol res = LastBoundSymbolForTemplate(checkObject);
+					ISymbolic res = LastBoundSymbolForTemplate(checkObject);
 					if (res != null) return res;
 				}
 			}
@@ -298,10 +298,10 @@ namespace Tame.Scheme.Syntax.Transformer
 			SyntaxElement umbrella = null;
 
 			// The 'new' umbrella item depends on the value of template
-			if (template is Symbol)
+			if (template is ISymbolic)
 			{
 				// The Symbol must exist as a bound variable - the umbrella item is at the point where the symbol occurs
-				return pattern.BindingForSymbol((Symbol)template);
+				return pattern.BindingForSymbol((ISymbolic)template);
 			}
 			else if (template is Pair || template is ICollection)
 			{
@@ -358,7 +358,7 @@ namespace Tame.Scheme.Syntax.Transformer
 						// No ellipsis, but a list
 						thisUmbrella = Umbrella(item);
 					}
-					else if (item is Symbol && pattern.ContainsBoundSymbol((Symbol)item))
+					else if (item is ISymbolic && pattern.ContainsBoundSymbol((ISymbolic)item))
 					{
 						// Is a bound symbol
 						thisUmbrella = Umbrella(item);
@@ -408,15 +408,15 @@ namespace Tame.Scheme.Syntax.Transformer
 			if (state.currentElement == null) state.currentElement = pattern;
 
 			// What we compile to depends on what the template is
-			if (template is Data.Symbol)
+			if (template is Data.ISymbolic)
 			{
 				// Find the SyntaxElement that bound this symbol
-				SyntaxElement binder = pattern.BindingForSymbol((Symbol)template);
+				SyntaxElement binder = pattern.BindingForSymbol((ISymbolic)template);
 
 				if (binder == null)
 				{
 					// This was a literal symbol, so it should be inserted as a symbol bound to a specific environment
-					result.Add(SyntaxOp.Op.WriteLiteral, new LiteralSymbol((Symbol)template, state.topLevelEnvironment));
+					result.Add(SyntaxOp.Op.WriteLiteral, new LiteralSymbol((ISymbolic)template, state.topLevelEnvironment));
 				}
 				else
 				{
@@ -478,7 +478,7 @@ namespace Tame.Scheme.Syntax.Transformer
 				{
 					bool isEllipsis = false;								// True if this item is followed by an ellipsis
 
-					if (item+1<contents.Count && contents[item+1] is Symbol && ellipsis.Equals(contents[item+1]))
+					if (item+1<contents.Count && contents[item+1] is ISymbolic && ellipsis.Equals(contents[item+1]))
 					{
 						// This item is followed by an ellipsis: use ellipsis handling behaviour
 						isEllipsis = true;

@@ -41,7 +41,7 @@ namespace Tame.Scheme.Syntax
 		/// </summary>
 		/// <param name="theSymbol">The symbol to match against</param>
 		/// <param name="isLiteral">If true, the symbol is matched literally, otherwise it indicates a bound value in the syntax environment</param>
-		public SyntaxElement(Data.Symbol theSymbol, bool isLiteral)
+		public SyntaxElement(Data.ISymbolic theSymbol, bool isLiteral)
 		{
 			element = theSymbol;
 			if (isLiteral)
@@ -187,9 +187,9 @@ namespace Tame.Scheme.Syntax
 		/// <summary>
 		/// The symbol that this element represents (literal or bound)
 		/// </summary>
-		public Data.Symbol SymbolValue
+		public Data.ISymbolic SymbolValue
 		{
-			get { return (Data.Symbol)element; }
+			get { return (Data.ISymbolic)element; }
 		}
 
 		/// <summary>
@@ -275,7 +275,7 @@ namespace Tame.Scheme.Syntax
 			{
 				case ElementType.BoundSymbol:
 					// This is a bound symbol: add to the hash table
-					boundTable.Add(element, this);
+					boundTable.Add(((Data.ISymbolic)element).HashValue, this);
 					break;
 
 				case ElementType.ImproperList:
@@ -299,7 +299,7 @@ namespace Tame.Scheme.Syntax
 		/// <summary>
 		/// Returns true if the pattern specified by this SyntaxElement binds the given symbol
 		/// </summary>
-		public bool ContainsBoundSymbol(Data.Symbol symbol)
+		public bool ContainsBoundSymbol(Data.ISymbolic symbol)
 		{
 			if (boundSymbols == null)
 			{
@@ -309,7 +309,7 @@ namespace Tame.Scheme.Syntax
 			}
 
 			// Check to see if the supplied symbol is a bound one
-			return boundSymbols.Contains(symbol);
+			return boundSymbols.Contains(symbol.HashValue);
 		}
 
 		/// <summary>
@@ -331,7 +331,7 @@ namespace Tame.Scheme.Syntax
 		/// <summary>
 		/// Returns the SyntaxElement that is a child of this syntax element and which binds the given symbol (or null)
 		/// </summary>
-		public SyntaxElement BindingForSymbol(Data.Symbol symbol)
+		public SyntaxElement BindingForSymbol(Data.ISymbolic symbol)
 		{
 			if (boundSymbols == null)
 			{
@@ -341,7 +341,7 @@ namespace Tame.Scheme.Syntax
 			}
 
 			// Find the element that binds this symbol in the hash table
-			return (SyntaxElement)boundSymbols[symbol];
+			return (SyntaxElement)boundSymbols[symbol.HashValue];
 		}
 
 		#endregion
@@ -379,7 +379,7 @@ namespace Tame.Scheme.Syntax
 					}
 
 				case ElementType.BoundSymbol:
-					boundEnvironment.StartSymbol((Data.Symbol)element);
+					boundEnvironment.StartSymbol((Data.ISymbolic)element);
 					boundEnvironment.AddValue(matchAgainst);
 					boundEnvironment.FinishSymbol();
 					return true;
@@ -589,9 +589,9 @@ namespace Tame.Scheme.Syntax
 
 			if (literals != null)
 			{
-				foreach (Data.Symbol sym in literals)
+				foreach (Data.ISymbolic sym in literals)
 				{
-					literalDictionary[sym] = true;
+					literalDictionary[sym.HashValue] = true;
 				}
 			}
 
@@ -609,16 +609,16 @@ namespace Tame.Scheme.Syntax
 			if (schemeObject == null) return new SyntaxElement(null);
 
 			// Create an element depending on the type
-			if (schemeObject is Data.Symbol)
+			if (schemeObject is Data.ISymbolic)
 			{
 				// Symbols can be literal or not
-				if (literals.Contains(schemeObject) && ((bool)literals[schemeObject]) == true)
+				if (literals.Contains(((Data.ISymbolic)schemeObject).HashValue) && ((bool)literals[((Data.ISymbolic)schemeObject).HashValue]) == true)
 				{
-					return new SyntaxElement((Data.Symbol)schemeObject, true);
+					return new SyntaxElement((Data.ISymbolic)schemeObject, true);
 				}
 				else
 				{
-					return new SyntaxElement((Data.Symbol)schemeObject, false);
+					return new SyntaxElement((Data.ISymbolic)schemeObject, false);
 				}
 			}
 			else if (schemeObject is Data.Pair)

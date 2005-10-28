@@ -331,7 +331,7 @@ namespace Tame.Scheme.Runtime
 			}
 			else if (obj is Data.Symbol)
 			{
-				// Just convert symbols to strings
+				// Just convert symbols to strings (other ISymbolic objects are treated differently)
 				return obj.ToString();
 			}
 			else if (obj is Data.Unspecified)
