@@ -73,6 +73,14 @@ namespace Tame.Scheme.Syntax.Primitives
 			CompileState letState = new CompileState(state, false);
 			letState.Local = letLocal;
 
+			CompileState varState;
+
+			// The compile state the variable expressions are evaluated in (for let, this is the parent state)
+			if (letType == Type.Let)
+				varState = state;
+			else
+				varState = letState;
+
 			// Specify where the operation to actually create the environment should go (we don't know the full extent of it
 			// until after we've compiled all the expressions)
 			int newEnvironmentOpPos = -1;			
@@ -124,7 +132,7 @@ namespace Tame.Scheme.Syntax.Primitives
 					Data.ISymbolic varSym = (Data.ISymbolic)thisVariable.Child.Value;
 
 					// Evaluate this variable
-					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, letState);
+					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, varState);
 					loadEnvironment.AddRange(varValueExpr.expression);
 
 					if (letType == Type.LetStar) letLocal[varSym] = Data.Unspecified.Value;
