@@ -111,10 +111,10 @@ namespace SchemeUnit
 
 			terp.TopLevelEnvironment["x"] = 2;
 			Assert.Equals(1, terp.Evaluate(simpleTest));
-			terp.TopLevelEnvironment["x"] = 4;
-			Assert.Equals(2, terp.Evaluate(simpleTest));
 			terp.TopLevelEnvironment["x"] = 3;
 			Assert.Equals(3, terp.Evaluate(simpleTest));
+			terp.TopLevelEnvironment["x"] = 4;
+			Assert.Equals(2, terp.Evaluate(simpleTest));
 		}
 
 		[Test]

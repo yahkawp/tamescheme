@@ -87,6 +87,9 @@ namespace Tame.Scheme.Runtime
 		// Conditionals
 		static ISyntax schemeIf = new Syntax.Primitives.If();
 
+		// Flow control
+		static ISyntax schemeBegin = new Syntax.Primitives.Begin();
+
 		// Definitions
 		static ISyntax schemeLambda = new Syntax.Primitives.Lambda();
 		static ISyntax schemeDefine = new Syntax.Primitives.Define();
@@ -138,6 +141,9 @@ namespace Tame.Scheme.Runtime
 
 			// Conditions
 			DefineSyntax(schemeIf);
+
+			// Flow control
+			DefineSyntax(schemeBegin);
 
 			// Definitions
 			DefineSyntax(schemeLambda);
