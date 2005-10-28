@@ -32,7 +32,7 @@ namespace SchemeUnit
 		[Test]
 		public void BasicLiteral()
 		{
-			Assert.Equals(terp.Evaluate(terp.ParseScheme("(define-syntax basic-literal (syntax-rules (lit) ((basic-literal lit x lit) x)))")), new Symbol("basic-syntax"));
+			Assert.Equals(terp.Evaluate(terp.ParseScheme("(define-syntax basic-literal (syntax-rules (lit) ((basic-literal lit x lit) x)))")), new Symbol("basic-literal"));
 			Assert.Equals(terp.Evaluate(terp.ParseScheme("(basic-literal lit 5 lit)")), 5);
 		}
 

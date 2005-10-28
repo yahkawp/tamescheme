@@ -176,8 +176,8 @@ namespace Tame.Scheme.Syntax.Transformer
 				{
 					// Move to the specified element
 					result.Add(SyntaxOp.Op.MoveNumberRight, movementOffset);
-					state.currentElement = (SyntaxElement)elements[endOffset];
 				}
+				state.currentElement = (SyntaxElement)elements[endOffset];
 
 				// Sanity check
 				if (state.currentElement != thisStage)
