@@ -81,6 +81,9 @@ namespace Tame.Scheme.Runtime
 
 		#region Static syntax defintions
 
+		// Quoting
+		static ISyntax schemeQuote = new Syntax.Primitives.Quote();
+
 		// Conditionals
 		static ISyntax schemeIf = new Syntax.Primitives.If();
 
@@ -130,6 +133,9 @@ namespace Tame.Scheme.Runtime
 		/// </remarks>
 		public virtual void DefineStandardSyntax(int revision, bool extensions)
 		{
+			// Quoting
+			DefineSyntax(schemeQuote);
+
 			// Conditions
 			DefineSyntax(schemeIf);
 
