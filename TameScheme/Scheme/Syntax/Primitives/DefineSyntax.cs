@@ -62,7 +62,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			SyntaxNode literalNode = null;
 
 			if (env[literal] != null)
-				literalNode = env[literal].Parent;
+				literalNode = env[literal];
 
 			// ... and the list of patterns and templates
 			SyntaxNode templateNode = null;
