@@ -374,6 +374,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Syntax\Primitives\Quote.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Syntax\Primitives\UserSyntax.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
