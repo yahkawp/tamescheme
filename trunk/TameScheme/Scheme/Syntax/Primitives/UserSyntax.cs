@@ -54,7 +54,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			object translatedScheme = matchingTransformer.Transform(env.SyntaxTree);
 
 			// Rename any temporary variables
-			translatedScheme = state.TemporaryBinder.BindScheme(translatedScheme, state.TopLevel);
+			translatedScheme = state.TemporaryBinder.BindScheme(translatedScheme, state);
 
 			// Compile the result
 			return BExpression.BuildExpression(translatedScheme, state);

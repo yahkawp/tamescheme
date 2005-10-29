@@ -45,12 +45,12 @@ namespace Tame.Scheme.Syntax
 			elements.CopyTo(this.element, 0);
 		}
 
-		public int Match(object scheme, out SyntaxEnvironment bindingEnvironment)
+		public int Match(object scheme, Runtime.CompileState state, out SyntaxEnvironment bindingEnvironment)
 		{
 			int x = 0;
 			foreach (SyntaxElement elem in element)
 			{
-				if (elem.Match(scheme, out bindingEnvironment)) return x;
+				if (elem.Match(scheme, state, out bindingEnvironment)) return x;
 				x++;
 			}
 

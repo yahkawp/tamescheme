@@ -35,7 +35,7 @@ namespace Tame.SchemeTest
 
 			if (template == null)
 			{
-				if (matcher.Match(matchAgainst, out newEnv))
+				if (matcher.Match(matchAgainst, state, out newEnv))
 				{
 					res = new BExpression(new Operation(Op.Push, newEnv.SyntaxTree));
 				}
@@ -48,7 +48,7 @@ namespace Tame.SchemeTest
 			{
 				SyntaxCompiler compiler = new SyntaxCompiler(matcher);
 
-				if (matcher.Match(matchAgainst, out newEnv))
+				if (matcher.Match(matchAgainst, state, out newEnv))
 				{
 					Transformation syntaxTransformer = compiler.Compile(template, state.TopLevel);
 
@@ -61,7 +61,7 @@ namespace Tame.SchemeTest
 
 					Binder testBinder = new Binder();
 
-					syntaxResult = testBinder.BindScheme(syntaxResult, state.TopLevel);
+					syntaxResult = testBinder.BindScheme(syntaxResult, state);
 
 					res = new BExpression(new Operation(Op.Push, syntaxResult));
 				}

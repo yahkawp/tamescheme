@@ -39,7 +39,7 @@ namespace Tame.Scheme.Syntax
 		/// <summary>
 		/// Constructs a syntax element that matches against a symbol
 		/// </summary>
-		/// <param name="theSymbol">The symbol to match against</param>
+		/// <param name="theSymbol">The symbol to match against. 'Local' symbols (those that have no Location) are assumed to be bound to the top-level environment: this is provided as a short-cut.</param>
 		/// <param name="isLiteral">If true, the symbol is matched literally, otherwise it indicates a bound value in the syntax environment</param>
 		public SyntaxElement(Data.ISymbolic theSymbol, bool isLiteral)
 		{
@@ -348,7 +348,7 @@ namespace Tame.Scheme.Syntax
 
 		#region Matching
 
-		private bool Match(object matchAgainst, SyntaxEnvironment boundEnvironment, bool isEllipsis)
+		private bool Match(object matchAgainst, Runtime.CompileState state, SyntaxEnvironment boundEnvironment, bool isEllipsis)
 		{
 			Data.Pair list;
 			int itemCount;
@@ -361,9 +361,27 @@ namespace Tame.Scheme.Syntax
 			{
 				case ElementType.Literal:
 					// (We don't bother storing these in the syntax environment - not sure that collecting, say, a bunch of 'true' values is particularly useful)
+
+					if (element is Data.ISymbolic && matchAgainst is Data.ISymbolic)
+					{
+						// If we're matching two symbolic entries, they must have the same binding
+						Data.ISymbolic iSym = (Data.ISymbolic)element;
+						Data.Environment matchLocation = ((Data.ISymbolic)matchAgainst).Location;
+						Data.Environment.Binding symbolBinding = null;
+
+						if (state.Local != null) symbolBinding = state.Local.BindingForSymbol(iSym);
+						if (symbolBinding == null && state.TopLevel != null) symbolBinding = state.TopLevel.BindingForSymbol(iSym);
+
+						// If no binding is found, symbol must be undefined or in the top-level environment
+						if (symbolBinding == null && (matchLocation != null && matchLocation != state.TopLevel)) return false;
+
+						// Otherwise, environments MUST be the same
+						if (symbolBinding != null && matchLocation != symbolBinding.Environment) return false;
+					}
+
 					if (!element.Equals(matchAgainst))
 					{
-						// An exception: ISymbolic entries can also match an identical Symbol
+						// An exception: ISymbolic entries can also match an identical Symbol with the same binding
 						if (element is Data.ISymbolic)
 						{
 							return ((Data.ISymbolic)element).Symbol.Equals(matchAgainst);
@@ -394,7 +412,7 @@ namespace Tame.Scheme.Syntax
 						list = (Data.Pair)currentMatch;
 
 						// Match this element against this item
-						if (!item.Match(list.Car, boundEnvironment, false)) return false;
+						if (!item.Match(list.Car, state, boundEnvironment, false)) return false;
 
 						// Move to the next element
 						currentMatch = list.Cdr;
@@ -424,7 +442,7 @@ namespace Tame.Scheme.Syntax
 						list = (Data.Pair)currentMatch;
 
 						// Match this element against this item
-						if (!item.Match(list.Car, boundEnvironment, false)) return false;
+						if (!item.Match(list.Car, state, boundEnvironment, false)) return false;
 
 						// Move to the next element
 						currentMatch = list.Cdr;
@@ -433,7 +451,7 @@ namespace Tame.Scheme.Syntax
 					// Match the last item
 					itemEnum.MoveNext();
 					SyntaxElement improperItem = (SyntaxElement)itemEnum.Current;
-					if (!improperItem.Match(currentMatch, boundEnvironment, false)) return false;
+					if (!improperItem.Match(currentMatch, state, boundEnvironment, false)) return false;
 
 					// Success
 					boundEnvironment.FinishList();
@@ -456,7 +474,7 @@ namespace Tame.Scheme.Syntax
 						list = (Data.Pair)currentMatch;
 
 						// Match this element against this item
-						if (!item.Match(list.Car, boundEnvironment, false)) return false;
+						if (!item.Match(list.Car, state, boundEnvironment, false)) return false;
 
 						// Move to the next element
 						currentMatch = list.Cdr;
@@ -474,7 +492,7 @@ namespace Tame.Scheme.Syntax
 						list = (Data.Pair)currentMatch;
 
 						// Match this element against the last item
-						if (!ellipsisItem.Match(list.Car, boundEnvironment, true)) return false;
+						if (!ellipsisItem.Match(list.Car, state, boundEnvironment, true)) return false;
 
 						// Move to the next element
 						currentMatch = list.Cdr;
@@ -509,7 +527,7 @@ namespace Tame.Scheme.Syntax
 						if (!matchEnum.MoveNext()) return false;							// Vector is too short
 
 						// Try matching the item
-						if (!item.Match(matchEnum.Current, boundEnvironment, false)) return false;
+						if (!item.Match(matchEnum.Current, state, boundEnvironment, false)) return false;
 					}
 
 					if (type == ElementType.EllipsisVector)
@@ -521,7 +539,7 @@ namespace Tame.Scheme.Syntax
 						while (matchEnum.MoveNext())
 						{
 							// Try matching this item
-							if (!ellipsisItem.Match(matchEnum.Current, boundEnvironment, true)) return false;
+							if (!ellipsisItem.Match(matchEnum.Current, state, boundEnvironment, true)) return false;
 						}
 					}
 					else
@@ -545,18 +563,19 @@ namespace Tame.Scheme.Syntax
 		/// Matches this SyntaxElement against a .NET object
 		/// </summary>
 		/// <param name="matchAgainst">The object to match against</param>
+		/// <param name="state">The current compilation state. This is used when matching literal symbols: they must have equivalent bindings.</param>
 		/// <param name="boundEnvironment">
 		/// 'Bound' values are defined into this environment. 'Ellipsis' values are defined as ICollection objects, the rest are
 		/// just defined as objects. This environment is cleared before matching, and may contain garbage afterwards if the match was
 		/// unsuccessful.
 		/// </param>
 		/// <returns>true if the match is successful, false otherwise</returns>
-		public bool Match(object matchAgainst, out SyntaxEnvironment boundEnvironment)
+		public bool Match(object matchAgainst, Runtime.CompileState state, out SyntaxEnvironment boundEnvironment)
 		{
 			// Clear the environment
 			boundEnvironment = new SyntaxEnvironment();
 
-			return Match(matchAgainst, boundEnvironment, false);
+			return Match(matchAgainst, state, boundEnvironment, false);
 		}
 
 		#endregion
