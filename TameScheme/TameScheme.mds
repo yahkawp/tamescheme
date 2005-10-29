@@ -1,0 +1,20 @@
+<Combine name="TameScheme" fileversion="2.0">
+  <Configurations active="Debug">
+    <Configuration name="Debug" ctype="CombineConfiguration">
+      <Entry configuration="Debug" build="True" name="Scheme" />
+      <Entry configuration="Debug" build="True" name="SchemeTest" />
+    </Configuration>
+    <Configuration name="Release" ctype="CombineConfiguration">
+      <Entry configuration="Debug" build="True" name="Scheme" />
+      <Entry configuration="Debug" build="True" name="SchemeTest" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="SchemeTest" single="True">
+    <Execute type="None" entry="Scheme" />
+    <Execute type="None" entry="SchemeTest" />
+  </StartMode>
+  <Entries>
+    <Entry filename="./Scheme/Scheme.mdp" />
+    <Entry filename="./SchemeTest/SchemeTest.mdp" />
+  </Entries>
+</Combine>

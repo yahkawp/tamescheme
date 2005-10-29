@@ -46,7 +46,6 @@ namespace Tame.Scheme.Procedure.Arithmetic
 		{
 			// Divide works differently with ints and longs to the standard iterator (first value is promoted to a rational always if it's an int, decimal or long)
 			int length = args.Length;
-			object[] realArgs = args;
 
 			if (length == 1) return args[0];				// Not techncially valid
 

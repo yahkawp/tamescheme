@@ -122,8 +122,6 @@ namespace Tame.Scheme.Data
 
 		static object PromoteInexact(object number, Type promoteTo)
 		{
-			Type type = number.GetType();
-
 			if (number is float)
 			{
 				if (promoteTo == typeof(double)) return (double)(float)number;
