@@ -75,6 +75,19 @@ namespace SchemeUnit
 			Assert.Equals(Unspecified.Value, terp.Evaluate("(letrec ((x y) (y x)) x)"));
 		}
 
+		[Test("let")]
+		public void NestedLet()
+		{
+			Assert.Equals(3, terp.Evaluate("(let ((x 1) (y 2)) (+ (let ((x 2)) x) x))"));
+		}
+
+		[Test("let")]
+		public void NestedLetStar()
+		{
+			Assert.Equals(3, terp.Evaluate("(let ((x 1) (y 2)) (+ (let* ((x 2) (y x)) y) x))"));
+			Assert.Equals(2, terp.Evaluate("(let ((x 1) (y 2)) (+ (let* ((y x) (x 2)) y) x))"));
+		}
+
 		[Test("lambda")]
 		public void Lambda()
 		{

@@ -157,6 +157,7 @@ namespace Tame.Scheme.Syntax.Primitives
 					if (letType == Type.LetStar || letType == Type.Letrec)
 					{
 						loadEnvironment.Add(new Operation(Op.DefineRelative, letLocal.RelativeBindingForSymbol(varSym)));
+						symbols.Add(varSym);
 					}
 					else if (letType == Type.Let)
 					{
@@ -216,8 +217,11 @@ namespace Tame.Scheme.Syntax.Primitives
 			else
 				letExpr = letExpr.Add(lastExpr);
 
-			// Pop the environment we pushed
-			letExpr = letExpr.Add(new Operation(Op.PopEnvironment, null));
+			// Pop the environment we pushed (if we pushed a new environment)
+			if (useNewEnvironment)
+			{
+				letExpr = letExpr.Add(new Operation(Op.PopEnvironment, null));
+			}
 
 			// At this point, we know exactly what the environment will look like, so we can add the operation to build it
 			if (useNewEnvironment)
