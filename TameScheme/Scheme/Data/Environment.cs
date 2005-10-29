@@ -243,6 +243,11 @@ namespace Tame.Scheme.Data
 			Data.ISymbolic symbol;
 
 			/// <summary>
+			/// Gets the environment this binding maps to
+			/// </summary>
+			public Environment Environment { get { return env; } }
+
+			/// <summary>
 			/// Gets/sets the value associated with this binding
 			/// </summary>
 			public object Value

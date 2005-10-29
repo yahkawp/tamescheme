@@ -338,7 +338,7 @@ namespace Tame.Scheme.Runtime
 					// Syntax: try to match against the expression
 					Syntax.SyntaxEnvironment syntaxEnvironment = null;
 
-					int match = syntax.Syntax.Match(currentPair.Cdr, out syntaxEnvironment);
+					int match = syntax.Syntax.Match(currentPair.Cdr, state, out syntaxEnvironment);
 
 					if (match >= 0)
 					{

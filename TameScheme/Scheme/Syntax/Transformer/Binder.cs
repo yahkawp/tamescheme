@@ -58,22 +58,22 @@ namespace Tame.Scheme.Syntax.Transformer
 		/// </summary>
 		public class BindingState
 		{
-			internal BindingState(Binder owner, Data.Environment topLevel)
+			internal BindingState(Binder owner, Runtime.CompileState compileState)
 			{
 				this.owner = owner;
-				this.topLevel = topLevel;
+				this.compileState = compileState;
 			}
 			internal BindingState(BindingState previousState)
 			{
 				this.previousState = previousState;
 				this.owner = previousState.owner;
-				this.topLevel = previousState.topLevel;
+				this.compileState = previousState.compileState;
 			}
 
 			internal Hashtable reboundSymbols = new Hashtable();					// Maps symbols to symbols
 			internal BindingState previousState = null;								// The 'previous' state in the heirarchy of states
 			internal Binder owner = null;											// The 'owner' (used to assign temporary variable names)
-			internal Data.Environment topLevel = null;								// The 'top-level' environment (used when invoking binding manually)
+			internal Runtime.CompileState compileState = null;						// The current compilation state
 
 			/// <summary>
 			/// Requests that a symbol be bound to another within this binding context
@@ -141,7 +141,7 @@ namespace Tame.Scheme.Syntax.Transformer
 			/// <returns>The same scheme with free symbols changed to temporaries</returns>
 			public object Bind(object scheme)
 			{
-				return owner.BindScheme(scheme, topLevel, this);
+				return owner.BindScheme(scheme, compileState, this);
 			}
 		}
 
@@ -152,12 +152,12 @@ namespace Tame.Scheme.Syntax.Transformer
 		/// <param name="scheme">The scheme expression to change the bindings on</param>
 		/// <param name="topLevel">The top-level environment this will be evaluated in</param>
 		/// <returns>A rewritten scheme expression</returns>
-		public object BindScheme(object scheme, Data.Environment topLevel)
+		public object BindScheme(object scheme, Runtime.CompileState compileState)
 		{
-			return BindScheme(scheme, topLevel, new BindingState(this, topLevel));
+			return BindScheme(scheme, compileState, new BindingState(this, compileState));
 		}
 
-		private object BindScheme(object scheme, Data.Environment topLevel, BindingState state)
+		private object BindScheme(object scheme, Runtime.CompileState compileState, BindingState state)
 		{
 			if (scheme is Pair)
 			{
@@ -169,8 +169,8 @@ namespace Tame.Scheme.Syntax.Transformer
 				if (firstElement is Symbol)
 				{
 					// Look up the symbol value in the top-level environment (we're only interested in syntax at this point)
-					if (topLevel.Contains((Symbol)firstElement))
-						firstSymbolValue = topLevel[(Symbol)firstElement];
+					if (compileState.TopLevel.Contains((Symbol)firstElement))
+						firstSymbolValue = compileState.TopLevel[(Symbol)firstElement];
 				}
 				else if (firstElement is LiteralSymbol)
 				{
@@ -182,8 +182,8 @@ namespace Tame.Scheme.Syntax.Transformer
 				else if (firstElement is ISymbolic)
 				{
 					// Other symbolic values: also look up in the top-level environment
-					if (topLevel.Contains((Symbol)firstElement))
-						firstSymbolValue = topLevel[((ISymbolic)firstElement).Symbol];
+					if (compileState.TopLevel.Contains((Symbol)firstElement))
+						firstSymbolValue = compileState.TopLevel[((ISymbolic)firstElement).Symbol];
 				}
 
 				if (firstSymbolValue != null && firstSymbolValue is SchemeSyntax)
@@ -197,7 +197,7 @@ namespace Tame.Scheme.Syntax.Transformer
 					if (syntaxImplementation is IBinding || syntaxImplementation is IQuoted)
 					{
 						// We only actually use the match if this is a binding or quoted syntax
-						int syntaxMatch = ((SchemeSyntax)firstSymbolValue).Syntax.Match(schemePair.Cdr, out matchEnvironment);
+						int syntaxMatch = ((SchemeSyntax)firstSymbolValue).Syntax.Match(schemePair.Cdr, compileState, out matchEnvironment);
 
 						// Do nothing if there's no match
 						if (syntaxMatch < 0) return scheme;
@@ -239,13 +239,13 @@ namespace Tame.Scheme.Syntax.Transformer
 							// Append to the list (importantly note that the first element, representing the syntax, is bound to the 'outer' state)
 							if (newList == null)
 							{
-								thisNewElement = new Pair(BindScheme(listElement.Car, topLevel, outerState), null);
+								thisNewElement = new Pair(BindScheme(listElement.Car, compileState, outerState), null);
 
 								newListEnd = newList = thisNewElement;
 							}
 							else
 							{
-								thisNewElement = new Pair(BindScheme(listElement.Car, topLevel, state), null);
+								thisNewElement = new Pair(BindScheme(listElement.Car, compileState, state), null);
 
 								newListEnd.Cdr = thisNewElement;
 								newListEnd = thisNewElement;
@@ -259,7 +259,7 @@ namespace Tame.Scheme.Syntax.Transformer
 							else
 							{
 								// This list is improper: bind the final element
-								newListEnd.Cdr = BindScheme(listElement.Cdr, topLevel, state);
+								newListEnd.Cdr = BindScheme(listElement.Cdr, compileState, state);
 
 								listElement = null;
 							}
@@ -280,7 +280,7 @@ namespace Tame.Scheme.Syntax.Transformer
 					while (listElement != null)
 					{
 						// Construct a new element with suitable binding
-						Pair thisNewElement = new Pair(BindScheme(listElement.Car, topLevel, state), null);
+						Pair thisNewElement = new Pair(BindScheme(listElement.Car, compileState, state), null);
 
 						// Append to the list
 						if (newList == null)
@@ -301,7 +301,7 @@ namespace Tame.Scheme.Syntax.Transformer
 						else
 						{
 							// This list is improper: bind the final element
-							newListEnd.Cdr = BindScheme(listElement.Cdr, topLevel, state);
+							newListEnd.Cdr = BindScheme(listElement.Cdr, compileState, state);
 
 							listElement = null;
 						}
