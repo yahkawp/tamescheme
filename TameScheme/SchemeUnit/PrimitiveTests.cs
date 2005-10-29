@@ -88,6 +88,33 @@ namespace SchemeUnit
 			Assert.Equals(2, terp.Evaluate("(let ((x 1) (y 2)) (+ (let* ((y x) (x 2)) y) x))"));
 		}
 
+		[Test("let")]
+		public void LetTail()
+		{
+			terp.Evaluate("(define test-add (lambda (x y) (+ x y)))");
+
+			// Basically let in a tail context and a couple of function calls
+			Assert.Equals(6, terp.Evaluate("((lambda () (let ((x (test-add 1 2))) (test-add x 3))))"));
+		}
+
+		[Test("let")]
+		public void LetStarTail()
+		{
+			terp.Evaluate("(define test-add (lambda (x y) (+ x y)))");
+
+			// Basically let in a tail context and a couple of function calls
+			Assert.Equals(7, terp.Evaluate("((lambda () (let* ((x (test-add 1 2))) (test-add x 4))))"));
+		}
+
+		[Test("let")]
+		public void LetRecTail()
+		{
+			terp.Evaluate("(define test-add (lambda (x y) (+ x y)))");
+
+			// Basically let in a tail context and a couple of function calls
+			Assert.Equals(8, terp.Evaluate("((lambda () (letrec ((x (test-add 1 2))) (test-add x 5))))"));
+		}
+
 		[Test("lambda")]
 		public void Lambda()
 		{

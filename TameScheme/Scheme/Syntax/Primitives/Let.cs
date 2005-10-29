@@ -91,7 +91,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 			// The compile state the variable expressions are evaluated in (for let, this is the parent state)
 			if (letType == Type.Let)
-				varState = state;
+				varState = new CompileState(state, false);
 			else
 				varState = letState;
 
