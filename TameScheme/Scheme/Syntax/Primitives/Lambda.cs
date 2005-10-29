@@ -86,6 +86,7 @@ namespace Tame.Scheme.Syntax.Primitives
 					// Improper list: mark as such, and add the argument
 					lastIsAList = true;
 					arguments.Add(args);
+					argumentEnvironment[(Data.ISymbolic)args] = Data.Unspecified.Value;
 					break;
 				}
 				else
@@ -103,10 +104,10 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// TODO: define, let in a tail context might introduce new arguments: we need to define this later
-			lambdaOperations.Add(Operation.CreateLoadEnvironment(argumentEnvironment, symbols, lastIsAList, false));
+			// lambdaOperations.Add(Operation.CreateLoadEnvironment(argumentEnvironment, symbols, lastIsAList, false));
 
 			// Build the expression from the statements
-			BExpression lambdaExpression = new BExpression(lambdaOperations);
+			BExpression lambdaExpression = null;
 			BExpression lastExpression = null;
 			CompileState tailState = new CompileState(lambdaState, true);
 
@@ -117,7 +118,10 @@ namespace Tame.Scheme.Syntax.Primitives
 				if (lastExpression != null)
 				{
 					// Append the last expression to this expression
-					lambdaExpression = lambdaExpression.Add(lastExpression);
+					if (lambdaExpression == null)
+						lambdaExpression = lastExpression;
+					else
+						lambdaExpression = lambdaExpression.Add(lastExpression);
 					
 					// Discard the result
 					lambdaExpression = lambdaExpression.Add(new Operation(Op.Pop));
@@ -134,7 +138,15 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 
 			// Append the last expression.
-			lambdaExpression = lambdaExpression.Add(lastExpression);
+			if (lambdaExpression == null)
+				lambdaExpression = lastExpression;
+			else
+				lambdaExpression = lambdaExpression.Add(lastExpression);
+
+			// At this point, we know how to create the environment for this expression (we know where the locals go)
+			lambdaOperations.Add(Operation.CreateLoadEnvironment(argumentEnvironment, symbols, lastIsAList, false));
+
+			lambdaExpression = new BExpression(lambdaOperations).Add(lambdaExpression);
 
 			// Pop the stack before returning
 			lambdaExpression = lambdaExpression.Add(new Operation(Op.PopFrame));
