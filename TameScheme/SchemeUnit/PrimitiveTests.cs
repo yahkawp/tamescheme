@@ -134,12 +134,24 @@ namespace SchemeUnit
 		}
 
 		[Test("define")]
-		public void BlockDefine()
+		public void BlockLetDefine()
 		{
 			terp.TopLevelEnvironment["x"] = 123;
 			terp.TopLevelEnvironment["y"] = 123;
 
 			Assert.Equals(15, terp.Evaluate("(let ((x 5)) (define y (+ 5 x)) (+ y x))"));
+
+			Assert.Equals(123, terp.TopLevelEnvironment["x"]);
+			Assert.Equals(123, terp.TopLevelEnvironment["y"]);
+		}
+
+		[Test("define")]
+		public void BlockLambdaDefine()
+		{
+			terp.TopLevelEnvironment["x"] = 123;
+			terp.TopLevelEnvironment["y"] = 123;
+
+			Assert.Equals(15, terp.Evaluate("((lambda (x) (define y (+ 5 x)) (+ y x)) 5)"));
 
 			Assert.Equals(123, terp.TopLevelEnvironment["x"]);
 			Assert.Equals(123, terp.TopLevelEnvironment["y"]);
