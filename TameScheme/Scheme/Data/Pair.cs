@@ -93,6 +93,36 @@ namespace Tame.Scheme.Data
 			}
 		}
 
+		/// <summary>
+		/// Constructs a pair with the contents of a collection (ie, create a list from the collection)
+		/// </summary>
+		/// <param name="collection">The collection to create a list from. This collection must have at least one object for this constructor to work.</param>
+		/// <param name="offset">The offset in the collection to start building the pair from</param>
+		public Pair(IList collection, int offset)
+		{
+			Pair thePair = this;
+
+			// The collection must have at least one object for this to be valid
+			// TODO: make this a proper scheme exception
+			if (collection.Count <= 0) throw new System.Exception("In order to create a list from a collection, the collection must have at least one entry");
+
+			// Add each object in the collection to this pair
+			lock (collection.SyncRoot)
+			{
+				int count = collection.Count;
+
+				for (int x=offset; x<count; x++)
+				{
+					thePair.Car = collection[x];
+
+					if (x == count-1) break;
+
+					thePair.Cdr = new Pair();
+					thePair = (Pair)thePair.Cdr;
+				}
+			}
+		}
+
 		#region Variables
 
 		// The Car object for this pair
