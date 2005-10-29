@@ -82,6 +82,73 @@ namespace Tame.Scheme.Data
 
 		#region Accessing the environment
 
+		#region Temporary bindings
+
+		// These can be used to 'temporarily' rebind values to other values
+		HybridDictionary temporaryHistory = null;
+
+		/// <summary>
+		/// 'Temporarily' binds the given symbol, remembering the old location for later
+		/// </summary>
+		/// <param name="symbol">The symbol to assign a temporary binding to</param>
+		/// <remarks>
+		/// Using 'temporary' binding allows syntax like let to re-use an existing environment. The locations created by this call are not
+		/// re-used: this is so that syntax like (let ((x 1)) (lambda () x)) won't find that later things overwrite that value of x.
+		/// </remarks>
+		public void BindTemporary(ISymbolic symbol)
+		{
+			// Construct a history object
+			if (temporaryHistory == null) temporaryHistory = new HybridDictionary();
+
+			// If there's no history for this symbol, create one
+			if (!temporaryHistory.Contains(symbol.HashValue))
+			{
+				temporaryHistory[symbol.HashValue] = new Stack();
+			}
+
+			// If this symbol has a binding, remember it
+			if (envTable.Contains(symbol.HashValue)) 
+			{
+				((Stack)temporaryHistory[symbol.HashValue]).Push(envTable[symbol.HashValue]);
+			}
+
+			// Create a new location for this symbol
+			envTable[symbol.HashValue] = values.Count;
+			values.Add(Unspecified.Value);
+		}
+
+		/// <summary>
+		/// Unbinds a value previously bound with BindTemporary. This restores the original binding
+		/// </summary>
+		/// <param name="symbol">The symbol to unbind</param>
+		public void UnbindTemporary(ISymbolic symbol)
+		{
+			// Sanity check
+			if (temporaryHistory == null)
+				throw new InvalidOperationException("Can't unbind a temporary value if no temporary values have previously been bound");
+			if (!temporaryHistory.Contains(symbol.HashValue))
+				throw new InvalidOperationException("Can't unbind a temporary value if its symbol has not previously been bound");
+			
+			Stack symbolHistory = (Stack)temporaryHistory[symbol.HashValue];
+			if (symbolHistory.Count <= 0)
+			{
+				if (!envTable.Contains(symbol.HashValue))
+				{
+					throw new InvalidOperationException("Can't unbind a temporary value if its symbol has not previously been bound");
+				}
+				else
+				{
+					envTable.Remove(symbol.HashValue);
+					return;
+				}
+			}
+
+			// Pop the history
+			envTable[symbol.HashValue] = symbolHistory.Pop();
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Access the environment by symbol hash value
 		/// </summary>
@@ -108,6 +175,7 @@ namespace Tame.Scheme.Data
 			{
 				if (!envTable.Contains(hashValue)) 
 				{
+					// Add a new value
 					envTable[hashValue] = values.Count;
 					values.Add(Unspecified.Value);
 				}

@@ -67,7 +67,21 @@ namespace Tame.Scheme.Syntax.Primitives
 			ArrayList symbols = new ArrayList();
 
 			// Create a new local environment for the expressions within the let statement
-			Data.Environment letLocal = new Data.Environment(state.Local);
+			bool useNewEnvironment = false;
+			Data.Environment letLocal;
+
+			if (state.Local == null)
+			{
+				// Use a new environment
+				useNewEnvironment = true;
+				letLocal = new Data.Environment(state.Local);
+			}
+			else
+			{
+				// Put temporary values on the existing environment
+				useNewEnvironment = false;
+				letLocal = state.Local;
+			}
 
 			// Create the compilation state for the let expressions
 			CompileState letState = new CompileState(state, false);
@@ -111,7 +125,8 @@ namespace Tame.Scheme.Syntax.Primitives
 
 						// Push an undefined value
 						// loadEnvironment.Add(new Operation(Op.Push, Data.Unspecified.Value));
-						letLocal[(Data.ISymbolic)varSym] = Data.Unspecified.Value;
+						// letLocal[(Data.ISymbolic)varSym] = Data.Unspecified.Value;
+						letLocal.BindTemporary(varSym);
 
 						// Move on
 						thisVariable = thisVariable.Sibling;
@@ -135,7 +150,8 @@ namespace Tame.Scheme.Syntax.Primitives
 					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, varState);
 					loadEnvironment.AddRange(varValueExpr.expression);
 
-					if (letType == Type.LetStar) letLocal[varSym] = Data.Unspecified.Value;
+					//if (letType == Type.LetStar) letLocal[varSym] = Data.Unspecified.Value;
+					if (letType == Type.LetStar) letLocal.BindTemporary(varSym);
 
 					// Store it for let* (for let and letrec, defer until we get to the later LoadEnvironment)
 					if (letType == Type.LetStar || letType == Type.Letrec)
@@ -155,7 +171,8 @@ namespace Tame.Scheme.Syntax.Primitives
 				{
 					foreach (Data.ISymbolic symbol in symbols)
 					{
-						letLocal[symbol] = Data.Unspecified.Value;
+						//letLocal[symbol] = Data.Unspecified.Value;
+						letLocal.BindTemporary(symbol);
 					}
 				}
 
@@ -203,21 +220,49 @@ namespace Tame.Scheme.Syntax.Primitives
 			letExpr = letExpr.Add(new Operation(Op.PopEnvironment, null));
 
 			// At this point, we know exactly what the environment will look like, so we can add the operation to build it
-			switch (letType)
+			if (useNewEnvironment)
 			{
-				case Type.Let:
-					// Create/load from the stack
-					loadEnvironment.Insert(newEnvironmentOpPos, Operation.CreateLoadEnvironment(letLocal, symbols, false, true));
-					break;
+				// We need to create a new environment
+				switch (letType)
+				{
+					case Type.Let:
+						// Create/load from the stack
+						loadEnvironment.Insert(newEnvironmentOpPos, Operation.CreateLoadEnvironment(letLocal, symbols, false, true));
+						break;
 
-				case Type.Letrec:
-				case Type.LetStar:
-					loadEnvironment.Insert(newEnvironmentOpPos, Operation.CreateEnvironment(letLocal));
-					break;
+					case Type.Letrec:
+					case Type.LetStar:
+						loadEnvironment.Insert(newEnvironmentOpPos, Operation.CreateEnvironment(letLocal));
+						break;
+				}
+			}
+			else
+			{
+				// We're re-using the current environment
+				switch (letType)
+				{
+					case Type.Let:
+						// Need to load values from the stack
+						foreach (Data.ISymbolic newSym in symbols)
+						{
+							loadEnvironment.Insert(newEnvironmentOpPos++, Operation.Define(newSym, state));
+						}
+						break;
+
+					default:
+						// Values are already loaded
+						break;
+				}
 			}
 
 			// Add the loading expressions to the evaluation expressions
 			BExpression loadingExpr = new BExpression(loadEnvironment);
+
+			// Clean out the temporary values
+			foreach (Data.ISymbolic oldSym in symbols)
+			{
+				letLocal.UnbindTemporary(oldSym);
+			}
 
 			// Return the result
 			return loadingExpr.Add(letExpr);
