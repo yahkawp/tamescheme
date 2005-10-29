@@ -168,6 +168,7 @@ namespace Tame.Scheme.Runtime
 
 						case Op.TailCallIProcedure:
 						case Op.CallIProcedure:
+						{
 							// Fetch the procedure object from the top of the stack
 							Procedure.IProcedure proc;
 							object procObj = evaluationStack.Pop();
@@ -231,7 +232,7 @@ namespace Tame.Scheme.Runtime
 								// Call the procedure, and push the result
 								evaluationStack.Push(proc.Call(currentFrame.environment, ref args));
 							}
-
+						}
 							break;
 
 						case Op.Branch:
@@ -305,6 +306,7 @@ namespace Tame.Scheme.Runtime
 							break;
 
 						case Op.CreateEnvironment:
+						{
 							// Push a new environment, with the specified contents
 							Operation.NewEnvironment envDetails;
 							
@@ -316,11 +318,13 @@ namespace Tame.Scheme.Runtime
 
 							// Create the environment
 							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
+						}
 							break;
 
 						case Op.CreateAndLoadEnvironment:
+						{
 							// Push a new environment, with the specified contents
-							envDetails = (Operation.NewEnvironment)opArg;
+							Operation.NewEnvironment envDetails = (Operation.NewEnvironment)opArg;
 
 							// Construct the values that go in the new environment
 							newValues = new object[envDetails.numberOfValues];
@@ -329,11 +333,43 @@ namespace Tame.Scheme.Runtime
 
 							// Create the environment
 							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
+						}
 							break;
 
-						case Op.CreateAndLoadEnvironmentStack:
+						case Op.CreateAndLoadEnvironmentList:
+						{
 							// Push a new environment, with the specified contents
-							envDetails = (Operation.NewEnvironment)opArg;
+							Operation.NewEnvironment envDetails = (Operation.NewEnvironment)opArg;
+
+							// Construct the values that go in the new environment
+							newValues = new object[envDetails.numberOfValues];
+							for (int val=0; val<envDetails.numberToLoad-1; val++) newValues[val] = currentFrame.args[val];
+
+							// The rest of the values in the frame go in a list: build this list
+							Data.Pair lastList = null;
+							int argCount = currentFrame.args.Length;
+
+							if (argCount >= envDetails.numberToLoad)
+							{
+								lastList = new Data.Pair(currentFrame.args, envDetails.numberToLoad-1);
+							}
+
+							// ... finally, assign the list to the final variable
+							newValues[envDetails.numberToLoad-1] = lastList;
+
+							// Any other values in the environment should be unspecified
+							for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+
+							// Create the environment
+							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
+						}
+							break;
+
+
+						case Op.CreateAndLoadEnvironmentStack:
+						{
+							// Push a new environment, with the specified contents
+							Operation.NewEnvironment envDetails = (Operation.NewEnvironment)opArg;
 
 							// Construct the values that go in the new environment
 							newValues = new object[envDetails.numberOfValues];
@@ -342,6 +378,7 @@ namespace Tame.Scheme.Runtime
 
 							// Create the environment
 							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
+						}
 							break;
 
 						case Op.PopEnvironment:
