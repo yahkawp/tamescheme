@@ -1,0 +1,87 @@
+<Project name="Scheme" fileversion="2.0" language="C#" ctype="DotNetProject">
+  <Configurations active="Debug">
+    <Configuration name="Debug" ctype="DotNetProjectConfiguration">
+      <Output directory="./bin/Debug" assembly="Scheme" />
+      <Build debugmode="True" target="Library" />
+      <Execution runwithwarnings="True" consolepause="False" runtime="MsNet" />
+      <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+    <Configuration name="Release" ctype="DotNetProjectConfiguration">
+      <Output directory="./bin/Release" assembly="Scheme" />
+      <Build debugmode="False" target="Library" />
+      <Execution runwithwarnings="True" consolepause="False" runtime="MsNet" />
+      <CodeGeneration compiler="Csc" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+  </Configurations>
+  <DeploymentInformation strategy="File">
+    <excludeFiles />
+  </DeploymentInformation>
+  <Contents>
+    <File name="./AssemblyInfo.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/Environment.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/INumber.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/ISymbolic.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/LiteralSymbol.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/NumberUtils.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/Pair.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/Symbol.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/SymbolTable.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/Unspecified.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/Number/Complex.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/Number/RationalComplex.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Data/Number/Rational.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Exception/CantConvertNumbersException.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Exception/NotAProcedureException.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Exception/RuntimeException.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Exception/SchemeException.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Exception/SymbolNotFound.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Exception/SyntaxError.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Exception/UnknownOperationException.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/BProcedure.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/IProcedure.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Comparison/GreaterThan.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Comparison/GreaterThanOrEqualTo.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Comparison/LessThan.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Comparison/LessThanOrEqualTo.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Comparison/NumberCompare.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Comparison/NumericEquals.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Arithmetic/Add.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Arithmetic/Divide.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Arithmetic/Multiply.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Procedure/Arithmetic/Subtract.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/BContinuation.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/BExpression.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/CompileState.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/IContextual.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/IContinuation.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/Interpreter.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/Operation.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/Parse/Parser.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/Parse/Token.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Runtime/Parse/TokenStream.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/IBinding.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/IQuoted.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/ISyntax.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/SchemeSyntaxAttribute.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/SchemeSyntax.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Syntax.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/SyntaxElement.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/SyntaxEnvironment.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/SyntaxNode.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Primitives/Begin.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Primitives/Define.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Primitives/DefineSyntax.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Primitives/If.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Primitives/Lambda.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Primitives/Let.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Primitives/Quote.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Primitives/UserSyntax.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Transformer/Binder.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Transformer/SyntaxCompiler.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Transformer/SyntaxOp.cs" subtype="Code" buildaction="Compile" />
+    <File name="./Syntax/Transformer/Transformation.cs" subtype="Code" buildaction="Compile" />
+  </Contents>
+  <References>
+    <ProjectReference type="Gac" localcopy="True" refto="System, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  </References>
+</Project>
