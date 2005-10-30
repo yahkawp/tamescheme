@@ -77,6 +77,10 @@ namespace Tame.Scheme.Runtime
 		static IProcedure lessThan = new Procedure.Comparison.LessThan();
 		static IProcedure lessThanOrEqualTo = new Procedure.Comparison.LessThanOrEqualTo();
 
+		static IProcedure eq = new Procedure.Comparison.Eq();
+		static IProcedure eqv = new Procedure.Comparison.Eqv();
+		static IProcedure equal = new Procedure.Comparison.Equal();
+
 		#endregion
 
 		#region Static syntax defintions
@@ -129,6 +133,10 @@ namespace Tame.Scheme.Runtime
 			DefineProcedure(lessThanOrEqualTo);
 			DefineProcedure(greaterThanOrEqualTo);
 			DefineProcedure(greaterThan);
+
+			DefineProcedure(eq);
+			DefineProcedure(eqv);
+			DefineProcedure(equal);
 		}
 
 		/// <summary>
@@ -421,6 +429,141 @@ namespace Tame.Scheme.Runtime
 			{
 				// General .NET object
 				return "#[" + obj.GetType().FullName + " " + obj.ToString() + "]";
+			}
+		}
+
+		#endregion
+
+		#region Scheme behaviour
+
+		/// <summary>
+		/// Evaluates if two objects are eqv?
+		/// </summary>
+		/// <returns>True if the two objects are eqv?</returns>
+		public static bool Eqv(object a, object b)
+		{
+			// Trivial case (also covers pairs, strings, vectors)
+			if (a == b) return true;
+
+			Type typeA = a.GetType();
+			Type typeB = b.GetType();
+
+			// Numeric types (exact)
+			if (a is int || a is decimal || a is long)
+			{
+				if (b is int || b is decimal || b is long)
+				{
+					return a.Equals(b);
+				}
+				return false;
+			}
+			else if (a is Data.Number.Rational)
+			{
+				if (b is Data.Number.Rational) 
+					return a.Equals(b);
+				else if (b is int)
+					return a.Equals(new Data.Number.Rational((int)b, 1));
+				else if (b is long)
+					return a.Equals(new Data.Number.Rational((long)b, 1));
+
+				// TODO: decimals
+				// TODO: RationalComplex
+
+				return false;
+			}
+
+			// Numeric types (inexact)
+			else if (a is float || a is double)
+			{
+				if (b is float || b is double)
+				{
+					return a.Equals(b);
+				}
+				return false;
+			}
+			else if (a is Data.Number.Complex)
+			{
+				// TODO: complex numbers
+			}
+
+			// Objects must be the same type if they're not numbers
+			else if (!typeA.Equals(typeB)) return false;
+
+			else if (a is Data.ISymbolic) return ((Data.ISymbolic)a).HashValue.Equals(((Data.ISymbolic)b).HashValue);
+			else if (a is bool) return ((bool)a)==((bool)b);
+			else if (a is char) return ((char)a)==((char)b);
+
+			// Everything else isn't eqv?
+			return false;
+		}
+
+		/// <summary>
+		/// Evaluates if two objects are eq?
+		/// </summary>
+		/// <returns>True if the objects are eq?</returns>
+		public static bool Eq(object a, object b)
+		{
+			// Trivial case (also covers pairs, strings, vectors)
+			if (a == b) return true;
+
+			Type typeA = a.GetType();
+			Type typeB = b.GetType();
+
+			if (!typeA.Equals(typeB)) return false;
+
+			else if (a is Data.ISymbolic) return ((Data.ISymbolic)a).HashValue.Equals(((Data.ISymbolic)b).HashValue);
+			else if (a is bool) return ((bool)a)==((bool)b);
+			else if (a is char) return ((char)a)==((char)b);
+
+			// Everything else isn't eq?
+			return false;
+		}
+
+		/// <summary>
+		/// Evaluates if two objects are equal?
+		/// </summary>
+		/// <returns>True if the values are equal?</returns>
+		/// <remarks>As an extention to R5RS, handles circular lists</remarks>
+		public static bool Equal(object a, object b)
+		{
+			if ((a is Pair) && (b is Pair))
+			{
+				// Pair enumerators take care of circular lists
+				IEnumerator aEnumerator = ((Pair)a).GetEnumerator();
+				IEnumerator bEnumerator = ((Pair)b).GetEnumerator();
+
+				while (aEnumerator.MoveNext())
+				{
+					if (!bEnumerator.MoveNext()) return false;
+					if (!Equal(aEnumerator.Current, bEnumerator.Current)) return false;
+				}
+
+				if (bEnumerator.MoveNext()) return false;
+
+				return true;
+			}
+			else if ((a is ICollection) && (b is ICollection))
+			{
+				IEnumerator aEnumerator = ((ICollection)a).GetEnumerator();
+				IEnumerator bEnumerator = ((ICollection)b).GetEnumerator();
+
+				while (aEnumerator.MoveNext())
+				{
+					if (!bEnumerator.MoveNext()) return false;
+					if (!Equal(aEnumerator.Current, bEnumerator.Current)) return false;
+				}
+
+				if (bEnumerator.MoveNext()) return false;
+
+				return true;
+			}
+			else if ((a is string) && (b is string))
+			{
+				return a.Equals(b);
+			}
+			else
+			{
+				return Eqv(a, b);
 			}
 		}
 
