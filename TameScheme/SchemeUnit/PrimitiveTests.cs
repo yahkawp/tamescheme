@@ -46,6 +46,13 @@ namespace SchemeUnit
 		}
 
 		[Test("let")]
+		public void EmptyLet()
+		{
+			Assert.Equals(1, terp.Evaluate("(let () 1)"));
+		}
+
+
+		[Test("let")]
 		public void LetOrdering()
 		{
 			terp.TopLevelEnvironment["x"] = 3;
