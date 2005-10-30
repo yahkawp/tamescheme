@@ -81,22 +81,27 @@ namespace Tame.Scheme.Runtime
 
 		#region Static syntax defintions
 
+		// (Primitive syntax)
+
 		// Quoting
 		static ISyntax schemeQuote = new Syntax.Primitives.Quote();
 
 		// Conditionals
 		static ISyntax schemeIf = new Syntax.Primitives.If();
 
-		// Flow control
-		static ISyntax schemeBegin = new Syntax.Library.Begin();
-
 		// Definitions
 		static ISyntax schemeLambda = new Syntax.Primitives.Lambda();
 		static ISyntax schemeDefine = new Syntax.Primitives.Define();
 		static ISyntax schemeDefineSyntax = new Syntax.Primitives.DefineSyntax();
+		static ISyntax schemeSet = new Syntax.Primitives.Set();
 		static ISyntax schemeLet = new Syntax.Primitives.Let(Syntax.Primitives.Let.Type.Let);
 		static ISyntax schemeLetStar = new Syntax.Primitives.Let(Syntax.Primitives.Let.Type.LetStar);
 		static ISyntax schemeLetrec = new Syntax.Primitives.Let(Syntax.Primitives.Let.Type.Letrec);
+
+		// (Library syntax)
+
+		// Flow control
+		static ISyntax schemeBegin = new Syntax.Library.Begin();
 
 		#endregion
 
@@ -142,17 +147,18 @@ namespace Tame.Scheme.Runtime
 			// Conditions
 			DefineSyntax(schemeIf);
 
-			// Flow control
-			DefineSyntax(schemeBegin);
-
 			// Definitions
 			DefineSyntax(schemeLambda);
 			DefineSyntax(schemeDefine);
 			DefineSyntax(schemeDefineSyntax);
+			DefineSyntax(schemeSet);
 
 			DefineSyntax("let", schemeLet);
 			DefineSyntax("let*", schemeLetStar);
 			DefineSyntax("letrec", schemeLetrec);
+
+			// Flow control
+			DefineSyntax(schemeBegin);
 		}
 
 		#endregion
