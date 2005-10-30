@@ -1193,7 +1193,7 @@ List}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 \expnd0\expndtw0\kerning0
-Symbol\
+Value\
 5}</string>
 			</dict>
 		</dict>
@@ -1613,6 +1613,7 @@ a}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+Bound\
 b}</string>
 			</dict>
 		</dict>
@@ -1696,6 +1697,7 @@ b}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+Bound\
 a}</string>
 			</dict>
 		</dict>
@@ -1779,6 +1781,7 @@ a}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+Literal\
 'literal'}</string>
 			</dict>
 		</dict>
@@ -1862,6 +1865,7 @@ a}</string>
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 \expnd0\expndtw0\kerning0
+Bound\
 c}</string>
 			</dict>
 		</dict>
@@ -3444,7 +3448,7 @@ List}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2005-10-30 13:34:53 +0000</string>
+	<string>2005-10-30 13:45:42 +0000</string>
 	<key>Modifier</key>
 	<string>Andrew Hunter</string>
 	<key>NotesVisible</key>
@@ -3517,7 +3521,7 @@ List}</string>
 		<key>ShowStatusBar</key>
 		<true/>
 		<key>VisibleRegion</key>
-		<string>{{1136, 0}, {569, 819}}</string>
+		<string>{{7, 0}, {569, 819}}</string>
 		<key>Zoom</key>
 		<string>1</string>
 	</dict>
