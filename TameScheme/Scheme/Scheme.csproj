@@ -389,6 +389,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Syntax\Primitives\Set.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Syntax\Transformer\Binder.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
