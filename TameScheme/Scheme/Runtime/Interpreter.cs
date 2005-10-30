@@ -281,8 +281,6 @@ namespace Tame.Scheme.Runtime
 				expression.RemoveLabels();								// Strip out any labels that the expression might have
 				expression = expression.RemoveNops();					// Remove any No-Ops that the expression might have
 
-				Console.WriteLine(expression.ToString());
-
 				BContinuation continuation = new BContinuation(expression, topLevel);
 
 				return continuation.Continue();

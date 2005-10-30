@@ -41,6 +41,7 @@ namespace Tame.Scheme.Procedure.Arithmetic
 
 		public object Call(Tame.Scheme.Data.Environment environment, ref object[] args)
 		{
+			if (args.Length == 0) return 1;
 			return Data.NumberUtils.Iterate(args, this);
 		}
 
