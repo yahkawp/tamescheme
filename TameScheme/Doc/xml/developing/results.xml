@@ -1,8 +1,105 @@
 <?xml version="1.0"?>
 <page subtopic="Software projects" topic="Reading the results" layout="../../menu.xml">
-  <title>SyntaxNodes</title>
+  <title>Reading syntax</title>
 
   <text>
+    <h2>Dealing with syntax results</h2>
+    
+    <p>
+      When syntax is matched by a <class>SyntaxElement</class> or a 
+      <class>Syntax</class> object, a <class>SyntaxEnvironment</class> object
+      is built up, containing information on what was matched to bound
+      symbols, as well as where in the structure a given symbol was matched.
+    </p>
+    
+    <p>
+      The simplest use of a <class>SyntaxEnvironment</class> is just to retrieve
+      the values using the indexer, for instance to retrieve the value of the
+      bound symbol 'a', use <code>syntaxEnv["a"].Value</code>. What the indexer
+      actualler returns is a <class>SyntaxNode</class>, which represents a single
+      matched element from the pattern.
+    </p>
+    
+    <p>
+      <class>SyntaxNode</class>s contained by a <class>SyntaxEnvironment</class>
+      form a tree with a structure similar to the structure of the <class>SyntaxElement</class>
+      tree that was matched. There are four important differences: SyntaxNodes
+      only have three types (List, Symbol and Value); a SyntaxNode is not
+      created when a literal element is matched; items matched as part of
+      an ellipsis generate zero or more nodes depending on how many items
+      are matched; and bound symbols generate both a symbol node and a 
+      value node.
+    </p>
+    
+    <p>
+      For example, the scheme pattern <scheme>((a b ...) literal 5)</scheme>
+      will produce the following <class>SyntaxElement</class> tree:
+    </p>
+
+    <p align="center">
+      <img src="abc-syntaxelements.png" /><br />
+      <b>SyntaxElement tree built up from the scheme pattern ((a b ...) literal c)</b>
+    </p>
+    
+    <p>
+      When this pattern is matched against <scheme>((1 2 3 4) literal 5)</scheme>,
+      it will produce the following <class>SyntaxNode</class> tree:
+    </p>
+    
+    <p align="center">
+      <img src="abc-syntaxnodes.png" /><br />
+      <b>SyntaxNode tree built from matching the above pattern against ((1 2 3 4) literal 5)</b>
+    </p>
+    
+    <p>
+      List nodes are used for all the list and vector SyntaxElement type (from
+      a syntactic point of view, these are all handled the same way: it's
+      merely what is matched that changes). When you retrieve the <class>SyntaxNode</class>
+      for the symbol b, you get the leftmost node in the tree that matched that
+      symbol. This will be the node containing the symbol b, not the value node
+      that is its child - or null if no matches were made against that symbol.
+      You can also retrieve the root of the syntax tree from the syntax environment:
+      this is <code>syntaxEnv.SyntaxTree.Child</code> - note that there is an extra node
+      marking 'the point at which matching started'.
+    </p>
+    
+    <p>
+      You can retrieve the other values matched for b by taking the <method>Sibling</method>
+      of the returned node repeatedly. As ellipsises in scheme syntax can only occur
+      at the end of a list, all the siblings until null is returned will be the
+      repetitions of the symbol b.
+    </p>
+      
+    <p>
+      The <method>Value</method> property of a
+      Symbol node retrieves the value of the unlying Value node, for convieniences sake.
+      Ie, <code>syntaxEnv["a"].Value</code> is equivalent to <code>syntaxEnv["a"].Child.Value</code>.
+      It is not possible to take the value of a List node.
+    </p>
+    
+    <p>
+      Things get a bit more complicated if ellipsises are nested - for example,
+      the pattern <scheme>((b ...) ...)</scheme>. In these cases, knowing the
+      tree structure is more important. The second ellipsis list appears in the
+      node tree as the parent of the element b - or at the root of the tree,
+      looking from the top down instead of from the bottom up. Once again
+      <code>syntaxEnv["b"]</code> will retrieve the leftmost (ie, first)
+      match for the symbol 'b', but secondary matches also appear under the
+      parent of that node.
+    </p>
+    
+    <p>
+      Caution must be exercised to take account of the possibility of no
+      matches. The scheme <scheme>(() (1 2) (3))</scheme> matched against the
+      pattern <scheme>((b ...) ...)</scheme> will produce the following tree.
+      <code>syntaxEnv["b"]</code> will be the first match for the symbol b,
+      which is in the second repetition:
+    </p>
+    
+    <p align="center">
+      <img src="nestedellipsisnodes.png" /><br />
+      <b>SyntaxNode tree built from matching ((b ...) ...) against (() (1 2) (3))</b>
+    </p>
   </text>
 
   <footer>
