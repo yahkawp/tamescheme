@@ -118,7 +118,7 @@ namespace Tame.Scheme.Syntax.Primitives
 				throw new Exception.SyntaxError("You must define at least one pattern and template in your syntax-rules");
 
 			// Generate the UserSyntax object
-			UserSyntax newSyntax = new UserSyntax(new Syntax(syntaxMatchers), transformers);
+			Library.UserSyntax newSyntax = new Library.UserSyntax(new Syntax(syntaxMatchers), transformers);
 
 			// Create the expression
 			Operation[] defineOps = new Operation[3];

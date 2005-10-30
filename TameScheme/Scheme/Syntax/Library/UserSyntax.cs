@@ -29,7 +29,7 @@ using System.Collections;
 using Tame.Scheme.Runtime;
 using Tame.Scheme.Syntax.Transformer;
 
-namespace Tame.Scheme.Syntax.Primitives
+namespace Tame.Scheme.Syntax.Library
 {
 	/// <summary>
 	/// UserSyntax represents syntax defined by the define-syntax operator.
