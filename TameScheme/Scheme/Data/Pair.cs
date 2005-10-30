@@ -172,14 +172,277 @@ namespace Tame.Scheme.Data
 			}
 		}
 
+		/// <summary>
+		/// Determines if this Pair represents a list containing a loop.
+		/// </summary>
+		/// <returns>true if this list is self-referential, false otherwise</returns>
+		public bool HasLoop()
+		{
+			if (this.Cdr == null || !(this.Cdr is Pair)) return false;
+
+			// Uses the tortoise & hare algorithm
+			Pair slow = this;
+			Pair fast = (Pair)this.Cdr;
+
+			while (fast != null)
+			{
+				// We only check type for the fast value (as this will not change by the time the slow value gets there)
+				if (slow == fast) return true;
+				if (fast.Cdr == null) return false;
+				if (!(fast.Cdr is Pair)) return false;
+
+				fast = (Pair)fast.Cdr;
+				if (slow == fast) return true;
+				if (!(fast.Cdr is Pair)) return false;
+
+				slow = (Pair)slow.Cdr;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Determines if this Pair represents an improper list
+		/// </summary>
+		/// <returns>True if this pair represents an improper list</returns>
+		public bool IsImproper()
+		{
+			if (this.Cdr == null) return false;
+			if (!(this.Cdr is Pair)) return true;
+
+			// Uses the tortoise & hare algorithm
+			Pair slow = this;
+			Pair fast = (Pair)this.Cdr;
+
+			for (;;)
+			{
+				// We only check type for the fast value (as this will not change by the time the slow value gets there)
+				if (slow == fast) return false;
+				if (fast.Cdr == null) return false;
+				if (!(fast.Cdr is Pair)) return true;
+
+				fast = (Pair)fast.Cdr;
+				if (slow == fast) return false;
+				if (fast.Cdr == null) return false;
+				if (!(fast.Cdr is Pair)) return true;
+
+				slow = (Pair)slow.Cdr;
+			}
+		}
+
+		/// <summary>
+		/// Returns true if this list is not a 'pure' list: if it is either improper or contains a loop
+		/// </summary>
+		/// <returns>True if this list contains a loop or is improper</returns>
+		public bool IsImproperOrLoop()
+		{
+			if (this.Cdr == null) return false;
+			if (!(this.Cdr is Pair)) return true;
+
+			// Uses the tortoise & hare algorithm
+			Pair slow = this;
+			Pair fast = (Pair)this.Cdr;
+
+			for (;;)
+			{
+				// We only check type for the fast value (as this will not change by the time the slow value gets there)
+				if (slow == fast) return true;
+				if (fast.Cdr == null) return false;
+				if (!(fast.Cdr is Pair)) return true;
+
+				fast = (Pair)fast.Cdr;
+				if (slow == fast) return true;
+				if (fast.Cdr == null) return false;
+				if (!(fast.Cdr is Pair)) return true;
+
+				slow = (Pair)slow.Cdr;
+			}
+		}
+
+		private Pair Midpoint(Pair fast, Pair slow)
+		{
+			// returns the pointer to the middle element (round toward front of list) 
+			// --- we can implement this with a pointer+double speed pointer walk
+
+			// (I think this is what's meant by the description - this should return the element midway between fast and slow)
+			while (fast != null)
+			{
+				// We only check type for the fast value (as this will not change by the time the slow value gets there)
+				if (slow == fast) return slow;
+				if (fast.Cdr == null) return null;
+
+				fast = (Pair)fast.Cdr;
+				if (slow == fast) return slow;
+
+				slow = (Pair)slow.Cdr;
+			}
+
+			return null;
+		}
+
+		private bool Find(Pair from, Pair what, Pair to)
+		{
+			// returns true if we encounter f in a walk from e to g, otherwise false.
+
+			Pair thisItem = from;
+
+			if (to == what) return true;
+			while (thisItem != to)
+			{
+				if (thisItem == what) return true;
+				thisItem = (Pair)thisItem.Cdr;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// If this pair contains a loop, finds the first element that exists in the loop
+		/// </summary>
+		/// <returns>The element that begins the loop, or null if there is not a loop</returns>
+		/// <remarks>It is more efficient to call this and check for a null return than it is to call HasLoop() beforehand if you need
+		/// to determine if something contains a loop, and if it does, where that loop begins.</remarks>
+		public Pair LoopHead()
+		{
+			// Found an O(n) algorithm for this at http://discuss.fogcreek.com/techInterview/default.asp?cmd=show&ixPost=710
+			// (This is Alex Harris's algorithm - I think I agree with his reasoning that this is a O(n) operation)
+
+			Pair x = new Pair(null, this);					// An element outside the loop
+			Pair y = this;									// (Not necessarily an element inside the loop)
+
+			// Change y to an element inside the loop
+			Pair slow = x;
+			Pair fast = this;
+
+			for(;;)
+			{
+				// We only check type for the fast value (as this will not change by the time the slow value gets there)
+				if (slow == fast) { y = slow; break; }
+				if (!(fast.Cdr is Pair)) return null;
+				if (fast.Cdr == null) return null;
+
+				fast = (Pair)fast.Cdr;
+				if (slow == fast) { y = slow; break; }
+				if (!(fast.Cdr is Pair)) return null;
+				if (fast.Cdr == null) return null;
+
+				slow = (Pair)slow.Cdr;
+			}
+
+			// Find the loop head
+			Pair a = x;
+			Pair b = (Pair)y.Cdr;
+			Pair c = y;
+
+			for (;;)
+			{
+				Pair t = Midpoint(a, c);
+				if (Find(b, t, c))
+					c = t;
+				else
+					a = (Pair)t.Cdr;
+
+				t = Midpoint(b, c);
+
+				if (Find(a, t, c))
+					c = t;
+				else
+					b = (Pair)t.Cdr;
+
+				if (a == b) return a;
+				if (a == c || b == c) return c;
+			}
+		}
+
 		#endregion
+
+		public override bool Equals(object obj)
+		{
+			// TODO: a danger: what if this.Car introduces a loop? This is an infinite loop at the moment.
+			if (obj == null) 
+				return false;
+			if (!(obj is Pair)) 
+				return false;
+
+			Pair current = this;
+			Pair compareTo = (Pair)obj;
+
+			Pair loopHead = LoopHead();
+			Pair compareLoopHead = compareTo.LoopHead();
+			bool visitedLoopHead = false;
+
+			// If one object contains a loop, so must the other
+			if ((loopHead == null || compareLoopHead == null) && loopHead != compareLoopHead) 
+				return false;
+
+			while (current != null)
+			{
+				if (current == loopHead)
+				{
+					// The pair we're comparing to must also loop here
+					if (compareTo != compareLoopHead) 
+						return false;
+
+					// Stop if we've already been here
+					if (visitedLoopHead)
+					{
+						break;
+					}
+					else
+					{
+						visitedLoopHead = true;
+					}
+				}
+
+				// Cars must be equal (DANGER: CAR LOOPS ARE NOT ACCOUNTED FOR YET)
+				if (current.Car == null)
+				{
+					if (current.Car != null) 
+						return false;
+				}
+				else if (!current.Car.Equals(compareTo.Car))
+				{
+					return false;
+				}
+
+				// Move on
+				if (current.Cdr == null)
+				{
+					if (compareTo.Cdr == null)
+						return true;
+					else
+						return false;
+				}
+				else if (current.Cdr is Pair)
+				{
+					if (!(compareTo.Cdr is Pair)) 
+						return false;
+
+					current = (Pair)current.Cdr;
+					compareTo = (Pair)compareTo.Cdr;
+				}
+				else
+				{
+					if (compareTo.Cdr is Pair) 
+						return false;
+
+					return current.Cdr.Equals(compareTo.Cdr);
+				}
+			}
+
+			// Both pairs are equal
+			return true;
+		}
 
 		public override string ToString()
 		{
-			// TODO: detect loops somehow
 			string res = "";
 
 			Pair current = this;
+
+			Pair loopHead = LoopHead();					// The first item in the loop if this pair contains one
+			bool visitedLoopHead = false;				// set to true after the first time we visit loopHead
+
 			while (true)
 			{
 				if (current.Car == null)
@@ -197,6 +460,14 @@ namespace Tame.Scheme.Data
 					// The Cdr is a pair: move on
 					res += " ";
 					current = (Pair)current.Cdr;
+
+					if (current == loopHead && visitedLoopHead)
+					{
+						// Notify that this contains a loop
+						res += "#[...]";
+					}
+
+					if (current == loopHead) visitedLoopHead = true;
 				}
 				else
 				{
@@ -227,11 +498,22 @@ namespace Tame.Scheme.Data
 			{
 				int count = 0;
 				Pair currentPair = this;
+				Pair slowPair = currentPair;
 
 				while (currentPair != null)
 				{
 					currentPair = (Pair)currentPair.Cdr;
 					count++;
+
+					if (currentPair == null) break;
+					if (currentPair == slowPair) throw new NotSupportedException("A list with a loop is uncountable");
+
+					currentPair = (Pair)currentPair.Cdr;
+					count++;
+
+					if (currentPair == slowPair) throw new NotSupportedException("A list with a loop is uncountable");
+
+					slowPair = (Pair)slowPair.Cdr;
 				}
 
 				return count;
@@ -241,6 +523,8 @@ namespace Tame.Scheme.Data
 		public void CopyTo(Array array, int index)
 		{
 			Pair currentPair = this;
+
+			if (HasLoop()) throw new NotSupportedException("A Pair that contains a loop cannot be copied into an array");
 
 			while (currentPair != null)
 			{
@@ -269,34 +553,53 @@ namespace Tame.Scheme.Data
 			{
 				this.firstPair = firstPair;
 				this.currentPair = null;
+				this.loopHead = firstPair.LoopHead();
 			}
 
-			Pair firstPair, currentPair;
+			Pair firstPair, currentPair, loopHead;
+
+			bool visitedLoopHead = false;
+			bool visitedImproperElement = false;
 
 			#region IEnumerator Members
 
 			public void Reset()
 			{
 				currentPair = null;
+				visitedLoopHead = false;
+				visitedImproperElement = false;
 			}
 
 			public object Current
 			{
 				get
 				{
+					if (visitedImproperElement) return currentPair.Cdr;
 					return currentPair.Car;
 				}
 			}
 
 			public bool MoveNext()
 			{
+				if (visitedImproperElement) return false;
 				if (firstPair == null || (currentPair != null && currentPair.Cdr == null))
+					return false;
+				if (currentPair != null && visitedLoopHead && currentPair.Cdr == loopHead)
 					return false;
 	
 				if (currentPair == null) 
+				{
 					currentPair = firstPair;
+				}
 				else
-					currentPair = (Pair)currentPair.Cdr;
+				{
+					if (currentPair.Cdr is Pair)
+						currentPair = (Pair)currentPair.Cdr;
+					else
+						visitedImproperElement = true;
+				}
+
+				if (currentPair == loopHead) visitedLoopHead = true;
 
 				return true;
 			}
