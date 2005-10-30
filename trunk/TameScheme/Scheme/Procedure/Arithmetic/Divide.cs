@@ -47,7 +47,16 @@ namespace Tame.Scheme.Procedure.Arithmetic
 			// Divide works differently with ints and longs to the standard iterator (first value is promoted to a rational always if it's an int, decimal or long)
 			int length = args.Length;
 
-			if (length == 1) return args[0];				// Not techncially valid
+			if (length == 0) throw new Exception.RuntimeException("/ must have at least one argument");
+			if (length == 1)
+			{
+				// If there's only one argument, then take the inverse
+				object[] inverse = new object[2];
+
+				inverse[0] = new Rational(1, 1);
+				inverse[1] = args[0];
+				return Data.NumberUtils.Iterate(inverse, this);
+			}
 
 			// Convert the first argument to a Rational if it's an int, long
 			// TODO: decimals??
