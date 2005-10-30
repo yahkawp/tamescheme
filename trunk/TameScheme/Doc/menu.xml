@@ -14,6 +14,24 @@
     </topic>
   </topic>
   <topic name="developing" url="/developing/index.html">
+    <topic name="Matching syntax" url="/developing/matching.html">
+      <topic name="Syntax elements" url="/developing/elements.html">
+      </topic>
+      <topic name="Reading the results" url="/developing/results.html">
+      </topic>
+    </topic>
+    <topic name="Compiling expressions" url="/developing/expressions.html">
+      <topic name="About BExpressions" url="/developing/bexpressions.html">
+      </topic>
+      <topic name="Syntax objects" url="/developing/ISyntax.html">
+      </topic>
+      <topic name="Compilation State" url="/developing/CompileState.html">
+      </topic>
+      <topic name="Binding syntax" url="/developing/Binding.html">
+      </topic>
+      <topic name="Quoting syntax" url="/devloping/Quoting.html">
+      </topic>
+    </topic>
   </topic>
   <topic name="download" url="/download/index.html">
   </topic>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="About BExpressions" layout="../../menu.xml">
+  <title>About BExpressions</title>
+
+  <text>
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
+    </p>
+  </footer>
+</page>
