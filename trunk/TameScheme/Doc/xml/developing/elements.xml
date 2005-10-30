@@ -64,6 +64,11 @@
       structure of the SyntaxElements correspond closely to the structure
       of the output tree.
     </p>
+    
+    <p>
+      The <class>Syntax</class> object is used to collate several <class>SyntaxElement</class>
+      objects, and find the first of them that matches a given scheme object.
+    </p>
   </text>
 
   <footer>
