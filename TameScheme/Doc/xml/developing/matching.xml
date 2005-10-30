@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="Matching syntax" layout="../../menu.xml">
+  <title>Matching syntax</title>
+
+  <text>
+    <h2>Matching syntax</h2>
+    
+    <p>
+      This section will describe how TameScheme matches syntax against scheme
+      objects. Understanding this is important if you want to write new
+      scheme syntax objects.
+    </p>
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
+    </p>
+  </footer>
+</page>

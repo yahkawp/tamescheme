@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<page subtopic="Software projects" topic="Syntax elements" layout="../../menu.xml">
+  <title>Syntax elements</title>
+
+  <text>
+    <h2>Syntax Elements</h2>
+    
+    <p>
+      The <class>SyntaxElement</class> class is used to represent a single
+      line of syntax, or a portion thereof. It effectively implements the
+      pattern portion of a <scheme>syntax-rules</scheme> declaration.
+    </p>
+    
+    <p>
+      <class>SyntaxElement</class>s form a tree, usually with symbols and literal 
+      values as the leaves and with lists and vectors forming the leaves.
+      They are matched in a top-down, left-to-right fashion, following the
+      R5RS rules. An element may be one of several types: a Literal (matching
+      a single value), an EmptyList (matching null), a BoundSymbol (matching
+      anything and binding to a symbol), a List (matching a list of items) or
+      a Vector (matching a vector of items).
+    </p>
+    
+    <p>
+      Lists and Vectors match multiple elements: they are described as a
+      collection of <class>SyntaxElement</class>s. They both have an
+      additional ellipsis form: in this form, the final element is
+      matched 0 or more times. Lists also have an improper form: this affects
+      the final element as well: this is matched against the cdr of the
+      previous element. Note that while vector elements can be empty,
+      list elements must contain at least one item (at least two items for
+      the improper case).
+    </p>
+    
+    <p>
+      The usual way to create a <class>SyntaxElement</class> is through the
+      <method>MakeElementFromScheme</method> factory method rather than
+      constructing it directly. This can take a scheme object and a collection
+      of literal symbols, or scheme as a string and produce SyntaxElement
+      that would match that as a pattern as for <scheme>syntax-rules</scheme>.
+    </p>
+    
+    <p>
+      The <method>Match</method> method matches a SyntaxElement against
+      some scheme. This requires a <class>CompileState</class> object in
+      order to check bindings for literal symbols (recall that in scheme,
+      a literal symbol is only matched against a symbol with the same binding).
+    </p>
+    
+    <p>
+      Literal symbol bindings are established through the <class>ISymbolic</class>
+      method <method>Location</method>. <class>SyntaxElement</class>s that use
+      literal symbols that bind to environments other than the top-level
+      environment should use <class>ISymbolic</class> symbols that specify
+      an environment (such as the <class>LiteralSymbol</class> class does).
+    </p>
+    
+    <p>
+      SyntaxElements maintain information about the tree. This imposes a
+      limitation on how they can be constructed: an element must have
+      at most one parent element - you cannot construct a subtree and use
+      it in more than one place. This information can be used to query the
+      tree, which is useful when building pattern transformers - the
+      structure of the SyntaxElements correspond closely to the structure
+      of the output tree.
+    </p>
+  </text>
+
+  <footer>
+    <p>
+      Email: <a href="mailto:andrew@logicalshift.demon.co.uk">andrew@logicalshift.demon.co.uk</a>
+    </p>
+  </footer>
+</page>
