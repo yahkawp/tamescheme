@@ -102,7 +102,7 @@ namespace Tame.Scheme.Syntax.Transformer
 			if (dest == state.currentElement) return result;
 
 			// It is an error to move to a syntax element that is not a list or a bound symbol
-			if (dest.Type == SyntaxElement.ElementType.Literal)
+			if (dest.Type == SyntaxElement.ElementType.Literal || dest.Type == SyntaxElement.ElementType.EmptyList)
 				throw new NotSupportedException("The syntax compiler cannot move to a literal element, as these are not represented in the output syntax tree");
 
 			// Find the common parent for the current element and the destination element
@@ -169,7 +169,8 @@ namespace Tame.Scheme.Syntax.Transformer
 				// We can't just take the difference between offsets, as literal elements are not represented in the tree
 				for (int pos=startOffset; pos != endOffset; pos += increment)
 				{
-					if (((SyntaxElement)elements[pos]).Type != SyntaxElement.ElementType.Literal) movementOffset += increment;
+					SyntaxElement.ElementType type = ((SyntaxElement)elements[pos]).Type;
+					if (type != SyntaxElement.ElementType.Literal && type != SyntaxElement.ElementType.EmptyList) movementOffset += increment;
 				}
 
 				if (movementOffset != 0)
@@ -540,7 +541,7 @@ namespace Tame.Scheme.Syntax.Transformer
 						int countToItem = 0;
 						foreach (SyntaxElement element in ellipsisUmbrella.ListOrVectorContents)
 						{
-							if (element.Type != SyntaxElement.ElementType.Literal) countToItem++;
+							if (element.Type != SyntaxElement.ElementType.Literal && element.Type != SyntaxElement.ElementType.EmptyList) countToItem++;
 						}
 
 						// (Before the element) Try to move to just before the ellipsis item (STATE INCORRECT FOR RESULT)

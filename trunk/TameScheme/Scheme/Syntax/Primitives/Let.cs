@@ -63,8 +63,10 @@ namespace Tame.Scheme.Syntax.Primitives
 		{
 			// First part of a let is to create and load the new environment
 			ArrayList loadEnvironment = new ArrayList();
-			SyntaxNode variables = env[variable].Parent;
+			SyntaxNode variables = env[variable];
 			ArrayList symbols = new ArrayList();
+
+			if (variables != null) variables = variables.Parent;
 
 			// Create a new local environment for the expressions within the let statement
 			bool useNewEnvironment = false;

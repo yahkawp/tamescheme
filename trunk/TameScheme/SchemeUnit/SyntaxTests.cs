@@ -37,6 +37,13 @@ namespace SchemeUnit
 		}
 
 		[Test("define-syntax")]
+		public void MoreLiterals()
+		{
+			Assert.Equals(terp.Evaluate(terp.ParseScheme("(define-syntax basic-literal (syntax-rules (lit) ((basic-literal lit 6 () x lit) x)))")), new Symbol("basic-literal"));
+			Assert.Equals(5, terp.Evaluate(terp.ParseScheme("(basic-literal lit 6 () 5 lit)")));
+		}
+
+		[Test("define-syntax")]
 		public void BasicEllipsises()
 		{
 			terp.Evaluate(terp.ParseScheme("(define-syntax basic-ellipsises (syntax-rules () ((basic-ellipsises a ...) (+ a ...))))"));
