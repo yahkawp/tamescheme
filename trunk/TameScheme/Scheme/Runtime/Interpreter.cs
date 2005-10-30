@@ -88,7 +88,7 @@ namespace Tame.Scheme.Runtime
 		static ISyntax schemeIf = new Syntax.Primitives.If();
 
 		// Flow control
-		static ISyntax schemeBegin = new Syntax.Primitives.Begin();
+		static ISyntax schemeBegin = new Syntax.Library.Begin();
 
 		// Definitions
 		static ISyntax schemeLambda = new Syntax.Primitives.Lambda();

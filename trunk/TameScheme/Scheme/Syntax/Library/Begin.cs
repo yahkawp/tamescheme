@@ -29,7 +29,7 @@ using System.Collections;
 using Tame.Scheme.Procedure;
 using Tame.Scheme.Runtime;
 
-namespace Tame.Scheme.Syntax.Primitives
+namespace Tame.Scheme.Syntax.Library
 {
 	/// <summary>
 	/// Implements the scheme 'begin' syntax.
