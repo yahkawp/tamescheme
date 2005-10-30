@@ -224,6 +224,21 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Procedure\Comparison\Eq.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Comparison\Equal.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Comparison\Eqv.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Procedure\Comparison\GreaterThan.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
