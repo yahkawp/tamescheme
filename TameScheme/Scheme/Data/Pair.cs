@@ -192,8 +192,11 @@ namespace Tame.Scheme.Data
 				if (!(fast.Cdr is Pair)) return false;
 
 				fast = (Pair)fast.Cdr;
+
 				if (slow == fast) return true;
 				if (!(fast.Cdr is Pair)) return false;
+
+				fast = (Pair)fast.Cdr;
 
 				slow = (Pair)slow.Cdr;
 			}
@@ -222,9 +225,12 @@ namespace Tame.Scheme.Data
 				if (!(fast.Cdr is Pair)) return true;
 
 				fast = (Pair)fast.Cdr;
+
 				if (slow == fast) return false;
 				if (fast.Cdr == null) return false;
 				if (!(fast.Cdr is Pair)) return true;
+
+				fast = (Pair)fast.Cdr;
 
 				slow = (Pair)slow.Cdr;
 			}
@@ -251,33 +257,37 @@ namespace Tame.Scheme.Data
 				if (!(fast.Cdr is Pair)) return true;
 
 				fast = (Pair)fast.Cdr;
+
 				if (slow == fast) return true;
 				if (fast.Cdr == null) return false;
 				if (!(fast.Cdr is Pair)) return true;
+
+				fast = (Pair)fast.Cdr;
 
 				slow = (Pair)slow.Cdr;
 			}
 		}
 
-		private Pair Midpoint(Pair fast, Pair slow)
+		private Pair Midpoint(Pair from, Pair to)
 		{
 			// returns the pointer to the middle element (round toward front of list) 
 			// --- we can implement this with a pointer+double speed pointer walk
 
-			// (I think this is what's meant by the description - this should return the element midway between fast and slow)
-			while (fast != null)
+			// (Assumes there is a loop)
+
+			Pair slow = from;
+			Pair fast = from;
+
+			while (fast != to)
 			{
-				// We only check type for the fast value (as this will not change by the time the slow value gets there)
-				if (slow == fast) return slow;
-				if (fast.Cdr == null) return null;
+				fast = (Pair)fast.Cdr;
+				if (fast == to) break;
 
 				fast = (Pair)fast.Cdr;
-				if (slow == fast) return slow;
-
 				slow = (Pair)slow.Cdr;
 			}
 
-			return null;
+			return slow;
 		}
 
 		private bool Find(Pair from, Pair what, Pair to)
@@ -322,9 +332,12 @@ namespace Tame.Scheme.Data
 				if (fast.Cdr == null) return null;
 
 				fast = (Pair)fast.Cdr;
+
 				if (slow == fast) { y = slow; break; }
 				if (!(fast.Cdr is Pair)) return null;
 				if (fast.Cdr == null) return null;
+
+				fast = (Pair)fast.Cdr;
 
 				slow = (Pair)slow.Cdr;
 			}
