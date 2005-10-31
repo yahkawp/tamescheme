@@ -46,6 +46,29 @@ namespace Tame.Scheme.Data
 		#region Converting Numbers
 
 		/// <summary>
+		/// Given a number, makes a long value if possible (rounding floating/rational types)
+		/// </summary>
+		/// <param name="number">The number to make long</param>
+		/// <returns>The long value for this number, if there is one</returns>
+		/// <exception cref="Exception.RuntimeException">If the value cannot be made into a long number</exception>
+		static public long MakeLong(object number)
+		{
+			if (number is long) return (long)number;
+			else if (number is int) return (long)(int)number;
+			else if (number is float) return (long)(float)number;
+			else if (number is double) return (long)(double)number;
+			else if (number is Number.Rational)
+			{
+				Number.Rational num = (Number.Rational)number;
+
+				return num.Numerator/num.Denominator;
+			}
+
+			// TODO: complex types can be cast to long if they have a 0 imaginary part
+			throw new Exception.RuntimeException("Cannot convert a value of type " + number.GetType().ToString() + " to a long number");
+		}
+
+		/// <summary>
 		/// Returns true if number is an exact type, false otherwise
 		/// </summary>
 		static bool IsExact(object number)

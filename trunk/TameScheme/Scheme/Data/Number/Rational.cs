@@ -55,6 +55,9 @@ namespace Tame.Scheme.Data.Number
 
 		long numerator, denominator;
 
+		public long Numerator { get { return numerator; } }
+		public long Denominator { get { return denominator; } }
+
 		public double ToDouble()
 		{
 			return ((double)numerator)/((double)denominator);
