@@ -44,7 +44,7 @@ namespace Tame.Scheme.Procedure.Lists
 		public object Call(Tame.Scheme.Data.Environment environment, ref object[] args)
 		{
 			if (args.Length != 1) throw new Exception.RuntimeException("list? must have exactly one argument");
-
+			if (args[0] == null) return true;
 			if (!(args[0] is Pair)) return false;
 
 			return !(((Pair)args[0]).IsImproperOrLoop());
