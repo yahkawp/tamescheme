@@ -379,9 +379,29 @@ namespace Tame.Scheme.Runtime
 				// Pair: (whatever ...)
 				StringBuilder res = new StringBuilder("(");
 
+				// Find the point at which this list becomes circular (if it becomes circular)
+				Data.Pair loopHead = ((Data.Pair)obj).LoopHead();
+				bool visitedLoopHead = false;
+
 				object thisItem = obj;
 				while (thisItem != null)
 				{
+					if (thisItem == loopHead)
+					{
+						// Circular lists are written (x y z #[...]). If only a portion of a list is circular, they are written (x . (y z #[...]))
+						if (visitedLoopHead)
+						{
+							res.Append("#[...]");
+							if (obj != loopHead) res.Append(")");
+							break;
+						}
+						else
+						{
+							visitedLoopHead = true;
+							if (obj != loopHead) res.Append(". (");
+						}
+					}
+
 					if (thisItem is Data.Pair)
 					{
 						// Part of the list
