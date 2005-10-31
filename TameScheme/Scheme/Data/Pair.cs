@@ -369,6 +369,13 @@ namespace Tame.Scheme.Data
 
 		#endregion
 
+		public override int GetHashCode()
+		{
+			int hashCode = typeof(Pair).GetHashCode();
+			foreach (object element in this) hashCode ^= element.GetHashCode();
+			return hashCode;
+		}
+
 		public override bool Equals(object obj)
 		{
 			// TODO: a danger: what if this.Car introduces a loop? This is an infinite loop at the moment.

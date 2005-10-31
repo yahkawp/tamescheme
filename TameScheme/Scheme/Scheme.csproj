@@ -269,6 +269,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Procedure\Lists\Append.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Procedure\Lists\CaNdr.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -289,7 +294,42 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Procedure\Lists\IsList.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\IsNull.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Procedure\Lists\IsPair.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\Length.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\List.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\ListRef.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\ListTail.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\Reverse.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

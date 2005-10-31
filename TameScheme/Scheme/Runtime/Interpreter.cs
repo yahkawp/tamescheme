@@ -89,6 +89,14 @@ namespace Tame.Scheme.Runtime
 		static IProcedure setCar = new Procedure.Lists.SetCar();
 		static IProcedure setCdr = new Procedure.Lists.SetCdr();
 		static Procedure.Lists.CaNdr[] caNdr = null;
+		static IProcedure isNull = new Procedure.Lists.IsNull();
+		static IProcedure isList = new Procedure.Lists.IsList();
+		static IProcedure list = new Procedure.Lists.List();
+		static IProcedure length = new Procedure.Lists.Length();
+		static IProcedure append = new Procedure.Lists.Append();
+		static IProcedure reverse = new Procedure.Lists.Reverse();
+		static IProcedure listTail = new Procedure.Lists.ListTail();
+		static IProcedure listRef = new Procedure.Lists.ListRef();
 
 		#endregion
 
@@ -179,6 +187,15 @@ namespace Tame.Scheme.Runtime
 			{
 				topLevel[carCdrComposition.Name] = carCdrComposition;
 			}
+
+			DefineProcedure(isNull);
+			DefineProcedure(isList);
+			DefineProcedure(list);
+			DefineProcedure(length);
+			DefineProcedure(append);
+			DefineProcedure(reverse);
+			DefineProcedure(listTail);
+			DefineProcedure(listRef);
 		}
 
 		/// <summary>
