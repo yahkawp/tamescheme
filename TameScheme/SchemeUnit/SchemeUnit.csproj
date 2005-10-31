@@ -118,6 +118,20 @@
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
+                <File
+                    RelPath = "R5RS\R5RS.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "R5RS\Readme.txt"
+                    BuildAction = "Content"
+                />
+                <File
+                    RelPath = "R5RS\Section6\PairsAndLists.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
             </Include>
         </Files>
     </CSHARP>
