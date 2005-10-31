@@ -269,6 +269,41 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Procedure\Lists\CaNdr.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\Car.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\Cdr.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\Cons.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\IsPair.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\SetCar.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\SetCdr.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Runtime\BContinuation.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

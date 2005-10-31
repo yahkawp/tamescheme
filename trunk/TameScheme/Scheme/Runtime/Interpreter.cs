@@ -81,6 +81,15 @@ namespace Tame.Scheme.Runtime
 		static IProcedure eqv = new Procedure.Comparison.Eqv();
 		static IProcedure equal = new Procedure.Comparison.Equal();
 
+		// List procedures
+		static IProcedure isPair = new Procedure.Lists.IsPair();
+		static IProcedure cons = new Procedure.Lists.Cons();
+		static IProcedure car = new Procedure.Lists.Car();
+		static IProcedure cdr = new Procedure.Lists.Cdr();
+		static IProcedure setCar = new Procedure.Lists.SetCar();
+		static IProcedure setCdr = new Procedure.Lists.SetCdr();
+		static Procedure.Lists.CaNdr[] caNdr = null;
+
 		#endregion
 
 		#region Static syntax defintions
@@ -137,6 +146,39 @@ namespace Tame.Scheme.Runtime
 			DefineProcedure(eq);
 			DefineProcedure(eqv);
 			DefineProcedure(equal);
+
+			// List procedures
+			DefineProcedure(isPair);
+			DefineProcedure(cons);
+			DefineProcedure(car);
+			DefineProcedure(cdr);
+			DefineProcedure(setCar);
+			DefineProcedure(setCdr);
+
+			if (caNdr == null)
+			{
+				lock (typeof(Interpreter))
+				{
+					// Create caar, cadr ... cddddr functions
+					int count, mask;
+					int pos = 0;
+
+					caNdr = new Procedure.Lists.CaNdr[28];
+
+					for (count=2; count<=4; count++)
+					{
+						for (mask=0; mask<(1<<count); mask++)
+						{
+							caNdr[pos++] = new Procedure.Lists.CaNdr(mask, count);
+						}
+					}
+				}
+			}
+
+			foreach (Procedure.Lists.CaNdr carCdrComposition in caNdr)
+			{
+				topLevel[carCdrComposition.Name] = carCdrComposition;
+			}
 		}
 
 		/// <summary>
