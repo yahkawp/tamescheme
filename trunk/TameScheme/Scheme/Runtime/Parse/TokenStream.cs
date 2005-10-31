@@ -709,6 +709,46 @@ namespace Tame.Scheme.Runtime.Parse
 				// Unquote character
 				return new Token(TokenType.Unquote, ",", null);
 			}
+			else if (lastCharacter == '"')
+			{
+				// String
+				StringBuilder newString = new StringBuilder();
+				StringBuilder tokenString = new StringBuilder();
+				int chr = NextChar();
+
+				tokenString.Append(lastCharacter);
+
+				for (;;)
+				{
+					// Throw an exception if there is a missing "
+					if (chr == -1) throw new Exception.SyntaxError("Unmatched '\"'");
+
+					// This is a valid character
+					char stringChr = (char)chr;
+					tokenString.Append(stringChr);
+
+					// See if we've reached the end of the string
+					if (stringChr == '"') break;
+
+					// Or if we have to quote the following character
+					if (stringChr == '\\')
+					{
+						chr = NextChar();
+						if (chr == -1) throw new Exception.SyntaxError("Unmatched '\"'");
+
+						stringChr = (char)chr;
+						tokenString.Append(stringChr);
+					}
+
+					// Build the string
+					newString.Append(stringChr);
+
+					// Continue
+					chr = NextChar();
+				}
+
+				return new Token(TokenType.String, tokenString.ToString(), newString.ToString());
+			}
 			else
 			{
 				// Either a symbol or a number, depending on what we read - read up to the next whitespace/comment character
