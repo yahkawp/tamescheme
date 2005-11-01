@@ -81,19 +81,15 @@ namespace SchemeUnit
                         // Write the test attribute name
                         if (testAttr.AttributeName != null)
                         {
-                            Console.ForegroundColor = ConsoleColor.Green;
                             Console.Out.Write(testAttr.AttributeName); linePos += testAttr.AttributeName.Length;
                             Console.Out.Write(" "); linePos += 1;
                         }
-                        Console.ForegroundColor = ConsoleColor.Cyan;
 
                         // Write the test method name
                         Console.Out.Write(methodInfo.Name); linePos += methodInfo.Name.Length;
                         Console.Out.Write(" "); linePos += 1;
 
                         // Write some dots
-                        Console.ForegroundColor = ConsoleColor.White;
-
                         for (int dot = 0; dot < 60 - linePos; dot++)
                             Console.Out.Write(".");
                         Console.Out.Write(" ");
@@ -111,20 +107,15 @@ namespace SchemeUnit
                                 // We succeed if there was no expected exception
                                 success++;
 
-                                Console.ForegroundColor = ConsoleColor.Green;
                                 Console.Out.WriteLine("[ OK ]");
-                                Console.ForegroundColor = ConsoleColor.White;
                             }
                             else
                             {
                                 // An exception was expected: this is a failure
                                 failures++;
 
-                                Console.ForegroundColor = ConsoleColor.Yellow;
                                 Console.Out.WriteLine("[ Failure ]");
-                                Console.ForegroundColor = ConsoleColor.Gray;
                                 Console.Out.WriteLine("Was expecting the exception " + expected.ExceptionType.ToString());
-                                Console.ForegroundColor = ConsoleColor.White;
                             }
                         }
                         catch (Exception e)
@@ -139,34 +130,27 @@ namespace SchemeUnit
                                 // This is a failure
                                 failures++;
 
-                                Console.ForegroundColor = ConsoleColor.Yellow;
                                 Console.Out.WriteLine("[ Failure ]");
-                                Console.ForegroundColor = ConsoleColor.Gray;
+
                                 Console.Out.WriteLine(e.Message);
                                 Console.Out.WriteLine(e.ToString());
-                                Console.ForegroundColor = ConsoleColor.White;
                             }
                             else if (expected != null && expected.ExceptionType.Equals(e.GetType()))
                             {
                                 // This exception was expected
                                 success++;
 
-                                Console.ForegroundColor = ConsoleColor.Green;
                                 Console.Out.WriteLine("[ OK ]");
-                                Console.ForegroundColor = ConsoleColor.White;
                             }
                             else
                             {
                                 // This exception was not expected
                                 errors++;
 
-                                Console.ForegroundColor = ConsoleColor.Red;
                                 Console.Out.WriteLine("[ Error ]");
-                                Console.ForegroundColor = ConsoleColor.Gray;
                                 Console.Out.WriteLine("Got exception " + e.GetType().ToString());
                                 if (expected != null) Console.Out.WriteLine("(Was expecting " + expected.ExceptionType.ToString() + ")");
                                 Console.Out.WriteLine(e.ToString());
-                                Console.ForegroundColor = ConsoleColor.White;
                             }
                         }
                     }
