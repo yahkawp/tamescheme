@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Comparison
 	/// <summary>
 	/// Summary description for GreaterThan.
 	/// </summary>
-	[PreferredName(">")]
+    [PreferredName(">"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public class GreaterThan : NumberCompare
 	{
 		public GreaterThan()

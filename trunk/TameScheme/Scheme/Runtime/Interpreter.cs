@@ -260,27 +260,27 @@ namespace Tame.Scheme.Runtime
 		/// <param name="procedure">The procedure to define (it should have a PreferredName attribute)</param>
 		public void DefineProcedure(IProcedure procedure)
 		{
-			Procedure.PreferredNameAttribute[] prefNames = (Procedure.PreferredNameAttribute[])procedure.GetType().GetCustomAttributes(typeof(Procedure.PreferredNameAttribute), true);
+            PreferredNameAttribute prefName = (PreferredNameAttribute)Attribute.GetCustomAttribute(procedure.GetType(), typeof(PreferredNameAttribute));
 
-			if (prefNames.Length <= 0) throw new System.Exception("Can't call DefineProcedure on an anonymous procedure");
+			if (prefName == null) throw new System.Exception("Can't call DefineProcedure on an anonymous procedure");
 
-			topLevel[prefNames[0].PreferredName] = procedure;
+			topLevel[prefName.PreferredName] = procedure;
 		}
 
 		public void DefineSyntax(ISyntax syntax)
 		{
-			Procedure.PreferredNameAttribute[] prefNames = (Procedure.PreferredNameAttribute[])syntax.GetType().GetCustomAttributes(typeof(Procedure.PreferredNameAttribute), true);
-			if (prefNames.Length <= 0) throw new System.Exception("Can't call DefineSyntax on an anonymous syntax object");
+            PreferredNameAttribute prefName = (PreferredNameAttribute)Attribute.GetCustomAttribute(syntax.GetType(), typeof(PreferredNameAttribute));
+            if (prefName == null) throw new System.Exception("Can't call DefineSyntax on an anonymous syntax object");
 
-			DefineSyntax(prefNames[0].PreferredName, syntax);
+			DefineSyntax(prefName.PreferredName, syntax);
 		}
 
 		public void DefineSyntax(string symbolName, ISyntax syntax)
 		{
-			Syntax.SchemeSyntaxAttribute[] primitiveSyntax = (Syntax.SchemeSyntaxAttribute[])syntax.GetType().GetCustomAttributes(typeof(Syntax.SchemeSyntaxAttribute), true);
-			if (primitiveSyntax.Length <= 0) throw new System.Exception("Can't call DefineSyntax on a syntax object that doesn't define any syntax");
+            Syntax.SchemeSyntaxAttribute primitiveSyntax = (SchemeSyntaxAttribute)Attribute.GetCustomAttribute(syntax.GetType(), typeof(SchemeSyntaxAttribute));
+			if (primitiveSyntax == null) throw new System.Exception("Can't call DefineSyntax on a syntax object that doesn't define any syntax");
 
-			topLevel[symbolName] = new SchemeSyntax(primitiveSyntax[0].Syntax, syntax);
+			topLevel[symbolName] = new SchemeSyntax(primitiveSyntax.Syntax, syntax);
 		}
 
 		#endregion

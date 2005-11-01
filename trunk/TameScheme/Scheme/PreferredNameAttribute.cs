@@ -1,6 +1,6 @@
 // +----------------------------------------------------------------------------+
 // |                               = TAMESCHEME =                               |
-// | Implementation of the eqv? comparison procedure                     Eqv.cs |
+// | Attribute for specifying the name of things      PreferredNameAttribute.cs |
 // +----------------------------------------------------------------------------+
 // | Copyright (c) 2005 Andrew Hunter                                           |
 // |                                                                            |
@@ -25,27 +25,20 @@
 
 using System;
 
-namespace Tame.Scheme.Procedure.Comparison
+namespace Tame.Scheme
 {
-	/// <summary>
-	/// The eqv? scheme procedure.
-	/// </summary>
-    [PreferredName("eqv?"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
-	public sealed class Eqv : IProcedure
-	{
-		public Eqv()
-		{
-		}
+    /// <summary>
+    /// Attributed used by scheme objects to supply a preferred name to the interpreter.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public class PreferredNameAttribute : Attribute
+    {
+        public PreferredNameAttribute(string prefName)
+        {
+            preferredName = prefName;
+        }
 
-		#region IProcedure Members
-
-		public object Call(Tame.Scheme.Data.Environment environment, ref object[] args)
-		{
-			if (args.Length != 2) throw new Exception.RuntimeException("eqv? requires 2 parameters");
-
-			return Runtime.Interpreter.Eqv(args[0], args[1]);
-		}
-
-		#endregion
-	}
+        public string PreferredName { get { return preferredName; } }
+        string preferredName;
+    }
 }

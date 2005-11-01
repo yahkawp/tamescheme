@@ -38,7 +38,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// Implementation of the 'let', 'let*' and 'letrec' scheme syntaxes
 	/// </summary>
-	[SchemeSyntax("()", "(((variable expression) ...) firstStatement statements ...)")]
+    [SchemeSyntax("()", "(((variable expression) ...) firstStatement statements ...)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public class Let : ISyntax, IBinding
 	{
 		public enum Type

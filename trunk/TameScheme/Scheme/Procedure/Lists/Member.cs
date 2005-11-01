@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The 'member' library procedure
 	/// </summary>
-	[PreferredName("member")]
+    [PreferredName("member"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Member : Mem
 	{
 		public Member()

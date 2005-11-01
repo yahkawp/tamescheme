@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The 'append' library procedure.
 	/// </summary>
-	[PreferredName("append")]
+    [PreferredName("append"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Append : IProcedure
 	{
 		public Append()

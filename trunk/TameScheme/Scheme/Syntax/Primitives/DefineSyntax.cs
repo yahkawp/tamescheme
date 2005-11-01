@@ -36,7 +36,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// Implementation of the scheme define-syntax operation.
 	/// </summary>
-	[PreferredName("define-syntax"), SchemeSyntax("(syntax-rules)", "(name (syntax-rules (literal ...) (pattern template) ...))")]
+    [PreferredName("define-syntax"), SchemeSyntax("(syntax-rules)", "(name (syntax-rules (literal ...) (pattern template) ...))"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.DefineTopLevel)]
 	public class DefineSyntax : ISyntax
 	{
 		public DefineSyntax()

@@ -34,7 +34,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// Quote implements the (quote foo) syntax
 	/// </summary>
-	[PreferredName("quote"), SchemeSyntax("()", "(something)")]
+    [PreferredName("quote"), SchemeSyntax("()", "(something)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Quoting)]
 	public class Quote : ISyntax, IQuoted
 	{
 		public Quote()

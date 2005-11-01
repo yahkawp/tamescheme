@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Comparison
 	/// <summary>
 	/// Summary description for Eq.
 	/// </summary>
-	[PreferredName("eq?")]
+    [PreferredName("eq?"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Eq : IProcedure
 	{
 		public Eq()

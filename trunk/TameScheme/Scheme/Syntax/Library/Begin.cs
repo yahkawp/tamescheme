@@ -34,7 +34,7 @@ namespace Tame.Scheme.Syntax.Library
 	/// <summary>
 	/// Implements the scheme 'begin' syntax.
 	/// </summary>
-	[PreferredName("begin"), SchemeSyntax("()", "(expression ...)")]
+	[PreferredName("begin"), SchemeSyntax("()", "(expression ...)"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public class Begin : ISyntax
 	{
 		public Begin()

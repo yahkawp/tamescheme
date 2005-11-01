@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// Implementation of 'car'.
 	/// </summary>
-	[PreferredName("car")]
+    [PreferredName("car"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Car : IProcedure
 	{
 		public Car()

@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The 'reverse' scheme library procedure
 	/// </summary>
-	[PreferredName("reverse")]
+    [PreferredName("reverse"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Reverse : IProcedure
 	{
 		public Reverse()

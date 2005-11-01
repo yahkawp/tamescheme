@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// Procedure to turn its arguments into a new list.
 	/// </summary>
-	[PreferredName("list")]
+    [PreferredName("list"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class List : IProcedure
 	{
 		public List()

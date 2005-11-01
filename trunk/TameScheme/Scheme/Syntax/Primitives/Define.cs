@@ -37,7 +37,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// Syntax for the 'define' primitive.
 	/// </summary>
-	[PreferredName("define"), SchemeSyntax("()", "((variable . formals) firstStatement statement ...)", "(variable expression)")]
+    [PreferredName("define"), SchemeSyntax("()", "((variable . formals) firstStatement statement ...)", "(variable expression)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.DefineTopLevel)]
 	public class Define : ISyntax, IBinding
 	{
 		public Define()

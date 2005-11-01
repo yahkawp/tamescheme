@@ -40,19 +40,4 @@ namespace Tame.Scheme.Procedure
 		/// <returns>The result of calling the procedure</returns>
 		object Call(Data.Environment environment, ref object[] args);
 	}
-
-	/// <summary>
-	/// Attributed used by procedures to supply a preferred name to the interpreter.
-	/// </summary>
-	[AttributeUsage(AttributeTargets.Class|AttributeTargets.Interface)]
-	public class PreferredNameAttribute : Attribute
-	{
-		public PreferredNameAttribute(string prefName)
-		{
-			preferredName = prefName;
-		}
-
-		public string PreferredName { get { return preferredName; } }
-		string preferredName;
-	}
 }

@@ -33,7 +33,7 @@ namespace Tame.Scheme.Procedure.Arithmetic
 	/// <summary>
 	/// The '/' scheme procedure.
 	/// </summary>
-	[PreferredName("/")]
+    [PreferredName("/"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Divide : IProcedure, Data.INumberIterator
 	{
 		public Divide()

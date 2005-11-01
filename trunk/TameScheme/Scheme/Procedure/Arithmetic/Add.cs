@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Arithmetic
 	/// <summary>
 	/// The '+' scheme procedure
 	/// </summary>
-	[PreferredName("+")]
+	[PreferredName("+"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Add : IProcedure, Data.INumberIterator
 	{
 		public Add()

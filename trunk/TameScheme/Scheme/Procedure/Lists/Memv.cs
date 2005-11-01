@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The 'memv' library procedure
 	/// </summary>
-	[PreferredName("memv")]
+    [PreferredName("memv"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Memv : Mem
 	{
 		public Memv()

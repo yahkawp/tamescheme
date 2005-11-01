@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The scheme 'pair?' procedure
 	/// </summary>
-	[PreferredName("pair?")]
+    [PreferredName("pair?"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class IsPair : IProcedure
 	{
 		public IsPair()

@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// Implementation of the null? procedure
 	/// </summary>
-	[PreferredName("null?")]
+    [PreferredName("null?"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class IsNull : IProcedure
 	{
 		public IsNull()

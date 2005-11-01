@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The assoc library procedure.
 	/// </summary>
-	[PreferredName("assoc")]
+    [PreferredName("assoc"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Assoc : Ass
 	{
 		public Assoc()

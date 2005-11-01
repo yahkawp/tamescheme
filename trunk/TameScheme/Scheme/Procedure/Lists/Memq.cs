@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The 'memq' library procedure
 	/// </summary>
-	[PreferredName("memq")]
+    [PreferredName("memq"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Memq : Mem
 	{
 		public Memq()
