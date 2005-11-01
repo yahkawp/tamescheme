@@ -164,7 +164,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		#region IBinding Members
 
-		public object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
+		public object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, int syntaxMatch, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
 		{
 			// Build the rebound variable list
 			object args = syntaxEnv[argsSymbol].Value;					// The 'args' syntax parameter

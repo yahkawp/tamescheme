@@ -110,15 +110,36 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		#region IBinding Members
 
-		public object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
+		public object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, int syntaxMatch, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
 		{
-			// TODO: fix binding in the case this is ((variables . formals) statement ...) instead of just (variable expression)
+			// TODO: fix binding in the case this is ((variable . formals) statement ...) instead of just (variable expression)
 
 			// Fetch the name of the variable we're defining
 			object variable = syntaxEnv[variableSymbol].Value;
 
 			// If it's a LiteralSymbol, then rebind it
 			if (variable is Data.LiteralSymbol) state.BindExternalSymbol(variable, state.TemporarySymbol());
+
+			// If there are formals, then bind them as well
+			SyntaxNode formals = syntaxEnv[formalsSymbol];
+
+			if (formals != null)
+			{
+				object formal = formals.Value;
+
+				// While we have arguments...
+				while (formal is Data.Pair)
+				{
+					object argumentVar = ((Data.Pair)formal).Car;
+
+					if (argumentVar is Data.LiteralSymbol) state.BindSymbol(argumentVar, state.TemporarySymbol());
+
+					formal = ((Data.Pair)formal).Cdr;
+				}
+
+				// Last formal might be an improper element
+				if (formal is Data.LiteralSymbol) state.BindSymbol(formal, state.TemporarySymbol());
+			}
 
 			// Perform the rebinding
 			return state.Bind(scheme);

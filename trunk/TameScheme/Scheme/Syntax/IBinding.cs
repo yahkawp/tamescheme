@@ -42,11 +42,12 @@ namespace Tame.Scheme.Syntax
 		/// </summary>
 		/// <param name="scheme">The scheme representing the arguments for this syntax</param>
 		/// <param name="syntaxEnv">The results of matching against the patterns provided for this syntax</param>
+		/// <param name="syntaxMatch">The number of the line of syntax that was matched</param>
 		/// <param name="state">The binding state for this section of scheme</param>
 		/// <remarks>
 		/// The BindingState can be amended as required for performing suitable binding: it can also invoke the normal Binder behaviour
 		/// (which is what you normally want to do).
 		/// </remarks>
-		object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, Transformer.Binder.BindingState state);
+		object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, int syntaxMatch, Transformer.Binder.BindingState state);
 	}
 }

@@ -193,11 +193,12 @@ namespace Tame.Scheme.Syntax.Transformer
 
 					// Try to match (even without binding, this should be valid scheme)
 					SyntaxEnvironment matchEnvironment = null;
+					int syntaxMatch = -1;
 
 					if (syntaxImplementation is IBinding || syntaxImplementation is IQuoted)
 					{
 						// We only actually use the match if this is a binding or quoted syntax
-						int syntaxMatch = ((SchemeSyntax)firstSymbolValue).Syntax.Match(schemePair.Cdr, compileState, out matchEnvironment);
+						syntaxMatch = ((SchemeSyntax)firstSymbolValue).Syntax.Match(schemePair.Cdr, compileState, out matchEnvironment);
 
 						// Do nothing if there's no match
 						if (syntaxMatch < 0) return scheme;
@@ -220,7 +221,7 @@ namespace Tame.Scheme.Syntax.Transformer
 						state = new BindingState(state);
 
 						// ... which it is given an opportunity to modify
-						return new Pair(schemePair.Car, ((IBinding)syntaxImplementation).BindScheme(schemePair.Cdr, matchEnvironment, state));
+						return new Pair(schemePair.Car, ((IBinding)syntaxImplementation).BindScheme(schemePair.Cdr, matchEnvironment, syntaxMatch, state));
 					}
 					else
 					{
