@@ -170,7 +170,9 @@ namespace SchemeUnit
             else
             {
                 Console.Out.WriteLine("Testing failed");
+#if !NoTestWait
                 Console.In.ReadLine();
+#endif
             }
         }
 
