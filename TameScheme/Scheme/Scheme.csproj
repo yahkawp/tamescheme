@@ -1,550 +1,372 @@
-<VisualStudioProject>
-    <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.10.3077"
-        SchemaVersion = "2.0"
-        ProjectGuid = "{C44BF428-3A02-4179-A908-AB84E90BEDDE}"
-    >
-        <Build>
-            <Settings
-                ApplicationIcon = ""
-                AssemblyKeyContainerName = ""
-                AssemblyName = "SoftwareTamed.Scheme"
-                AssemblyOriginatorKeyFile = ""
-                DefaultClientScript = "JScript"
-                DefaultHTMLPageLayout = "Grid"
-                DefaultTargetSchema = "IE50"
-                DelaySign = "false"
-                OutputType = "Library"
-                PreBuildEvent = ""
-                PostBuildEvent = ""
-                RootNamespace = "Tame.Scheme"
-                RunPostBuildEvent = "OnBuildSuccess"
-                StartupObject = ""
-            >
-                <Config
-                    Name = "Debug"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE"
-                    DocumentationFile = ""
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "false"
-                    OutputPath = "bin\Debug\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-                <Config
-                    Name = "Release"
-                    AllowUnsafeBlocks = "false"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
-                    DocumentationFile = ""
-                    DebugSymbols = "false"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "true"
-                    OutputPath = "bin\Release\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "false"
-                    WarningLevel = "4"
-                />
-            </Settings>
-            <References>
-                <Reference
-                    Name = "System"
-                    AssemblyName = "System"
-                    HintPath = "..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
-                />
-                <Reference
-                    Name = "System.Data"
-                    AssemblyName = "System.Data"
-                    HintPath = "..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Data.dll"
-                />
-                <Reference
-                    Name = "System.XML"
-                    AssemblyName = "System.Xml"
-                    HintPath = "..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
-                />
-                <Reference
-                    Name = "System.Drawing"
-                    AssemblyName = "System.Drawing"
-                    HintPath = "..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Drawing.dll"
-                />
-                <Reference
-                    Name = "System.Windows.Forms"
-                    AssemblyName = "System.Windows.Forms"
-                    HintPath = "..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Windows.Forms.dll"
-                />
-            </References>
-        </Build>
-        <Files>
-            <Include>
-                <File
-                    RelPath = "AssemblyInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\Environment.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\INumber.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\ISymbolic.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\LiteralSymbol.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\NumberUtils.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\Pair.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\Symbol.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\SymbolTable.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\Unspecified.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\Number\Complex.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\Number\Rational.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Data\Number\RationalComplex.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Exception\CantConvertNumbersException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Exception\NotAProcedureException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Exception\RuntimeException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Exception\SchemeException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Exception\SymbolNotFound.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Exception\SyntaxError.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Exception\UnknownOperationException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\BProcedure.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\IProcedure.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Arithmetic\Add.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Arithmetic\Divide.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Arithmetic\Multiply.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Arithmetic\Subtract.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\Eq.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\Equal.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\Eqv.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\GreaterThan.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\GreaterThanOrEqualTo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\LessThan.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\LessThanOrEqualTo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\NumberCompare.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Comparison\NumericEquals.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Append.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Ass.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Assoc.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Assq.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Assv.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\CaNdr.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Car.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Cdr.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Cons.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\IsList.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\IsNull.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\IsPair.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Length.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\List.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\ListRef.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\ListTail.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Mem.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Member.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Memq.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Memv.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\Reverse.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\SetCar.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Procedure\Lists\SetCdr.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\BContinuation.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\BExpression.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\CompileState.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\IContextual.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\IContinuation.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\Interpreter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\Operation.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\Parse\Parser.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\Parse\Token.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Runtime\Parse\TokenStream.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\IBinding.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\IQuoted.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\ISyntax.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\SchemeSyntax.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\SchemeSyntaxAttribute.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Syntax.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\SyntaxElement.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\SyntaxEnvironment.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\SyntaxNode.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Library\Begin.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Library\UserSyntax.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Primitives\Define.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Primitives\DefineSyntax.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Primitives\If.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Primitives\Lambda.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Primitives\Let.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Primitives\Quote.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Primitives\Set.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Transformer\Binder.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Transformer\SyntaxCompiler.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Transformer\SyntaxOp.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Syntax\Transformer\Transformation.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-            </Include>
-        </Files>
-    </CSHARP>
-</VisualStudioProject>
-
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C44BF428-3A02-4179-A908-AB84E90BEDDE}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>SoftwareTamed.Scheme</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Tame.Scheme</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Name>System.Windows.Forms</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Environment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\INumber.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\ISymbolic.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\LiteralSymbol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\NumberUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Number\Complex.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Number\Rational.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Number\RationalComplex.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Pair.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Symbol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\SymbolTable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\Unspecified.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exception\CantConvertNumbersException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exception\NotAProcedureException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exception\RuntimeException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exception\SchemeException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exception\SymbolNotFound.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exception\SyntaxError.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exception\UnknownOperationException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Arithmetic\Add.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Arithmetic\Divide.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Arithmetic\Multiply.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Arithmetic\Subtract.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\BProcedure.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\Eq.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\Equal.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\Eqv.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\GreaterThan.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\GreaterThanOrEqualTo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\LessThan.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\LessThanOrEqualTo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\NumberCompare.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Comparison\NumericEquals.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\IProcedure.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Append.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Ass.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Assoc.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Assq.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Assv.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\CaNdr.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Car.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Cdr.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Cons.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\IsList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\IsNull.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\IsPair.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Length.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\List.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\ListRef.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\ListTail.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Mem.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Member.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Memq.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Memv.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\Reverse.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\SetCar.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Procedure\Lists\SetCdr.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\BContinuation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\BExpression.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\CompileState.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\IContextual.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\IContinuation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Interpreter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Operation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Parse\Parser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Parse\Token.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Runtime\Parse\TokenStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\IBinding.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\IQuoted.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\ISyntax.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Library\Begin.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Library\UserSyntax.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Primitives\Define.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Primitives\DefineSyntax.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Primitives\If.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Primitives\Lambda.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Primitives\Let.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Primitives\Quote.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Primitives\Set.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\SchemeSyntax.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\SchemeSyntaxAttribute.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Syntax.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\SyntaxElement.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\SyntaxEnvironment.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\SyntaxNode.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Transformer\Binder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Transformer\SyntaxCompiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Transformer\SyntaxOp.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Syntax\Transformer\Transformation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
