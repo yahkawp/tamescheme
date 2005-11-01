@@ -118,7 +118,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			object variable = syntaxEnv[variableSymbol].Value;
 
 			// If it's a LiteralSymbol, then rebind it
-			if (variable is Data.LiteralSymbol) state.BindSymbol(variable, state.TemporarySymbol());
+			if (variable is Data.LiteralSymbol) state.BindExternalSymbol(variable, state.TemporarySymbol());
 
 			// Perform the rebinding
 			return state.Bind(scheme);

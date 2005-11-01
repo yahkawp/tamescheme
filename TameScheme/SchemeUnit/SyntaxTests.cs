@@ -115,6 +115,16 @@ namespace SchemeUnit
 		}
 
 		[Test("define-syntax")]
+		public void TempBindingMoreDefine()
+		{
+			terp.Evaluate("(define-syntax temp-binding (syntax-rules () ((temp-binding a b) (let () (define x b) (+ (let () (define x a) x) x)))))");
+			terp.Evaluate("(define x 1)");
+			terp.Evaluate("(define y 2)");
+
+			Assert.Equals(3, terp.Evaluate("(temp-binding y x)"));
+		}
+
+		[Test("define-syntax")]
 		public void TempBindingDefineFunction()
 		{
 			terp.Evaluate("(define-syntax temp-binding (syntax-rules () ((temp-binding a b) (let () (define (x y) (+ a y)) (x b)))))");
