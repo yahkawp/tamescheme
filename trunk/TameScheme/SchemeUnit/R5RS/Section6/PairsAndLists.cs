@@ -1,5 +1,4 @@
 using System;
-using csUnit;
 
 namespace SchemeUnit.R5RS.Section6
 {

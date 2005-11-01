@@ -1,7 +1,5 @@
 using System;
 
-using csUnit;
-
 using Tame.Scheme.Data;
 using Tame.Scheme.Runtime;
 
