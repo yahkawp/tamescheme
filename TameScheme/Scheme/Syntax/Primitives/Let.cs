@@ -278,7 +278,7 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		#region IBinding Members
 
-		public object BindScheme(object scheme, SyntaxEnvironment env, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
+		public object BindScheme(object scheme, SyntaxEnvironment env, int syntaxMatch, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
 		{
 			// Build the rebound variable list
 			Data.Pair oldVariables = (Data.Pair)((Data.Pair)scheme).Car;
