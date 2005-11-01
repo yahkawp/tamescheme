@@ -100,6 +100,9 @@ namespace Tame.Scheme.Runtime
 		static IProcedure memq = new Procedure.Lists.Memq();
 		static IProcedure memv = new Procedure.Lists.Memv();
 		static IProcedure member = new Procedure.Lists.Member();
+		static IProcedure assq = new Procedure.Lists.Assq();
+		static IProcedure assv = new Procedure.Lists.Assv();
+		static IProcedure assoc = new Procedure.Lists.Assoc();
 
 		#endregion
 
@@ -202,6 +205,9 @@ namespace Tame.Scheme.Runtime
 			DefineProcedure(memq);
 			DefineProcedure(memv);
 			DefineProcedure(member);
+			DefineProcedure(assq);
+			DefineProcedure(assv);
+			DefineProcedure(assoc);
 		}
 
 		/// <summary>

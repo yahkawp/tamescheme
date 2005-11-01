@@ -34,7 +34,7 @@ Global
 		Licence.txt = Licence.txt
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		csUnit.UnitTest.Count = 121
+		csUnit.UnitTest.Count = 122
 	EndGlobalSection
 	GlobalSection(ExtensibilityAddIns) = postSolution
 	EndGlobalSection
