@@ -131,9 +131,6 @@ namespace SchemeUnit.R5RS.Section6
 		{
 			Evaluate("(define (f) (list 'not-a-constant-list))");
 			Evaluate("(set-car! (f) 3)");
-
-			// Not technically in the R5RS list of examples, but we check the above worked
-			Assert.True((bool)Evaluate("(equal? 3 (car f))"));
 		}
 
 		[Test("set-car!"), ExpectedException(typeof(Tame.Scheme.Exception.RuntimeException))]
