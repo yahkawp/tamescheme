@@ -34,7 +34,7 @@ namespace Tame.Scheme.Procedure.Arithmetic
 	/// The '/' scheme procedure.
 	/// </summary>
 	[PreferredName("/")]
-	public class Divide : IProcedure, Data.INumberIterator
+	public sealed class Divide : IProcedure, Data.INumberIterator
 	{
 		public Divide()
 		{

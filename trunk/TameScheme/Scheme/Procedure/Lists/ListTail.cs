@@ -33,7 +33,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// Summary description for ListTail.
 	/// </summary>
 	[PreferredName("list-tail")]
-	public class ListTail : IProcedure
+	public sealed class ListTail : IProcedure
 	{
 		public ListTail()
 		{

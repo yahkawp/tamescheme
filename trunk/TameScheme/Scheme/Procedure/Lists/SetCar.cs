@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// The set-car! scheme procedure
 	/// </summary>
 	[PreferredName("set-car!")]
-	public class SetCar : IProcedure
+	public sealed class SetCar : IProcedure
 	{
 		public SetCar()
 		{

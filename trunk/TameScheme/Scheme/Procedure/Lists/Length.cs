@@ -33,7 +33,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// Implementation of the scheme 'length' procedure.
 	/// </summary>
 	[PreferredName("length")]
-	public class Length : IProcedure
+	public sealed class Length : IProcedure
 	{
 		public Length()
 		{
