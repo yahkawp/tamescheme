@@ -216,7 +216,7 @@ namespace SchemeUnit
 			terp.TopLevelEnvironment["x"] = 123;
 			terp.TopLevelEnvironment["y"] = 123;
 
-			Assert.Equals(terp.ParseScheme("((x y) x () 4 undefined-symbol #(23 x))"), terp.Evaluate("'((x y) x () 4 undefined-symbol #(23 x))"));
+			Assert.True(Interpreter.Equal(terp.ParseScheme("((x y) x () 4 undefined-symbol #(23 x))"), terp.Evaluate("'((x y) x () 4 undefined-symbol #(23 x))")));
 		}
 	}
 }
