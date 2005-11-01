@@ -7,3 +7,9 @@ Scheme.dll: Scheme/*.cs Scheme/*/*.cs Scheme/*/*/*.cs
 
 SchemeTest.exe: Scheme.dll SchemeTest/*.cs
 	mcs -target:exe -addmodule:Scheme.dll -out:SchemeTest.exe -recurse:"SchemeTest/*.cs"
+
+SchemeUnit.exe: Scheme.dll SchemeUnit/*.cs SchemeUnit/*/*.cs SchemeUnit/*/*/*.cs
+	mcs -target:exe -addmodule:Scheme.dll -out:SchemeUnit.exe -recurse:"SchemeUnit/*.cs" -define:NoTestWait
+
+test: SchemeUnit.exe
+	mono SchemeUnit.exe
