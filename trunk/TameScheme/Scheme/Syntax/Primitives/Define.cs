@@ -37,7 +37,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// Syntax for the 'define' primitive.
 	/// </summary>
-	[PreferredName("define"), SchemeSyntax("()", "((variable . formals) statement ...)", "(variable expression)")]
+	[PreferredName("define"), SchemeSyntax("()", "((variable . formals) firstStatement statement ...)", "(variable expression)")]
 	public class Define : ISyntax, IBinding
 	{
 		public Define()
@@ -52,14 +52,34 @@ namespace Tame.Scheme.Syntax.Primitives
 		static Data.Symbol variableSymbol = new Data.Symbol("variable");
 		static Data.Symbol expressionSymbol = new Data.Symbol("expression");
 
+		static Data.Symbol formalsSymbol = new Data.Symbol("formals");
+		static Data.Symbol statementSymbol = new Data.Symbol("firstStatement");
+
 		public Tame.Scheme.Runtime.BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
 			if (syntaxMatch == functionSyntax)
 			{
 				// (define (x y) y) style function definition
-				Console.WriteLine(env.ToString());
+				object variable = env[variableSymbol].Value;
+				if (!(variable is Data.ISymbolic)) throw new Exception.SyntaxError("Attempt to define an object (" + Runtime.Interpreter.ToString(variable) + ") that is not a symbol");
 
-				return null;
+				// Get the parameters
+				object args = env[formalsSymbol].Value;
+				SyntaxNode firstStatement = env[statementSymbol];
+
+				// Push a new function (build the same way Lambda does)
+				BExpression funcExpr = Lambda.MakeFunction(args, firstStatement, state);
+
+				// Define it appropriately
+				Operation[] defineOps = new Operation[2];
+
+				defineOps[0] = Operation.Define((Data.ISymbolic)variable, state);
+				defineOps[1] = new Operation(Op.Push, (Data.ISymbolic)variable);
+
+				// Build the final expression
+				BExpression expr = funcExpr.Add(new BExpression(defineOps));
+
+				return expr;
 			}
 			else
 			{
@@ -92,6 +112,8 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		public object BindScheme(object scheme, SyntaxEnvironment syntaxEnv, Tame.Scheme.Syntax.Transformer.Binder.BindingState state)
 		{
+			// TODO: fix binding in the case this is ((variables . formals) statement ...) instead of just (variable expression)
+
 			// Fetch the name of the variable we're defining
 			object variable = syntaxEnv[variableSymbol].Value;
 
