@@ -31,7 +31,7 @@ namespace Tame.Scheme.Procedure.Comparison
 	/// The eqv? scheme procedure.
 	/// </summary>
 	[PreferredName("eqv?")]
-	public class Eqv : IProcedure
+	public sealed class Eqv : IProcedure
 	{
 		public Eqv()
 		{

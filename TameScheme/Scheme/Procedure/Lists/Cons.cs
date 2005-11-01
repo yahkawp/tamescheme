@@ -31,7 +31,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// Implementation of 'cons'
 	/// </summary>
 	[PreferredName("cons")]
-	public class Cons : IProcedure
+	public sealed class Cons : IProcedure
 	{
 		public Cons()
 		{

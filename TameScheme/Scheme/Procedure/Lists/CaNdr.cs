@@ -31,7 +31,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The caar, caadr, etc set of procedures
 	/// </summary>
-	public class CaNdr : IProcedure
+	public sealed class CaNdr : IProcedure
 	{
 		/// <summary>
 		/// Constructs a CaNdr procedure

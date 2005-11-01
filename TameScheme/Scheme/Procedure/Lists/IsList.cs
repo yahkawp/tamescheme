@@ -33,7 +33,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// Implementation of the list? procedure.
 	/// </summary>
 	[PreferredName("list?")]
-	public class IsList : IProcedure
+	public sealed class IsList : IProcedure
 	{
 		public IsList()
 		{

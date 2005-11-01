@@ -31,7 +31,7 @@ namespace Tame.Scheme.Procedure.Comparison
 	/// The scheme equal? procedure
 	/// </summary>
 	[PreferredName("equal?")]
-	public class Equal : IProcedure
+	public sealed class Equal : IProcedure
 	{
 		public Equal()
 		{

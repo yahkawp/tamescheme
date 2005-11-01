@@ -33,7 +33,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// The list-ref library procedure
 	/// </summary>
 	[PreferredName("list-ref")]
-	public class ListRef : IProcedure
+	public sealed class ListRef : IProcedure
 	{
 		public ListRef()
 		{

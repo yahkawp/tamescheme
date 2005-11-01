@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// The set-cdr! scheme procedure
 	/// </summary>
 	[PreferredName("set-cdr!")]
-	public class SetCdr : IProcedure
+	public sealed class SetCdr : IProcedure
 	{
 		public SetCdr()
 		{
