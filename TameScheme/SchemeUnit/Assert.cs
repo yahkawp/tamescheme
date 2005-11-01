@@ -16,8 +16,50 @@ namespace SchemeUnit
     {
         #region Running the tests
 
- 		[STAThread]
-		static void Main(string[] args)
+        static void Wipe(int count)
+        {
+            string wipe = "";
+            string spaces = "";
+
+            for (int x = 0; x < count; x++)
+            {
+                wipe += '\b';
+                spaces += " ";
+            }
+
+            Console.Out.Write(wipe);
+            Console.Out.Write(spaces);
+            Console.Out.Write(wipe);
+        }
+
+        class FixtureComparison : IComparer
+        {
+            public FixtureComparison() { }
+
+            #region IComparer Members
+
+            private string Fixture(object x)
+            {
+                if (x == null) return "";
+
+                TestFixtureAttribute fixtureAttr = (TestFixtureAttribute)Attribute.GetCustomAttribute((Type)x, typeof(TestFixtureAttribute));
+
+                if (fixtureAttr == null) return "";
+                if (fixtureAttr.AttributeName == null) return "";
+
+                return fixtureAttr.AttributeName;
+            }
+
+            public int Compare(object x, object y)
+            {
+                return Fixture(x).CompareTo(Fixture(y));
+            }
+
+            #endregion
+        }
+
+        [STAThread]
+        static void Main(string[] args)
         {
             // Counts
             int tests = 0;
@@ -40,6 +82,9 @@ namespace SchemeUnit
                     testClasses.Add(t);
                 }
             }
+
+            // Sort according to the fixture
+            testClasses.Sort(new FixtureComparison());
 
             string lastFixture = null;
 
@@ -107,7 +152,8 @@ namespace SchemeUnit
                                 // We succeed if there was no expected exception
                                 success++;
 
-                                Console.Out.WriteLine("[ OK ]");
+                                Wipe(61);
+                                // Console.Out.WriteLine("[ OK ]");
                             }
                             else
                             {
@@ -140,7 +186,8 @@ namespace SchemeUnit
                                 // This exception was expected
                                 success++;
 
-                                Console.Out.WriteLine("[ OK ]");
+                                Wipe(61);
+                                // Console.Out.WriteLine("[ OK ]");
                             }
                             else
                             {
