@@ -34,7 +34,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// 
 	/// </summary>
-	[PreferredName("set!"), SchemeSyntax("()", "(var expression)")]
+    [PreferredName("set!"), SchemeSyntax("()", "(var expression)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public class Set : ISyntax
 	{
 		public Set() { }

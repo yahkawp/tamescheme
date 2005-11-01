@@ -151,6 +151,7 @@
     <Compile Include="Exception\UnknownOperationException.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PreferredNameAttribute.cs" />
     <Compile Include="Procedure\Arithmetic\Add.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -295,6 +296,8 @@
     <Compile Include="Runtime\Parse\TokenStream.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="SchemeGroupAttribute.cs" />
+    <Compile Include="SchemeUsageAttribute.cs" />
     <Compile Include="Syntax\IBinding.cs">
       <SubType>Code</SubType>
     </Compile>

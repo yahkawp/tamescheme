@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Comparison
 	/// <summary>
 	/// Summary description for LessThan.
 	/// </summary>
-	[PreferredName("<")]
+    [PreferredName("<"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public class LessThan : NumberCompare
 	{
 		public LessThan()

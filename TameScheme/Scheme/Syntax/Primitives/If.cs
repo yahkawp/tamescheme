@@ -32,7 +32,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// Class implementing the syntax of 'if'.
 	/// </summary>
-	[PreferredName("if"), SchemeSyntax("()", "(cond then)", "(cond then else)")]
+    [PreferredName("if"), SchemeSyntax("()", "(cond then)", "(cond then else)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class If : ISyntax
 	{
 		public If()

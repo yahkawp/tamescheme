@@ -31,7 +31,7 @@ namespace Tame.Scheme.Procedure.Comparison
 	/// <summary>
 	/// Summary description for GreaterThanOrEqualTo.
 	/// </summary>
-	[PreferredName(">=")]
+    [PreferredName(">="), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public class GreaterThanOrEqualTo : NumberCompare
 	{
 		public GreaterThanOrEqualTo()

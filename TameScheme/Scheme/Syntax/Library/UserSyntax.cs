@@ -34,6 +34,7 @@ namespace Tame.Scheme.Syntax.Library
 	/// <summary>
 	/// UserSyntax represents syntax defined by the define-syntax operator.
 	/// </summary>
+    [SchemeGroup(SchemeGroup.UserExtension), SchemeUsage(SchemeUsage.Normal)]
 	public class UserSyntax : SchemeSyntax, ISyntax
 	{
 		public UserSyntax(Syntax syntaxMatcher, ArrayList transformers) : base(syntaxMatcher, null)

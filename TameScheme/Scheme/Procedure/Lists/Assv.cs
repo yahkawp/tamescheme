@@ -30,7 +30,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// <summary>
 	/// The assv library procedure 
 	/// </summary>
-	[PreferredName("assv")]
+    [PreferredName("assv"), SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Assv : Ass
 	{
 		public Assv()

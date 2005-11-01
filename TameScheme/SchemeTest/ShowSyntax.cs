@@ -4,7 +4,7 @@ using Tame.Scheme.Data;
 using Tame.Scheme.Runtime;
 using Tame.Scheme.Syntax;
 using Tame.Scheme.Syntax.Transformer;
-using Tame.Scheme.Procedure;
+using Tame.Scheme;
 
 namespace Tame.SchemeTest
 {
