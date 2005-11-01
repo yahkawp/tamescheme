@@ -346,7 +346,7 @@ namespace SchemeUnit.R5RS.Section6
 		[Test("assoc")]
 		public void Assoc5()
 		{
-			Assert.Equals(Parse("((a))"), Evaluate("(assq (list 'a) '(((a)) ((b)) ((c))))"));
+			Assert.Equals(Parse("((a))"), Evaluate("(assoc (list 'a) '(((a)) ((b)) ((c))))"));
 		}
 
 		[Test("assq")]
