@@ -46,14 +46,13 @@ namespace Tame.Scheme.Syntax.Primitives
 
 		#region ISyntax Members
 
-		public BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
+		public static BExpression MakeFunction(object args, SyntaxNode firstStatement, CompileState state)
 		{
-			// Load the argumetns from the frame
+			// Load the arguments from the frame
 			ArrayList lambdaOperations = new ArrayList();			// Initial operations in the lambda expression
 			ArrayList arguments = new ArrayList();					// List of arguments for the lambda expression
 
 			bool lastIsAList = false;								// If 'true', then the list of arguments is improper: the last argument is a list of all the remaining arguments
-			object args = env[argsSymbol].Value;					// The 'args' syntax parameter
 
 			// Create a new local environment from the arguments
 			Data.Environment argumentEnvironment = new Data.Environment(state.Local);
@@ -103,15 +102,12 @@ namespace Tame.Scheme.Syntax.Primitives
 				symbols[x] = (Data.ISymbolic)arguments[x];
 			}
 
-			// TODO: define, let in a tail context might introduce new arguments: we need to define this later
-			// lambdaOperations.Add(Operation.CreateLoadEnvironment(argumentEnvironment, symbols, lastIsAList, false));
-
 			// Build the expression from the statements
 			BExpression lambdaExpression = null;
 			BExpression lastExpression = null;
 			CompileState tailState = new CompileState(lambdaState, true);
 
-			SyntaxNode statement = env[statementSymbol];
+			SyntaxNode statement = firstStatement;
 
 			while (statement != null)
 			{
@@ -157,6 +153,11 @@ namespace Tame.Scheme.Syntax.Primitives
 
 			// The BExpression result of a lambda expression is a new SProcecure
 			return new BExpression(new Operation(Op.PushContext, new BProcedure(lambdaExpression)));
+		}
+
+		public BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
+		{
+			return MakeFunction(env[argsSymbol].Value, env[statementSymbol], state);
 		}
 
 		#endregion
