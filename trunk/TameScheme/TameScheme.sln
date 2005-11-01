@@ -1,41 +1,36 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheme", "Scheme\Scheme.csproj", "{C44BF428-3A02-4179-A908-AB84E90BEDDE}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemeTest", "SchemeTest\SchemeTest.csproj", "{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemeUnit", "SchemeUnit\SchemeUnit.csproj", "{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}"
-	ProjectSection(ProjectDependencies) = postProject
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5260DAF2-3209-4A4F-9970-C9DAD6ECD9DD}"
+	ProjectSection(SolutionItems) = preProject
+		Licence.txt = Licence.txt
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Release = Release
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(ProjectConfiguration) = postSolution
-		{C44BF428-3A02-4179-A908-AB84E90BEDDE}.Debug.ActiveCfg = Debug|.NET
-		{C44BF428-3A02-4179-A908-AB84E90BEDDE}.Debug.Build.0 = Debug|.NET
-		{C44BF428-3A02-4179-A908-AB84E90BEDDE}.Release.ActiveCfg = Release|.NET
-		{C44BF428-3A02-4179-A908-AB84E90BEDDE}.Release.Build.0 = Release|.NET
-		{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}.Debug.ActiveCfg = Debug|.NET
-		{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}.Debug.Build.0 = Debug|.NET
-		{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}.Release.ActiveCfg = Release|.NET
-		{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}.Release.Build.0 = Release|.NET
-		{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}.Debug.ActiveCfg = Debug|.NET
-		{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}.Debug.Build.0 = Debug|.NET
-		{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}.Release.ActiveCfg = Release|.NET
-		{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}.Release.Build.0 = Release|.NET
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C44BF428-3A02-4179-A908-AB84E90BEDDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C44BF428-3A02-4179-A908-AB84E90BEDDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C44BF428-3A02-4179-A908-AB84E90BEDDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C44BF428-3A02-4179-A908-AB84E90BEDDE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBBB0AD-C2AF-498F-AE51-392B7677A60D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B789C0A-A8B1-4ECA-A192-CA2FB9171F00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionItems) = postSolution
-		Licence.txt = Licence.txt
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		csUnit.UnitTest.Count = 123
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
