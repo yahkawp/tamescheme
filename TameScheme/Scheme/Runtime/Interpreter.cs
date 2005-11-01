@@ -97,6 +97,9 @@ namespace Tame.Scheme.Runtime
 		static IProcedure reverse = new Procedure.Lists.Reverse();
 		static IProcedure listTail = new Procedure.Lists.ListTail();
 		static IProcedure listRef = new Procedure.Lists.ListRef();
+		static IProcedure memq = new Procedure.Lists.Memq();
+		static IProcedure memv = new Procedure.Lists.Memv();
+		static IProcedure member = new Procedure.Lists.Member();
 
 		#endregion
 
@@ -196,6 +199,9 @@ namespace Tame.Scheme.Runtime
 			DefineProcedure(reverse);
 			DefineProcedure(listTail);
 			DefineProcedure(listRef);
+			DefineProcedure(memq);
+			DefineProcedure(memv);
+			DefineProcedure(member);
 		}
 
 		/// <summary>

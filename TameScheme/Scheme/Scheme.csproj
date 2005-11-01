@@ -329,6 +329,26 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Procedure\Lists\Mem.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\Member.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\Memq.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Procedure\Lists\Memv.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Procedure\Lists\Reverse.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
