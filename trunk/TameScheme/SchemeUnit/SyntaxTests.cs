@@ -104,6 +104,26 @@ namespace SchemeUnit
 			Assert.Equals(3, terp.Evaluate("(temp-binding y x)"));
 		}
 
+		[Test("define-syntax")]
+		public void TempBindingDefine()
+		{
+			terp.Evaluate("(define-syntax temp-binding (syntax-rules () ((temp-binding a b) (let () (define x a) (+ x b)))))");
+			terp.Evaluate("(define x 1)");
+			terp.Evaluate("(define y 2)");
+
+			Assert.Equals(3, terp.Evaluate("(temp-binding y x)"));
+		}
+
+		[Test("define-syntax")]
+		public void TempBindingDefineFunction()
+		{
+			terp.Evaluate("(define-syntax temp-binding (syntax-rules () ((temp-binding a b) (let () (define (x y) (+ a y)) (x b)))))");
+			terp.Evaluate("(define x 1)");
+			terp.Evaluate("(define y 2)");
+
+			Assert.Equals(3, terp.Evaluate("(temp-binding y x)"));
+		}
+
 		// The R5RS macro definition for cond
 		static string condDefinition = "(define-syntax cond (syntax-rules (else =>) ((cond (else result1 result2 ...)) (begin result1 result2 ...)) ((cond (test => result)) (let ((temp test)) (if temp (result temp)))) ((cond (test => result) clause1 clause2 ...) (let ((temp test)) (if temp (result temp) (cond clause1 clause2 ...)))) ((cond (test)) test) ((cond (test) clause1 clause2 ...) (let ((temp test)) (if temp temp (cond clause1 clause2 ...)))) ((cond (test result1 result2 ...)) (if test (begin result1 result2 ...))) ((cond (test result1 result2 ...) clause1 clause2 ...) (if test (begin result1 result2 ...) (cond clause1 clause2 ...)))))";
 
