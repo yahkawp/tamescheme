@@ -40,7 +40,8 @@ namespace Tame.Scheme.Runtime.Parse
 		static Data.Symbol quasiquoteSymbol = new Data.Symbol("quasiquote");
 		static Data.Symbol quoteSymbol = new Data.Symbol("quote");
 		static Data.Symbol unquoteSymbol = new Data.Symbol("unquote");
-		static Data.Symbol dotSymbol = new Data.Symbol(".");
+        static Data.Symbol unquoteSpliceSymbol = new Data.Symbol("unquote-splicing");
+        static Data.Symbol dotSymbol = new Data.Symbol(".");
 
 		/// <summary>
 		/// Parses a scheme expression in the default manner
@@ -140,6 +141,7 @@ namespace Tame.Scheme.Runtime.Parse
 
 				case TokenType.Quote:
 				case TokenType.Unquote:
+                case TokenType.UnquoteSplicing:
 				case TokenType.QuasiQuote:
 					nextToken = moreTokens.ReadToken();
 					object quoted = ParseToken(nextToken, moreTokens);
@@ -152,6 +154,7 @@ namespace Tame.Scheme.Runtime.Parse
 						case TokenType.Quote: quote[0] = quoteSymbol; break;
 						case TokenType.Unquote: quote[0] = unquoteSymbol; break;
 						case TokenType.QuasiQuote: quote[0] = quasiquoteSymbol; break;
+                        case TokenType.UnquoteSplicing: quote[0] = unquoteSpliceSymbol; break;
 					}
 
 					// Second symbol is the following symbol

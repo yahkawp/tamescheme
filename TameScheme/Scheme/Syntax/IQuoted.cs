@@ -60,6 +60,6 @@ namespace Tame.Scheme.Syntax
 		/// the 'outer' binding state. In particular, rebinding the symbol that represents this syntax (which may not be the symbol you think
 		/// it is) may cause strange things to happen.
 		/// </remarks>
-		object QuoteScheme(object scheme, SyntaxEnvironment matchEnvironment, Transformer.Binder.BindingState bindState);
+		object QuoteScheme(Data.Pair scheme, SyntaxEnvironment matchEnvironment, Transformer.Binder.BindingState bindState);
 	}
 }

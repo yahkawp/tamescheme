@@ -48,6 +48,7 @@ namespace Tame.Scheme.Runtime.Parse
 		Quote,							// '
 		QuasiQuote,						// `
 		Unquote,						// ,
+        UnquoteSplicing,                // ,@
 
 		// Lexical errors
 		BadHash,						// # followed by an unrecognised sequence (ie, #X or something)

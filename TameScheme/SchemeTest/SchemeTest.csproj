@@ -96,6 +96,7 @@
     <Compile Include="SchemeTest.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ShowExpression.cs" />
     <Compile Include="ShowSyntax.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -707,7 +707,16 @@ namespace Tame.Scheme.Runtime.Parse
 			else if (lastCharacter == ',')
 			{
 				// Unquote character
-				return new Token(TokenType.Unquote, ",", null);
+                if (PeekChar() == (int)'@')
+                {
+                    // Unquote-splicing
+                    NextChar();
+                    return new Token(TokenType.UnquoteSplicing, ",@", null);
+                }
+                else
+                {
+                    return new Token(TokenType.Unquote, ",", null);
+                }
 			}
 			else if (lastCharacter == '"')
 			{

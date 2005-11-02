@@ -95,6 +95,11 @@ namespace Tame.Scheme.Syntax.Transformer
 				previousState.BindSymbol(symbol, newSymbol);
 			}
 
+            /// <summary>
+            /// The current CompileState for the binding this state represents.
+            /// </summary>
+            public Runtime.CompileState CompileState { get { return compileState; } }
+
 			/// <summary>
 			/// Retrieves the binding for a specific symbol
 			/// </summary>
@@ -205,7 +210,7 @@ namespace Tame.Scheme.Syntax.Transformer
 					// Quote anything that needs quoting
 					if (syntaxImplementation is IQuoted) 
 					{
-						scheme = ((IQuoted)syntaxImplementation).QuoteScheme(scheme, matchEnvironment, state);
+						scheme = ((IQuoted)syntaxImplementation).QuoteScheme(schemePair, matchEnvironment, state);
 						schemePair = (Data.Pair) scheme;
 					}
 
