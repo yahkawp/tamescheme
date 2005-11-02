@@ -111,14 +111,12 @@ namespace Tame.Scheme.Syntax.Transformer
 				else
 				{
 					// Literal symbols with no match in their environment are rebound back to being normal symbols
-					if (symbol is LiteralSymbol)
+					if (symbol is ISymbolic)
 					{
-						LiteralSymbol litSym = (LiteralSymbol)symbol;
+						ISymbolic litSym = (ISymbolic)symbol;
 
-						if (!litSym.Environment.Contains(litSym.Symbol)) return litSym.Symbol;
+						if (litSym.Location != null && !litSym.Location.Contains(litSym.Symbol)) return litSym.Symbol;
 					}
-
-					// TODO: should we have a way of treating other ISymbolics here?
 
 					// Other literal symbols and everything else is passed through intact
 					return symbol;
@@ -172,18 +170,15 @@ namespace Tame.Scheme.Syntax.Transformer
 					if (compileState.TopLevel.Contains((Symbol)firstElement))
 						firstSymbolValue = compileState.TopLevel[(Symbol)firstElement];
 				}
-				else if (firstElement is LiteralSymbol)
-				{
-					// Look up in the 'literal' environment (where the syntax was created)
-					Data.Environment symbolEnv = ((LiteralSymbol)firstElement).Environment;
-					if (symbolEnv.Contains(((LiteralSymbol)firstElement).Symbol))
-						firstSymbolValue = symbolEnv[((LiteralSymbol)firstElement).Symbol];
-				}
 				else if (firstElement is ISymbolic)
 				{
 					// Other symbolic values: also look up in the top-level environment
-					if (compileState.TopLevel.Contains((Symbol)firstElement))
-						firstSymbolValue = compileState.TopLevel[((ISymbolic)firstElement).Symbol];
+                    ISymbolic iSym = (ISymbolic)firstElement;
+                    Data.Environment symbolEnv = iSym.Location;
+                    if (symbolEnv == null) symbolEnv = compileState.TopLevel;
+
+					if (symbolEnv.Contains(iSym))
+						firstSymbolValue = symbolEnv[iSym.Symbol];
 				}
 
 				if (firstSymbolValue != null && firstSymbolValue is SchemeSyntax)
