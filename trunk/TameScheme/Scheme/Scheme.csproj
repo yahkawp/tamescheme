@@ -197,6 +197,7 @@
     <Compile Include="Procedure\IProcedure.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Procedure\IProcedureGroup.cs" />
     <Compile Include="Procedure\Lists\Append.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -307,6 +308,7 @@
     <Compile Include="Syntax\ISyntax.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Syntax\ISyntaxGroup.cs" />
     <Compile Include="Syntax\Library\Begin.cs">
       <SubType>Code</SubType>
     </Compile>

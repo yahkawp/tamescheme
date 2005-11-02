@@ -39,7 +39,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// Implementation of the 'let', 'let*' and 'letrec' scheme syntaxes
 	/// </summary>
     [SchemeSyntax("()", "(((variable expression) ...) firstStatement statements ...)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
-	public class Let : ISyntax, IBinding
+	public class Let : ISyntax, IBinding, ISyntaxGroup
 	{
 		public enum Type
 		{
@@ -336,5 +336,28 @@ namespace Tame.Scheme.Syntax.Primitives
 		}
 
 		#endregion
-	}
+
+        #region ISyntaxGroup Members
+
+        public static SyntaxDefinition[] Definitions
+        {
+            get
+            {
+                SyntaxDefinition[] res = new SyntaxDefinition[3];
+
+                res[0].PreferredName = "let";
+                res[0].Syntax = new Let(Type.Let);
+
+                res[1].PreferredName = "let*";
+                res[1].Syntax = new Let(Type.LetStar);
+            
+                res[2].PreferredName = "letrec";
+                res[2].Syntax = new Let(Type.Letrec);
+
+                return res;
+            }
+        }
+
+        #endregion
+    }
 }

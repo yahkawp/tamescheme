@@ -108,7 +108,22 @@ namespace SchemeUnit
                 Console.Out.WriteLine("| * Running tests in " + t.ToString());
 
                 // Create the class
-                object thisClass = t.GetConstructor(new Type[0]).Invoke(new object[0]);
+                object thisClass = null;
+
+                try
+                {
+                    thisClass = t.GetConstructor(new Type[0]).Invoke(new object[0]);
+                }
+                catch (TargetInvocationException e)
+                {
+                    tests++;
+                    errors++;
+
+                    Console.Out.WriteLine("Failed to instantiate class");
+                    Console.Out.WriteLine(e.GetBaseException().ToString());
+                }
+
+                if (thisClass == null) continue;
 
                 // For each method that has a [Test] attribute set
                 MethodInfo[] methods = t.GetMethods();
