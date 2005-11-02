@@ -44,8 +44,6 @@ namespace Tame.SchemeTest
 			// Create the interpreter
 			Interpreter terp = new Interpreter();
 
-			terp.DefineSyntax(new ShowSyntax());
-
 			while (true)
 			{
 				Console.Out.Write("> ");
