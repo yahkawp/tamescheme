@@ -27,8 +27,6 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 
-// TODO: tail calls are completely broken. My idea was a bad one :-(
-
 namespace Tame.Scheme.Runtime
 {
 	/// <summary>
@@ -276,6 +274,8 @@ namespace Tame.Scheme.Runtime
 				case Op.PushFrameList: opName = "push-frame-list"; break;
 				case Op.PushBindingValue: opName = "push-binding-value"; break;
 				case Op.PushRelativeValue: opName = "push-relative-value"; break;
+                case Op.AddList: opName = "add-list"; break;
+                case Op.SpliceList: opName = "splice-list"; break;
 				case Op.Stop: opName = "stop"; break;
 				case Op.TailCallIProcedure: opName = "tail-call-iprocedure"; break;
 				case Op.UseEnvironment: opName = "use-environment"; break;
