@@ -58,6 +58,9 @@ namespace Tame.Scheme.Runtime
 		CreateAndLoadEnvironmentStack,	// create-and-load-environment a - as for create-and-load-environment, except values are taken from the stack
 		Stop,							// stop - stop executing this S-Expression
 
+        AddList,                        // add-list - creates a list using the topmost value as a car and the next value as a cdr, and pushes the result
+        SpliceList,                     // splice-list - takes the list on top of the stack, finds the last element, and sets the value underneath as the Cdr of that element
+
 		// Flow control operations
 		If,								// if a - if the value on top of the stack is not the value 'false', then advance the program counter a positions
 		IfLabel,						// if-label a - as for if, but branches to the label named 'a' in the current S-Expression

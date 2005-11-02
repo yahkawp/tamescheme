@@ -166,6 +166,37 @@ namespace Tame.Scheme.Runtime
 							evaluationStack.Push(((Data.Environment.RelativeBinding)opArg).ValueInEnvironment(currentFrame.environment));
 							break;
 
+                        case Op.AddList:
+                            evaluationStack.Push(new Data.Pair(evaluationStack.Pop(), evaluationStack.Pop()));
+                            break;
+
+                        case Op.SpliceList:
+                            {
+                                Data.Pair toSplice = (Data.Pair)evaluationStack.Pop();
+
+                                if (toSplice != null)
+                                {
+                                    Data.Pair splicePos = toSplice;
+
+                                    // Iterate to the end of the list
+                                    while (splicePos.Cdr != null)
+                                    {
+                                        splicePos = (Data.Pair)splicePos.Cdr;
+                                    }
+
+                                    // Perform the splicing
+                                    splicePos.Cdr = evaluationStack.Pop();
+
+                                    // Push the result
+                                    evaluationStack.Push(toSplice);
+                                }
+                                else
+                                {
+                                    // Result is just the value we would have spliced in (ie, do nothing)
+                                }
+                                break;
+                            }
+
 						case Op.TailCallIProcedure:
 						case Op.CallIProcedure:
 						{

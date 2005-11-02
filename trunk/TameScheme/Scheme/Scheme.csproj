@@ -312,6 +312,7 @@
     <Compile Include="Syntax\Library\Begin.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Syntax\Library\QuasiQuote.cs" />
     <Compile Include="Syntax\Library\UserSyntax.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -87,7 +87,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			}
 		}
 
-		public object QuoteScheme(object scheme, SyntaxEnvironment matchEnvironment, Tame.Scheme.Syntax.Transformer.Binder.BindingState bindState)
+		public object QuoteScheme(Data.Pair scheme, SyntaxEnvironment matchEnvironment, Tame.Scheme.Syntax.Transformer.Binder.BindingState bindState)
 		{
 			// Change all ISymbolic children to their simpler equivalent
 			object res =  new Data.Pair(((Data.Pair)scheme).Car, GetSymbol(((Data.Pair)scheme).Cdr));
