@@ -27,6 +27,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Collections;
+using System.Collections.Specialized;
+using System.Reflection;
 
 using Tame.Scheme.Data;
 using Tame.Scheme.Runtime;
@@ -47,8 +49,7 @@ namespace Tame.Scheme.Runtime
 		/// </summary>
 		public Interpreter()
 		{
-			DefineStandardProcedures(5, true);
-			DefineStandardSyntax(5, true);
+            topLevel = MakeStandardEnvironment();
 		}
 
 		/// <summary>
@@ -58,13 +59,240 @@ namespace Tame.Scheme.Runtime
 		public Interpreter(Data.Environment env)
 		{
 			topLevel = env;
-		}
+        }
 
-		#region The standard environment
+        #region Specifying the language
 
-		#region Static procedure definitions
+        // These functions allow us to specify what the 'baseline' scheme implementation we want is. 
+        // For instance, we can import all the syntax and procedures installed in a particular assembly or specify that we want no
+        // procedures that can open files.
+        //
+        // Default is just the procedures and syntax defined by the TameScheme module
 
-		// Arithmetic procedures
+        private class AssemblyItem
+        {
+            public AssemblyItem(string name, object definition)
+            {
+                this.Name = name;
+                this.Definition = definition;
+            }
+
+            public string Name;
+            public object Definition;
+        }
+
+        static Hashtable assembliesToItems = null;                             // Maps assemblies to the items they define
+        static Hashtable activeAssemblies = null;                              // Contains the 'active' assemblies as keys
+
+        static Hashtable environmentTemplate = null;                           // The template for the environment hashtable
+        static ArrayList environmentValuesTemplate = null;                     // The template for the values the environment should contain
+
+        static Data.Environment MakeStandardEnvironment()
+        {
+            if (assembliesToItems == null) MakeStandardDefinitions();
+
+            lock (typeof(Interpreter))
+            {
+                if (environmentTemplate == null)
+                {
+                    // Rebuild the environment template
+                    environmentTemplate = new Hashtable();
+                    environmentValuesTemplate = new ArrayList();
+
+                    foreach (Assembly asm in activeAssemblies.Keys)
+                    {
+                        foreach (AssemblyItem item in (ArrayList)assembliesToItems[asm])
+                        {
+                            // Add this item to the template
+                            object hash = new Symbol(item.Name).HashValue;
+
+                            environmentTemplate.Add(hash, environmentValuesTemplate.Count);
+                            environmentValuesTemplate.Add(item.Definition);
+                        }
+                    }
+                }
+
+                // Create a new environment from the template
+                HybridDictionary symbolsToOffsets = new HybridDictionary();
+
+                foreach (object hash in environmentTemplate.Keys)
+                {
+                    symbolsToOffsets[hash] = environmentTemplate[hash];
+                }
+
+                return new Data.Environment(symbolsToOffsets, environmentValuesTemplate, null);
+            }
+        }
+
+        static void MakeStandardDefinitions()
+        {
+            if (assembliesToItems == null)
+            {
+                assembliesToItems = new Hashtable();
+                activeAssemblies = new Hashtable();
+
+                // Use the definitions in the entry assembly and this assembly by default
+                UseDefinitionsInAssembly(Assembly.GetEntryAssembly());
+                UseMyDefinitions();
+            }
+        }
+
+        /// <summary>
+        /// Looks for procedure and syntax definitions in the given assembly and adds them to the 'standard' set of definitions for new intepreters
+        /// </summary>
+        /// <param name="assembly">The assembly to take definitions from</param>
+        /// <remarks>
+        /// By default, the definitions in the entry assembly and this one are used. This can also be used to re-enable assemblies disabled by
+        /// DisableAssembly()
+        /// </remarks>
+        public static void UseDefinitionsInAssembly(Assembly assembly)
+        {
+            // TODO: exceptions for IProcedureGroup/ISyntaxGroup classes that don't implement Definition
+            lock (typeof(Interpreter))
+            {
+                environmentTemplate = null;
+
+                if (assembliesToItems == null) MakeStandardDefinitions();
+
+                if (!assembliesToItems.Contains(assembly))
+                {
+                    // Get the types from this assembly
+                    Type[] assemblyTypes = assembly.GetExportedTypes();
+
+                    // Build a list of the items this assembly defines
+                    ArrayList itemList = new ArrayList();
+
+                    foreach (Type t in assemblyTypes)
+                    {
+                        if (!t.IsClass) continue;
+
+                        PreferredNameAttribute prefName = (PreferredNameAttribute)Attribute.GetCustomAttribute(t, typeof(PreferredNameAttribute));
+                        ConstructorInfo simpleConstructor = t.GetConstructor(new Type[0]);
+
+                        if (typeof(Procedure.IProcedure).IsAssignableFrom(t))
+                        {
+                            // This is a procedure
+                            if (prefName != null && simpleConstructor != null)
+                            {
+                                // This has a singleton implementation style, which we shall now instantiate
+                                IProcedure definition = (IProcedure)simpleConstructor.Invoke(new object[0]);
+
+                                // Create the item for this procedure definition
+                                AssemblyItem newItem = new AssemblyItem(prefName.PreferredName, definition);
+                                itemList.Add(newItem);
+                            }
+                        }
+
+                        if (typeof(Procedure.IProcedureGroup).IsAssignableFrom(t))
+                        {
+                            // This is a class that provides a group of definitions
+                            try
+                            {
+                                ProcedureDefinition[] procs = (ProcedureDefinition[])t.GetProperty("Definitions").GetGetMethod().Invoke(null, null);
+
+                                // Create an item for each one
+                                foreach (ProcedureDefinition proc in procs)
+                                {
+                                    itemList.Add(new AssemblyItem(proc.PreferredName, proc.Procedure));
+                                }
+                            }
+                            catch (TargetInvocationException e)
+                            {
+                                throw e.GetBaseException();
+                            }
+                        }
+
+                        if (typeof(Syntax.ISyntax).IsAssignableFrom(t))
+                        {
+                            // This implements some syntax
+                            Syntax.SchemeSyntaxAttribute primitiveSyntax = (SchemeSyntaxAttribute)Attribute.GetCustomAttribute(t, typeof(SchemeSyntaxAttribute));
+
+                            if (prefName != null && primitiveSyntax != null && simpleConstructor != null)
+                            {
+                                // This is a singleton syntax object, we can instantiate it
+                                ISyntax syntax = (ISyntax)simpleConstructor.Invoke(new object[0]);
+                                SchemeSyntax definition = new SchemeSyntax(primitiveSyntax.Syntax, syntax);
+
+                                // Create the item for this procedure definition
+                                AssemblyItem newItem = new AssemblyItem(prefName.PreferredName, definition);
+                                itemList.Add(newItem);
+                            }
+                        }
+
+                        if (typeof(Syntax.SchemeSyntax).IsAssignableFrom(t))
+                        {
+                            // This is another way to implement syntax, specifying both the syntax to match and the code generator
+                            if (prefName != null && simpleConstructor != null)
+                            {
+                                // Instantiate this class
+                                SchemeSyntax definition = (SchemeSyntax)simpleConstructor.Invoke(new object[0]);
+
+                                // Create the item for this procedure definition
+                                AssemblyItem newItem = new AssemblyItem(prefName.PreferredName, definition);
+                                itemList.Add(newItem);
+                            }
+                        }
+
+                        if (typeof(Syntax.ISyntaxGroup).IsAssignableFrom(t))
+                        {
+                            try
+                            {
+                                // This is a class that provides a group of definitions
+                                SyntaxDefinition[] syntaxes = (SyntaxDefinition[])t.GetProperty("Definitions").GetGetMethod().Invoke(null, null);
+                                Syntax.SchemeSyntaxAttribute primitiveSyntax = (SchemeSyntaxAttribute)Attribute.GetCustomAttribute(t, typeof(SchemeSyntaxAttribute));
+
+                                // Create an item for each one
+                                foreach (SyntaxDefinition syntax in syntaxes)
+                                {
+                                    itemList.Add(new AssemblyItem(syntax.PreferredName, new SchemeSyntax(primitiveSyntax.Syntax, syntax.Syntax)));
+                                }
+                            }
+                            catch (TargetInvocationException e)
+                            {
+                                throw e.GetBaseException();
+                            }
+                        }
+                    }
+
+                    // Store the results
+                    assembliesToItems[assembly] = itemList;
+                }
+
+                // Activate this assembly
+                activeAssemblies[assembly] = true;
+            }
+        }
+
+        /// <summary>
+        /// Adds the definitions from the calling assembly
+        /// </summary>
+        public static void UseMyDefinitions()
+        {
+            UseDefinitionsInAssembly(Assembly.GetCallingAssembly());
+        }
+
+        /// <summary>
+        /// Switches off a given assembly, so no definitions will be used from it in the standard environment for new interpreters
+        /// </summary>
+        /// <param name="assembly"></param>
+        public static void DisableAssembly(Assembly assembly)
+        {
+            lock (typeof(Interpreter))
+            {
+                environmentTemplate = null;
+
+                if (activeAssemblies != null && activeAssemblies.Contains(assembly))
+                    activeAssemblies.Remove(assembly);
+            }
+        }
+
+        #endregion
+
+        #region The standard environment
+
+        #region Static procedure definitions
+
+        // Arithmetic procedures
 		static IProcedure add = new Procedure.Arithmetic.Add();
 		static IProcedure subtract = new Procedure.Arithmetic.Subtract();
 		static IProcedure multiply = new Procedure.Arithmetic.Multiply();

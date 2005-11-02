@@ -32,7 +32,7 @@ namespace Tame.Scheme.Procedure.Lists
 	/// The caar, caadr, etc set of procedures
 	/// </summary>
     [SchemeGroup(SchemeGroup.Library), SchemeUsage(SchemeUsage.Normal)]
-	public sealed class CaNdr : IProcedure
+	public sealed class CaNdr : IProcedure, IProcedureGroup
 	{
 		/// <summary>
 		/// Constructs a CaNdr procedure
@@ -107,5 +107,38 @@ namespace Tame.Scheme.Procedure.Lists
 		}
 
 		#endregion
-	}
+
+        #region IProcedureGroup Members
+
+        public static ProcedureDefinition[] Definitions
+        {
+            get 
+            {
+                ProcedureDefinition[] caNdr = new ProcedureDefinition[28];
+
+                // Create caar, cadr ... cddddr functions
+                int count, mask;
+                int pos = 0;
+
+                caNdr = new ProcedureDefinition[28];
+
+                for (count = 2; count <= 4; count++)
+                {
+                    for (mask = 0; mask < (1 << count); mask++)
+                    {
+                        CaNdr newProc = new CaNdr(mask, count);
+
+                        caNdr[pos].PreferredName = newProc.Name;
+                        caNdr[pos].Procedure = newProc;
+
+                        pos++;
+                    }
+                }
+
+                return caNdr;
+            }
+        }
+
+        #endregion
+    }
 }
