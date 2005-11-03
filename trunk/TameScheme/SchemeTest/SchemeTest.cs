@@ -31,41 +31,41 @@ using Tame.Scheme.Runtime;
 using Tame.Scheme.Data;
 using Tame.Scheme.Exception;
 
+using Tame.Scheme.UI.Interpreter;
+
 namespace Tame.SchemeTest
 {
 	class SchemeTest
 	{
+        static void Output(object sender, SchemeStream.WriteEventArgs args)
+        {
+            Console.Out.Write(args.Message);
+            Console.Out.Flush();
+        }
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
 		[STAThread]
 		static void Main(string[] args)
 		{
-			// Create the interpreter
-			Interpreter terp = new Interpreter();
+            // Create the interpreter
+            SchemeInterpreter terp = new SchemeInterpreter();
 
-			while (true)
-			{
-				Console.Out.Write("> ");
-				Console.Out.Flush();
+            // Register for the output event
+            terp.InterpreterOutput += Output;
 
-				string someScheme = Console.In.ReadLine();
-				object schemeResult = null;
+            // Start the interpreter
+            terp.Go();
 
-				try
-				{
-					object parsedScheme = terp.ParseScheme(someScheme);
-					schemeResult = terp.Evaluate(parsedScheme);
-				}
-				catch (SchemeException e)
-				{
-					Console.WriteLine("; " + e.Message);
-					Console.WriteLine();
-					schemeResult = e;
-				}
+            // Read input forever (the interpreter thread will produce output)
+            for (; ; )
+            {
+                string nextLine = Console.ReadLine();
 
-				Console.WriteLine(Interpreter.ToString(schemeResult));
-			}
+                terp.InterpreterInput(nextLine);
+                terp.InterpreterInput("\n");
+            }
 		}
 	}
 }

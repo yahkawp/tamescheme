@@ -1,3 +1,28 @@
+// +----------------------------------------------------------------------------+
+// |                               = TAMESCHEME =                               |
+// | Scheme interpreter component                          SchemeInterpreter.cs |
+// +----------------------------------------------------------------------------+
+// | Copyright (c) 2005 Andrew Hunter                                           |
+// |                                                                            |
+// | Permission is hereby granted, free of charge, to any person obtaining a    |
+// | copy of this software and associated documentation files (the "Software"), |
+// | to deal in the Software without restriction, including without limitation  |
+// | the rights to use, copy, modify, merge, publish, distribute, sublicense,   |
+// | and/or sell copies of the Software, and to permit persons to whom the      |
+// | Software is furnished to do so, subject to the following conditions:       |
+// |                                                                            |
+// | The above copyright notice and this permission notice shall be included in |
+// | all copies or substantial portions of the Software.                        |
+// |                                                                            |
+// | THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR |
+// | IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   |
+// | FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL    |
+// | THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER |
+// | LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING    |
+// | FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER        |
+// | DEALINGS IN THE SOFTWARE.                                                  |
+// +----------------------------------------------------------------------------+
+
 using System;
 using System.Text;
 using System.Collections;
@@ -18,6 +43,7 @@ namespace Tame.Scheme.UI.Interpreter
         public SchemeInterpreter()
         {
             InitializeComponent();
+            InitializeInterpreter();
         }
 
         public SchemeInterpreter(IContainer container)
@@ -25,6 +51,12 @@ namespace Tame.Scheme.UI.Interpreter
             container.Add(this);
 
             InitializeComponent();
+            InitializeInterpreter();
+        }
+
+        private void InitializeInterpreter()
+        {
+            interpreterStream.TextWritten += Interpreter_Written;
         }
 
         #region Component methods
@@ -48,8 +80,12 @@ namespace Tame.Scheme.UI.Interpreter
                     shuttingDown = true;
                     interpreterThread.Interrupt();
 
-                    // Wait for the thread to stop
-                    interpreterThread.Join();
+                    // Wait for the thread to stop (nicely)
+                    if (!interpreterThread.Join(200))
+                    {
+                        // Stake thread through heart + bury at crossroads if it looks even the slightest bit undead
+                        interpreterThread.Abort();
+                    }
                 }
 
                 components.Dispose();
@@ -74,6 +110,20 @@ namespace Tame.Scheme.UI.Interpreter
 
         #region Communications with the interpreter
 
+        bool evaluating = false;
+
+        /// <summary>
+        /// Returns true if the interpreter is currently evaluating an expression
+        /// </summary>
+        public bool EvaluatingExpression
+        {
+            get
+            {
+                lock (this)
+                    return evaluating;
+            }
+        }
+
         /// <summary>
         /// Starts the interpreter running
         /// </summary>
@@ -89,13 +139,45 @@ namespace Tame.Scheme.UI.Interpreter
 
                 // Set the interpreter running
                 interpreterThread = new Thread(RunInterpreter);
+                interpreterThread.IsBackground = true;
                 interpreterThread.Start();
             }
         }
 
         #endregion
 
-        Stream interpreterStream = null;                                // The stream where interpreter output should go/come from
+        #region Events
+
+        void Interpreter_Written(object sender, SchemeStream.WriteEventArgs args)
+        {
+            if (InterpreterOutput != null)
+            {
+                InterpreterOutput(this, args);
+            }
+        }
+
+        public delegate void InterpreterOutputHandler(object sender, SchemeStream.WriteEventArgs args);
+
+        /// <summary>
+        /// Event raised when the interpreter outputs some text
+        /// </summary>
+        /// <remarks>
+        /// This event will be raised in the interpreter thread, not the main thread.
+        /// </remarks>
+        public event InterpreterOutputHandler InterpreterOutput;
+
+        /// <summary>
+        /// Passes some input that the UI has accepted on to the interpreter
+        /// </summary>
+        /// <param name="input">The input that was received</param>
+        public void InterpreterInput(string input)
+        {
+            interpreterStream.Input(input);
+        }
+
+        #endregion
+
+        SchemeStream interpreterStream = new SchemeStream();            // The stream where interpreter output should go/come from
         Encoding encoding = Encoding.Unicode;                           // The encoding to use for commuicating with the stream
         bool bracketPrompt = true;                                      // Whether or not to show the '4]' prompt while inputting scheme over several lines.
         bool indent = true;                                             // Whether or not to print automatic indenting when more brackets are required
@@ -189,7 +271,7 @@ namespace Tame.Scheme.UI.Interpreter
                         Thread.Sleep(0);
 
                         // Write a prompt
-                        output.Write(" > ");
+                        output.Write("> ");
                         output.Flush();
 
                         // Read some scheme
@@ -228,9 +310,10 @@ namespace Tame.Scheme.UI.Interpreter
                                         // Display some indentation as well, if requested
                                         if (indent)
                                         {
-                                            int indentation = 3 + bracketCount * 2;
+                                            int indentation = 2 + bracketCount * 2;
 
                                             if (indentation > 30) indentation = 30;
+                                            indentation -= prompt.Length;
 
                                             for (int x = 0; x < indentation; x++)
                                             {
@@ -238,7 +321,7 @@ namespace Tame.Scheme.UI.Interpreter
                                             }
                                         }
 
-                                        // TODO: deadlock danger?
+                                        // TODO: deadlock danger here?
                                         output.Write(prompt);
                                         output.Flush();
                                     }
@@ -257,12 +340,18 @@ namespace Tame.Scheme.UI.Interpreter
                         }
                         while (moreScheme);
 
-                        // schemeExpression now contains a valid scheme expression for the interpreter to evaluate
+                        // scheme now contains a scheme expression (possibly more than one)
+                        TokenReader schemeReader = new TokenReader(new StringReader(scheme));
+                        schemeExpression = parser.Parse(schemeReader);
+
+                        // Run the expression through the interpreter
+                        lock (this) evaluating = true;
                         object result;
                         lock (interpreter)
                         {
                             result = interpreter.Evaluate(schemeExpression);
                         }
+                        lock (this) evaluating = false;
 
                         // Display the result
                         output.WriteLine(Runtime.Interpreter.ToString(result));
@@ -283,10 +372,18 @@ namespace Tame.Scheme.UI.Interpreter
                         // Notify of the interruption
                         output.WriteLine("\n; <Interrupt>\n");
                     }
+                    catch (ThreadAbortException)
+                    {
+                        return;
+                    }
+                    catch (AppDomainUnloadedException)
+                    {
+                        return;
+                    }
                     catch (System.Exception e)
                     {
                         // Display a general exception
-                        output.WriteLine("\n; " + e.Message + "\n");
+                        output.WriteLine("\n; .NET exception: " + e.Message + "\n");
                         output.WriteLine(e.ToString());
                     }
                 }
@@ -295,6 +392,12 @@ namespace Tame.Scheme.UI.Interpreter
             {
                 lock (this)
                 {
+                    output.Close(); output = null;
+                    input.Close(); input = null;
+
+                    interpreter = null;
+                    parser = null;
+
                     interpreterThread = null;
                 }
             }
