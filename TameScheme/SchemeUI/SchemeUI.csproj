@@ -36,6 +36,7 @@
     <Compile Include="Interpreter\SchemeInterpreter.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Interpreter\SchemeStream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -82,6 +82,10 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
+    <ProjectReference Include="..\SchemeUI\SchemeUI.csproj">
+      <Project>{889426AD-C9B1-4748-8638-88A5F8F91E94}</Project>
+      <Name>SchemeUI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Scheme\Scheme.csproj">
       <Name>Scheme</Name>
       <Project>{C44BF428-3A02-4179-A908-AB84E90BEDDE}</Project>
