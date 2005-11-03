@@ -47,6 +47,7 @@ namespace Tame.Scheme.Runtime.Parse
 		/// Parses a scheme expression in the default manner
 		/// </summary>
 		/// <returns>A scheme object</returns>
+        /// <remarks>It is an error to pass scheme to this method with 'extraneous' tokens, such as trailing closing brackets</remarks>
 		public static object Parse(string scheme)
 		{
 			TokenReader reader = new TokenReader(new System.IO.StringReader(scheme));
@@ -94,11 +95,13 @@ namespace Tame.Scheme.Runtime.Parse
 
 						// Fetch the next token
 						nextToken = moreTokens.ReadToken();
+                        if (nextToken == null) break;
 
 						if (!improper && nextToken.Type == TokenType.Symbol && dotSymbol.Equals(nextToken.Value) && thisToken.Type == TokenType.OpenBracket)
 						{
 							improper = true;
 							nextToken = moreTokens.ReadToken();
+                            if (nextToken == null) break;
 
 							if (nextToken.Type == TokenType.CloseBracket) throw new Exception.SyntaxError("Improperly formed dotted list", moreTokens);
 						}
@@ -107,7 +110,7 @@ namespace Tame.Scheme.Runtime.Parse
 					if (nextToken == null)
 					{
 						// Missing ')'
-						throw new Exception.SyntaxError("Missing close parenthesis", moreTokens);
+						throw new Exception.MissingParenthesis("Missing close parenthesis", moreTokens);
 					}
 
 					// Create a list or vector as appropriate
@@ -183,5 +186,41 @@ namespace Tame.Scheme.Runtime.Parse
 
 			return ParseToken(firstToken, reader);
 		}
+
+        /// <summary>
+        /// Works out how many brackets are missing for the expression given by the TokenReader
+        /// </summary>
+        /// <param name="reader">The reader to read expressions from</param>
+        /// <returns>The number of closing parenthesises that are required to complete the expression (-1 if there are too many)</returns>
+        public virtual int RemainingBrackets(TokenReader reader)
+        {
+            int bracketCount = 0;
+            Token thisToken = reader.ReadToken();
+
+            while (thisToken != null)
+            {
+                switch (thisToken.Type)
+                {
+                    case TokenType.OpenBracket:
+                    case TokenType.OpenVector:
+                        // If this begins a list or a vector, increase the bracket count
+                        bracketCount++;
+                        break;
+
+                    case TokenType.CloseBracket:
+                        // Close brackets indicate the end of a list or vector
+                        bracketCount--;
+                        break;
+                }
+
+                // Get the next token
+                thisToken = reader.ReadToken();
+            }
+
+            // Set the count to -1 if there were too many brackets
+            if (bracketCount < 0) bracketCount = -1;
+
+            return bracketCount;
+        }
 	}
 }
