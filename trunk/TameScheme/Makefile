@@ -5,7 +5,7 @@ all: Scheme.dll SchemeTest.exe
 Scheme.dll: Scheme/*.cs Scheme/*/*.cs Scheme/*/*/*.cs
 	mcs -target:module -out:Scheme.dll -recurse:"Scheme/*.cs"
 
-SchemeUI.dll: SchemeUI/*.cs SchemeUI/*/*.cs
+SchemeUI.dll: SchemeUI/*/*.cs
 	mcs -target:module -addmodule:Scheme.dll -out:SchemeUI.dll -recurse:"SchemeUI/*.cs"
 
 SchemeTest.exe: Scheme.dll SchemeUI.dll SchemeTest/*.cs
