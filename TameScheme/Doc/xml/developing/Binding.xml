@@ -1,8 +1,119 @@
 <?xml version="1.0"?>
-<page subtopic="Software projects" topic="Binding syntax" layout="../../menu.xml">
+<page topic="Binding syntax" layout="../../menu.xml">
   <title>Binding syntax</title>
 
   <text>
+    <h2>Binding (syntactic closures)</h2>
+    
+    <p>
+      TameScheme provides a generic interface for syntax that introduces new
+      bindings. The <interface>IBinding</interface> interface should be
+      implemented by all syntax objects that provide binding. This gives
+      them an opportunity to specify to the macro transformer which symbols
+      that they have bound and where the binding applies.
+    </p>
+    
+    <p>
+      'Binding' in this context means renaming symbols that are introduced as
+      part of a macro expansion in a context where they would bind a previously
+      free symbol. (For example <scheme>(define-syntax something (syntax-rules ()
+      ((something) (let ((x 1)) x))))</scheme> would rename x on expansion to
+      a temporary symbol value)
+    </p>
+    
+    <p>
+      This is performed by the <class>Binder</class> class as a final stage
+      in syntax expansion. The syntax transformer, which runs just prior
+      to invoking the <class>Binder</class>, outputs symbols introduced by the
+      macro expansion using the <class>LiteralSymbol</class> class. Symbols
+      introduced by parameters of the macro are passed through intact.
+      <class>LiteralSymbol</class>s provide a <property>Location</property>
+      indicating to which environment they are bound - or, more precisely,
+      the environment to which they would be bound assuming that no
+      further environments are introduced. For instance, consider the
+      following syntax definition:
+    </p>
+    
+    <p>
+      <scheme>(define-syntax example-1 (syntax-rules () ((example-1 a) (let ((x a)) x))))</scheme>
+    </p>
+    
+    <p>
+      If this is invoked from the scheme expression <scheme>(example-1 x)</scheme>,
+      the result before binding is invoked will be something like the following
+      pseudo-scheme:
+    </p>
+    
+    <p>
+      <scheme>(#[LiteralSymbol let] ((#[LiteralSymbol x] x)) #[LiteralSymbol x])</scheme>
+    </p>
+    
+    <p>
+      let implements the IBinding interface, so the binder will defer to that
+      to establish the final value for each symbol. It should be obvious that
+      what needs to be done is to rename #[LiteralSymbol x] (it is, thanks
+      to the bindings let introduces, pointing to the wrong place). At this
+      point, it should be noted that LiteralSymbols passed through intact
+      are compiled as bindings to a specific environment.
+    </p>
+    
+    <p>
+      IBinding classes are given the task of performing this renaming: they
+      are in fact capable of completely rewriting the S-Expression if necessary,
+      but the usual behaviour is simpler than that. The <method>BindScheme</method>
+      method is passed a new <class>BindingState</class> object, which contains
+      the current status of which symbols should be renamed, and which should
+      be updated with any renamings introduced by the syntax object.
+    </p>
+    
+    <p>
+      The two important methods to use with the state are <method>BindSymbol</method>,
+      which specifies that a symbol should be renamed (normally this is called
+      to bind a LiteralSymbol to another value), and <method>Bind</method>,
+      which takes an S-Expression and applies the usual scheme renaming rules
+      according to the specified binding state.
+    </p>
+    
+    <p>
+      Let, then, proceeds as follows: first, it uses BindingState.Bind() to
+      rename each of the variable assignment expressions. As nothing has
+      been entered into the BindingState, this means that the values bind
+      to the previous environment (following the semantics of let). Next,
+      it finds each variable name that is a LiteralSymbol, and uses
+      BindingState.BindSymbol() to rename them to temporary symbols - these
+      can be assigned using BindingState.TemporarySymbol(). Finally, it
+      applies BindingState.Bind() to apply these bindings to the
+      expressions and returns the result as a new let S-Expression.
+      The result is something like the following:
+    </p>
+    
+    <p>
+      <scheme>(#[LiteralSymbol let] ((#[temporary 1] x)) #[temporary 1])</scheme>
+    </p>
+    
+    <p>
+      Note that let is still a LiteralSymbol: the Binder and syntax expansion both 
+      operate in a top-down fashion, so it won't be rebound, and because it refers 
+      to the environment containing the let syntax, it will always refer to the
+      same syntax object that performed the binding.
+    </p>
+    
+    <p>
+      Certain types of binding syntax may introduce 'external' bindings,
+      affecting the environment they are enclosed in. For example,
+      <scheme>(define x 1)</scheme> affects the value of x for any
+      scheme that follows it in the same environment. For this reason,
+      there is a <method>BindExternalSymbol</method> method in the
+      BindingState that does exactly that. The binder operates in a
+      top-down, left-to-right fashion, and there is no way to
+      affect how 'earlier' symbols are bound, so that in the following:
+    </p>
+    
+    <p><scheme>(begin x (define x 1) x)</scheme></p>
+    
+    <p>any renaming introduced by the (define) operation will only affect
+    the final x and not the first. This behaviour is somewhat broader
+    than what the standard scheme specification allows.</p>
   </text>
 
   <footer>
