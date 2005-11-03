@@ -59,7 +59,7 @@ namespace Tame.SchemeTest
 
 					Console.Out.WriteLine(syntaxResult.ToString());
 
-					Binder testBinder = new Binder();
+					Binder testBinder = Binder.SharedBinder;
 
 					syntaxResult = testBinder.BindScheme(syntaxResult, state);
 

@@ -20,7 +20,7 @@ namespace Tame.Scheme.Runtime
 		/// </summary>
 		public CompileState()
 		{
-			tempBinder = new Binder();
+			tempBinder = Binder.SharedBinder;
 		}
 
 		/// <summary>
