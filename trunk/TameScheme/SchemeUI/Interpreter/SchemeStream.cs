@@ -77,7 +77,8 @@ namespace Tame.Scheme.UI.Interpreter
             while (inputBuffer.Count == 0)
             {
                 // Wait for input to start arriving...
-                Mutex.SignalAndWait(inputMutex, incomingInput);
+                inputMutex.ReleaseMutex();
+                incomingInput.WaitOne();
 
                 // Wait for input to finish arriving
                 inputMutex.WaitOne();
@@ -122,13 +123,12 @@ namespace Tame.Scheme.UI.Interpreter
             lock (this)
             {
                 // Allocate space for the result
-                int charCount = unicodeDecoder.GetCharCount(buffer, 0, buffer.Length, true);
+                int charCount = unicodeDecoder.GetCharCount(buffer, 0, buffer.Length);
 
                 char[] outChars = new char[charCount];
-                int bytesUsed, charsUsed;
-                bool completed;
+                int charsUsed;
 
-                unicodeDecoder.Convert(buffer, offset, count, outChars, 0, charCount, true, out bytesUsed, out charsUsed, out completed);
+                charsUsed = unicodeDecoder.GetChars(buffer, offset, count, outChars, 0);
 
                 // Notify our delegates of the result
                 if (outChars[0] == 0xfeff)
