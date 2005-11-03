@@ -45,12 +45,18 @@ namespace Tame.Scheme.Syntax.Transformer
 	/// </remarks>
 	public class Binder
 	{
-		public Binder() { }
+		protected Binder() { }
+
+        private static Binder sharedBinder = new Binder();
+        public static Binder SharedBinder { get { return sharedBinder; } }
 
 		int temporarySymbol = -1;
-		private Symbol NewTemporarySymbol()
+		protected Symbol NewTemporarySymbol()
 		{
-			return new Symbol(temporarySymbol--);
+            lock (this)
+            {
+                return new Symbol(temporarySymbol--);
+            }
 		}
 
 		/// <summary>
