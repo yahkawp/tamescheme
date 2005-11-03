@@ -133,6 +133,7 @@
     <Compile Include="Exception\CantConvertNumbersException.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Exception\MissingParenthesis.cs" />
     <Compile Include="Exception\NotAProcedureException.cs">
       <SubType>Code</SubType>
     </Compile>
