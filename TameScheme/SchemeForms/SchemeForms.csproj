@@ -7,7 +7,7 @@
     <ProjectGuid>{BFFCFEB4-5BF5-486E-BB36-167EDFD37B5E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SchemeForms</RootNamespace>
+    <RootNamespace>Tame.Scheme.Forms</RootNamespace>
     <AssemblyName>SchemeForms</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
