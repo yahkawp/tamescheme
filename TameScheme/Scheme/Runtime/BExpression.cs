@@ -88,7 +88,7 @@ namespace Tame.Scheme.Runtime
 			elseExpr.expression.CopyTo(result.expression, expression.Length+1);
 
 			// ... but then skip the 'then' part
-			result.expression[expression.Length + elseExpr.expression.Length + 1] = new Operation(Op.Branch, elseExpr.expression.Length);
+			result.expression[expression.Length + elseExpr.expression.Length + 1] = new Operation(Op.Branch, thenExpr.expression.Length);
 
 			// finally, the 'then' part is executed if the test succeeded
 			thenExpr.expression.CopyTo(result.expression, expression.Length + elseExpr.expression.Length + 2);
