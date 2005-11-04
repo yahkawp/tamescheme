@@ -3,7 +3,7 @@
   <title>Binding syntax</title>
 
   <text>
-    <h2>Binding (syntactic closures)</h2>
+    <h2>Binding</h2>
     
     <p>
       TameScheme provides a generic interface for syntax that introduces new
@@ -46,6 +46,15 @@
     
     <p>
       <scheme>(#[LiteralSymbol let] ((#[LiteralSymbol x] x)) #[LiteralSymbol x])</scheme>
+    </p>
+    
+    <p>
+      The transformer knows about the context in which the symbols would be
+      bound under normal circumstances (specifically, the environment the syntax was
+      defined in), and sets the Location property appropriately. However, while
+      the 'let' symbol is indeed bound to the top-level environment, the
+      symbols it introduces are bound elsewhere and need to be rewritten
+      appropriately.
     </p>
     
     <p>
