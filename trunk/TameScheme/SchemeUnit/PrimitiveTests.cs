@@ -120,6 +120,12 @@ namespace SchemeUnit
 			Assert.Equals(8, terp.Evaluate("((lambda () (letrec ((x (test-add 1 2))) (test-add x 5))))"));
 		}
 
+        [Test("let")]
+        public void LetRecurse()
+        {
+            Assert.True((bool)terp.Evaluate("(letrec ((y (lambda (x) (if (> x 0) (y (- x 1)) #t)))) (y 40000))"));
+        }
+
 		[Test("lambda")]
 		public void Lambda()
 		{
