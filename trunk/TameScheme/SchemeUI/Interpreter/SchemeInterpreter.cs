@@ -335,7 +335,7 @@ namespace Tame.Scheme.UI.Interpreter
                                 if (nextLine == null) return;
 
                                 // Lengthen the scheme expression
-                                scheme += nextLine;
+                                scheme += "\n" + nextLine;
                             }
                         }
                         while (moreScheme);
