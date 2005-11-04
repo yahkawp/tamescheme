@@ -354,7 +354,7 @@ namespace Tame.Scheme.UI.Interpreter
                         lock (this) evaluating = false;
 
                         // Display the result
-                        output.WriteLine(Runtime.Interpreter.ToString(result));
+                        output.WriteLine("\n" + Runtime.Interpreter.ToString(result) + "\n");
                     }
                     catch (Exception.SchemeException ex)
                     {
