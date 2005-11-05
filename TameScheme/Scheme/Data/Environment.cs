@@ -60,6 +60,25 @@ namespace Tame.Scheme.Data
 			this.parent = parent;
 		}
 
+        public Environment(HybridDictionary symbolsToOffsets, ICollection values, int totalSize, Environment parent)
+        {
+            this.envTable = symbolsToOffsets;
+            this.values = new object[totalSize];
+            values.CopyTo(this.values, 0);
+            this.nextAvailable = this.values.Length;
+
+            this.parent = parent;
+        }
+
+        public Environment(HybridDictionary symbolsToOffsets, int initialSize, Environment parent)
+        {
+            this.envTable = symbolsToOffsets;
+            this.values = new object[initialSize];
+            this.nextAvailable = values.Length;
+
+            this.parent = parent;
+        }
+
 		#region Variables
 
 		/// <summary>

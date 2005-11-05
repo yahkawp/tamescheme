@@ -343,12 +343,8 @@ namespace Tame.Scheme.Runtime
 							
 							envDetails = (Operation.NewEnvironment)opArg;
 
-							// Construct the values that go in the new environment
-							newValues = new object[envDetails.numberOfValues];
-							// for (int val=0; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
-
 							// Create the environment
-							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
+							currentFrame.environment = new Data.Environment(envDetails.symbols, envDetails.numberOfValues, currentFrame.environment);
 						}
 							break;
 
@@ -358,12 +354,18 @@ namespace Tame.Scheme.Runtime
 							Operation.NewEnvironment envDetails = (Operation.NewEnvironment)opArg;
 
 							// Construct the values that go in the new environment
-							newValues = new object[envDetails.numberOfValues];
-							for (int val=0; val<envDetails.numberToLoad; val++) newValues[val] = currentFrame.args[val];
-							// for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+                            if (currentFrame.args.Length != envDetails.numberToLoad)
+                            {
+                                // TODO: can this ever happen in places other than a function call
+                                // TODO: if we check at calling time, maybe we can give some more information?
+                                if (currentFrame.args.Length > envDetails.numberToLoad)
+                                    throw new Exception.RuntimeException("Too many arguments for function call");
+                                else
+                                    throw new Exception.RuntimeException("Not enough arguments for function call");
+                            }
 
 							// Create the environment
-							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
+							currentFrame.environment = new Data.Environment(envDetails.symbols, currentFrame.args, envDetails.numberOfValues, currentFrame.environment);
 						}
 							break;
 
@@ -373,6 +375,11 @@ namespace Tame.Scheme.Runtime
 							Operation.NewEnvironment envDetails = (Operation.NewEnvironment)opArg;
 
 							// Construct the values that go in the new environment
+                            if (currentFrame.args.Length < envDetails.numberToLoad - 1)
+                            {
+                                throw new Exception.RuntimeException("Not enough arguments for function call");
+                            }
+
 							newValues = new object[envDetails.numberOfValues];
 							for (int val=0; val<envDetails.numberToLoad-1; val++) newValues[val] = currentFrame.args[val];
 
@@ -387,9 +394,6 @@ namespace Tame.Scheme.Runtime
 
 							// ... finally, assign the list to the final variable
 							newValues[envDetails.numberToLoad-1] = lastList;
-
-							// Any other values in the environment should be unspecified
-							// for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
 
 							// Create the environment
 							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
