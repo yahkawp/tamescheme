@@ -37,13 +37,15 @@ namespace Tame.Scheme.Data
 		public Environment()
 		{
 			envTable = new HybridDictionary();
-			values = new ArrayList();
+            values = new object[0];
+            nextAvailable = 0;
 		}
 
 		public Environment(Environment parent)
 		{
 			envTable = new HybridDictionary();
-			values = new ArrayList();
+            values = new object[0];
+            nextAvailable = 0;
 
 			this.parent = parent;
 		}
@@ -51,7 +53,9 @@ namespace Tame.Scheme.Data
 		public Environment(HybridDictionary symbolsToOffsets, ICollection values, Environment parent)
 		{
 			this.envTable = symbolsToOffsets;
-			this.values = new ArrayList(values);
+			this.values = new object[values.Count];
+            values.CopyTo(this.values, 0);
+            this.nextAvailable = values.Count;
 
 			this.parent = parent;
 		}
@@ -71,7 +75,17 @@ namespace Tame.Scheme.Data
 		/// <summary>
 		/// The array of values in this environment.
 		/// </summary>
-		ArrayList values = null;
+        internal object[] values;
+
+        /// <summary>
+        /// Size to grow the environment by (when necessary)
+        /// </summary>
+        const int valueGrowth = 256;
+
+        /// <summary>
+        /// The next available value slot
+        /// </summary>
+        int nextAvailable;
 
 		/// <summary>
 		/// The environment this one should inherit from.
@@ -97,24 +111,35 @@ namespace Tame.Scheme.Data
 		/// </remarks>
 		public void BindTemporary(ISymbolic symbol)
 		{
-			// Construct a history object
-			if (temporaryHistory == null) temporaryHistory = new HybridDictionary();
+            lock (this)
+            {
+                // Construct a history object
+                if (temporaryHistory == null) temporaryHistory = new HybridDictionary();
 
-			// If there's no history for this symbol, create one
-			if (!temporaryHistory.Contains(symbol.HashValue))
-			{
-				temporaryHistory[symbol.HashValue] = new Stack();
-			}
+                // If there's no history for this symbol, create one
+                if (!temporaryHistory.Contains(symbol.HashValue))
+                {
+                    temporaryHistory[symbol.HashValue] = new Stack();
+                }
 
-			// If this symbol has a binding, remember it
-			if (envTable.Contains(symbol.HashValue)) 
-			{
-				((Stack)temporaryHistory[symbol.HashValue]).Push(envTable[symbol.HashValue]);
-			}
+                // If this symbol has a binding, remember it
+                if (envTable.Contains(symbol.HashValue))
+                {
+                    ((Stack)temporaryHistory[symbol.HashValue]).Push(envTable[symbol.HashValue]);
+                }
 
-			// Create a new location for this symbol
-			envTable[symbol.HashValue] = values.Count;
-			values.Add(Unspecified.Value);
+                // Create a new location for this symbol
+                if (nextAvailable >= values.Length)
+                {
+                    // Reallocate the values
+                    object[] newValues = new object[values.Length + valueGrowth];
+                    values.CopyTo(newValues, 0);
+                    values = newValues;
+                }
+
+                values[nextAvailable] = Unspecified.Value;
+                envTable[symbol.HashValue] = nextAvailable++;
+            }
 		}
 
 		/// <summary>
@@ -175,9 +200,20 @@ namespace Tame.Scheme.Data
 			{
 				if (!envTable.Contains(hashValue)) 
 				{
-					// Add a new value
-					envTable[hashValue] = values.Count;
-					values.Add(Unspecified.Value);
+                    lock (this)
+                    {
+                        // Add a new value
+                        if (nextAvailable >= values.Length)
+                        {
+                            // Allocate some more space
+                            object[] newValues = new object[values.Length + valueGrowth];
+                            values.CopyTo(newValues, 0);
+                            values = newValues;
+                        }
+
+                        values[nextAvailable] = Unspecified.Value;
+                        envTable[hashValue] = nextAvailable++;
+                    }
 				}
 
 				values[(int)envTable[hashValue]] = value;
@@ -548,7 +584,7 @@ namespace Tame.Scheme.Data
 		/// </summary>
 		public int Size
 		{
-			get { return values.Count; }
+			get { return nextAvailable; }
 		}
 
 		#endregion

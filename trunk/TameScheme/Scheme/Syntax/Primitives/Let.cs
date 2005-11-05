@@ -256,7 +256,7 @@ namespace Tame.Scheme.Syntax.Primitives
 						break;
 
 					default:
-						// Values are already loaded
+						// Values are already loaded (they exist in the previous environment)
 						break;
 				}
 			}
