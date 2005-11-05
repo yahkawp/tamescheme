@@ -34,7 +34,7 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// Implementation of the scheme (lambda (x) x) expression.
 	/// </summary>
-    [PreferredName("lambda"), SchemeSyntax("()", "(args statement ...)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
+    [PreferredName("lambda"), SchemeSyntax("()", "(args statement moreStatements ...)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
 	public sealed class Lambda : ISyntax, IBinding
 	{
 		public Lambda()
