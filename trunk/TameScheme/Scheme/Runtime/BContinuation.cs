@@ -412,6 +412,14 @@ namespace Tame.Scheme.Runtime
 						}
 							break;
 
+                        case Op.LoadEnvironment:
+                            {
+                                LoadEnvironmentTemplate temp = (LoadEnvironmentTemplate)opArg;
+
+                                temp.objects.CopyTo(currentFrame.environment.values, temp.offset);
+                            }
+                            break;
+
 						case Op.PopEnvironment:
 							// Pop the current environment
 							currentFrame.environment = currentFrame.environment.Parent;
