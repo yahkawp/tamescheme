@@ -94,6 +94,10 @@ namespace Tame.Scheme.Data
 		/// <summary>
 		/// The array of values in this environment.
 		/// </summary>
+        /// <remarks>
+        /// Exactly ONE thread (the interpreter thread) is allowed to write object values without locking. Other threads should lock:
+        /// this does not guarantee the values won't change, but does guarantee that the location array won't be reallocated.
+        /// </remarks>
         internal object[] values;
 
         /// <summary>
