@@ -38,7 +38,9 @@ namespace Tame.Scheme.Syntax.Primitives
 	/// <summary>
 	/// Implementation of the 'let', 'let*' and 'letrec' scheme syntaxes
 	/// </summary>
-    [SchemeSyntax("()", "(((variable expression) ...) firstStatement statements ...)"), SchemeGroup(SchemeGroup.Primitive), SchemeUsage(SchemeUsage.Normal)]
+    [SchemeSyntax("()", "(((variable expression) ...) firstStatement statements ...)"), 
+     SchemeGroup(SchemeGroup.Primitive), 
+     SchemeUsage(SchemeUsage.Normal)]
 	public class Let : ISyntax, IBinding, ISyntaxGroup
 	{
 		public enum Type
@@ -58,6 +60,11 @@ namespace Tame.Scheme.Syntax.Primitives
 		static Data.Symbol variable = new Data.Symbol("variable");
 		static Data.Symbol firstStatement = new Data.Symbol("firstStatement");
 		static Data.Symbol statements = new Data.Symbol("statements");
+
+        /// <summary>
+        /// Maps integers to object[] arrays containing unspecified values (as we only need to create one of these templates for each size of letrec)
+        /// </summary>
+        static Hashtable letrecTemplates = new Hashtable();
 
 		public BExpression MakeExpression(SyntaxEnvironment env, CompileState state, int syntaxMatch)
 		{
@@ -118,6 +125,9 @@ namespace Tame.Scheme.Syntax.Primitives
 				// For letrec, load undefined values first
 				if (letType == Type.Letrec)
 				{
+                    int symbolCount = 0;                                    // Number of symbols
+                    int symbolOffset = letLocal.Size;                       // Position in the environment where the first symbol is allocated
+
 					while (thisVariable != null)
 					{
 						// First item must be a symbol
@@ -126,9 +136,8 @@ namespace Tame.Scheme.Syntax.Primitives
 						Data.ISymbolic varSym = (Data.ISymbolic)thisVariable.Child.Value;
 
 						// Push an undefined value
-						// loadEnvironment.Add(new Operation(Op.Push, Data.Unspecified.Value));
-						// letLocal[(Data.ISymbolic)varSym] = Data.Unspecified.Value;
 						letLocal.BindTemporary(varSym);
+                        symbolCount++;
 
 						// Move on
 						thisVariable = thisVariable.Sibling;
@@ -138,6 +147,24 @@ namespace Tame.Scheme.Syntax.Primitives
 
 					// This is the point where the environment is created
 					newEnvironmentOpPos = loadEnvironment.Count;
+
+                    // The initial values have to be undefined
+                    // TODO: distinguish undefined from unspecified?
+                    lock (typeof(Let))
+                    {
+                        // Get the template of unspecified symbols
+                        if (!letrecTemplates.Contains(symbolCount))
+                        {
+                            object[] newTemplate = new object[symbolCount];
+
+                            for (int x = 0; x < symbolCount; x++) newTemplate[x] = Data.Unspecified.Value;
+
+                            letrecTemplates[symbolCount] = newTemplate;
+                        }
+
+                        // Create the load operation
+                        loadEnvironment.Add(new Operation(Op.LoadEnvironment, new LoadEnvironmentTemplate(symbolOffset, (object[])letrecTemplates[symbolCount])));
+                    }
 				}
 
 				// Actually evaluate the values
@@ -152,7 +179,6 @@ namespace Tame.Scheme.Syntax.Primitives
 					BExpression varValueExpr = BExpression.BuildExpression(thisVariable.Child.Sibling.Value, varState);
 					loadEnvironment.AddRange(varValueExpr.expression);
 
-					//if (letType == Type.LetStar) letLocal[varSym] = Data.Unspecified.Value;
 					if (letType == Type.LetStar) letLocal.BindTemporary(varSym);
 
 					// Store it for let* (for let and letrec, defer until we get to the later LoadEnvironment)

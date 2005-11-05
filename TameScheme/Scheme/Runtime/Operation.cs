@@ -54,6 +54,7 @@ namespace Tame.Scheme.Runtime
 		CreateAndLoadEnvironment,		// create-and-load-environment a - a (an Operation.NewEnvironment) is used as a template to create a new environment and load the initial values from the frame
 		CreateAndLoadEnvironmentList,	// create-and-load-environment-list a - as for create-and-load-environment, except any values on the end of the frame are stored as a list
 		CreateAndLoadEnvironmentStack,	// create-and-load-environment a - as for create-and-load-environment, except values are taken from the stack
+        LoadEnvironment,                // load-environment a - loads the values given in a (a LoadEnvironmentTemplate) into the current environment
 		Stop,							// stop - stop executing this S-Expression
 
         AddList,                        // add-list - creates a list using the topmost value as a car and the next value as a cdr, and pushes the result
@@ -69,6 +70,23 @@ namespace Tame.Scheme.Runtime
 		// Tail operations
 		TailCallIProcedure,				// tail-call-iprocedure a - as for call-iprocedure, except no new environment is pushed, and the current frame is popped before pushing a new one.
 	}
+
+    /// <summary>
+    /// Argument to the LoadEnvironment operation
+    /// </summary>
+    public class LoadEnvironmentTemplate
+    {
+        /// <param name="offset">The offset to start loading objects into the environment</param>
+        /// <param name="objects">The objects to load into the environment</param>
+        public LoadEnvironmentTemplate(int offset, object[] objects)
+        {
+            this.offset = offset;
+            this.objects = objects;
+        }
+
+        internal int offset;
+        internal object[] objects;
+    }
 
 	/// <summary>
 	/// Representation of an individual bytecode operation
