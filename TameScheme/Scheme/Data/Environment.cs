@@ -167,28 +167,31 @@ namespace Tame.Scheme.Data
 		/// <param name="symbol">The symbol to unbind</param>
 		public void UnbindTemporary(ISymbolic symbol)
 		{
-			// Sanity check
-			if (temporaryHistory == null)
-				throw new InvalidOperationException("Can't unbind a temporary value if no temporary values have previously been bound");
-			if (!temporaryHistory.Contains(symbol.HashValue))
-				throw new InvalidOperationException("Can't unbind a temporary value if its symbol has not previously been bound");
-			
-			Stack symbolHistory = (Stack)temporaryHistory[symbol.HashValue];
-			if (symbolHistory.Count <= 0)
-			{
-				if (!envTable.Contains(symbol.HashValue))
-				{
-					throw new InvalidOperationException("Can't unbind a temporary value if its symbol has not previously been bound");
-				}
-				else
-				{
-					envTable.Remove(symbol.HashValue);
-					return;
-				}
-			}
+            lock (this)
+            {
+                // Sanity check
+                if (temporaryHistory == null)
+                    throw new InvalidOperationException("Can't unbind a temporary value if no temporary values have previously been bound");
+                if (!temporaryHistory.Contains(symbol.HashValue))
+                    throw new InvalidOperationException("Can't unbind a temporary value if its symbol has not previously been bound");
 
-			// Pop the history
-			envTable[symbol.HashValue] = symbolHistory.Pop();
+                Stack symbolHistory = (Stack)temporaryHistory[symbol.HashValue];
+                if (symbolHistory.Count <= 0)
+                {
+                    if (!envTable.Contains(symbol.HashValue))
+                    {
+                        throw new InvalidOperationException("Can't unbind a temporary value if its symbol has not previously been bound");
+                    }
+                    else
+                    {
+                        envTable.Remove(symbol.HashValue);
+                        return;
+                    }
+                }
+
+                // Pop the history
+                envTable[symbol.HashValue] = symbolHistory.Pop();
+            }
 		}
 
 		#endregion
@@ -200,42 +203,48 @@ namespace Tame.Scheme.Data
 		{
 			get
 			{
-				if (!envTable.Contains(hashValue))
-				{
-					// Recurse if we can to the parent environment
-					if (parent != null)
-					{
-						return parent[hashValue];
-					}
-					else
-					{
-						throw new Exception.SymbolNotFound("Symbol \"" + hashValue.ToString() + "\" was not found in the environment");
-					}
-				}
+                lock (this)
+                {
+                    if (!envTable.Contains(hashValue))
+                    {
+                        // Recurse if we can to the parent environment
+                        if (parent != null)
+                        {
+                            return parent[hashValue];
+                        }
+                        else
+                        {
+                            throw new Exception.SymbolNotFound("Symbol \"" + hashValue.ToString() + "\" was not found in the environment");
+                        }
+                    }
 
-				return values[(int)envTable[hashValue]];
+                    return values[(int)envTable[hashValue]];
+                }
 			}
 			set
 			{
-				if (!envTable.Contains(hashValue)) 
-				{
-                    lock (this)
+                lock (this)
+                {
+                    if (!envTable.Contains(hashValue))
                     {
-                        // Add a new value
-                        if (nextAvailable >= values.Length)
+                        lock (this)
                         {
-                            // Allocate some more space
-                            object[] newValues = new object[values.Length + valueGrowth];
-                            values.CopyTo(newValues, 0);
-                            values = newValues;
+                            // Add a new value
+                            if (nextAvailable >= values.Length)
+                            {
+                                // Allocate some more space
+                                object[] newValues = new object[values.Length + valueGrowth];
+                                values.CopyTo(newValues, 0);
+                                values = newValues;
+                            }
+
+                            values[nextAvailable] = Unspecified.Value;
+                            envTable[hashValue] = nextAvailable++;
                         }
-
-                        values[nextAvailable] = Unspecified.Value;
-                        envTable[hashValue] = nextAvailable++;
                     }
-				}
 
-				values[(int)envTable[hashValue]] = value;
+                    values[(int)envTable[hashValue]] = value;
+                }
 			}
 		}
 
@@ -321,17 +330,20 @@ namespace Tame.Scheme.Data
 		/// <returns>true if this environment or its parents contain the given symbol</returns>
 		public bool Contains(ISymbolic symbol)
 		{
-			if (!envTable.Contains(symbol.HashValue))
-			{
-				if (parent != null)
-					return parent.Contains(symbol);
-				else
-					return false;
-			}
-			else
-			{
-				return true;
-			}
+            lock (this)
+            {
+                if (!envTable.Contains(symbol.HashValue))
+                {
+                    if (parent != null)
+                        return parent.Contains(symbol);
+                    else
+                        return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
 		}
 
 		/// <summary>
@@ -339,7 +351,10 @@ namespace Tame.Scheme.Data
 		/// </summary>
 		public void Clear()
 		{
-			envTable = new HybridDictionary();
+            lock (this)
+            {
+                envTable = new HybridDictionary();
+            }
 		}
 
 		#endregion
@@ -529,40 +544,46 @@ namespace Tame.Scheme.Data
 		/// <returns>The binding representing the location where this symbol is bound to, or null if it is unbound</returns>
 		public Binding BindingForSymbol(Data.ISymbolic symbol)
 		{
-			if (envTable.Contains(symbol.HashValue))
-			{
-				return new Binding(this, (int)envTable[symbol.HashValue], symbol);
-			}
-			else
-			{
-				if (parent != null)
-				{
-					return parent.BindingForSymbol(symbol);
-				}
-				else
-				{
-					return null;
-				}
-			}
+            lock (this)
+            {
+                if (envTable.Contains(symbol.HashValue))
+                {
+                    return new Binding(this, (int)envTable[symbol.HashValue], symbol);
+                }
+                else
+                {
+                    if (parent != null)
+                    {
+                        return parent.BindingForSymbol(symbol);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
 		}
 
 		private RelativeBinding RelativeBindingForSymbol(Data.ISymbolic symbol, int count)
 		{
-			if (envTable.Contains(symbol.HashValue))
-			{
-				return new RelativeBinding(count, (int)envTable[symbol.HashValue], symbol);
-			}
-			else
-			{
-				if (parent != null)
-				{
-					return parent.RelativeBindingForSymbol(symbol, count+1);
-				}
-				else
-				{
-					return null;
-				}
-			}
+            lock (this)
+            {
+                if (envTable.Contains(symbol.HashValue))
+                {
+                    return new RelativeBinding(count, (int)envTable[symbol.HashValue], symbol);
+                }
+                else
+                {
+                    if (parent != null)
+                    {
+                        return parent.RelativeBindingForSymbol(symbol, count + 1);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
 		}
 
 		/// <summary>
@@ -587,15 +608,18 @@ namespace Tame.Scheme.Data
 		/// <remarks>This can be used to quickly construct environments with a similar structure to this one</remarks>
 		public HybridDictionary CopySymbols()
 		{
-			// Slow, but .NET seems to think that dictionaries aren't copyable. Sigh.
-			HybridDictionary newDictionary = new HybridDictionary();
+            lock (this)
+            {
+                // Slow, but .NET seems to think that dictionaries aren't copyable. Sigh.
+                HybridDictionary newDictionary = new HybridDictionary();
 
-			foreach (int symbolNumber in envTable.Keys)
-			{
-				newDictionary[symbolNumber] = envTable[symbolNumber];
-			}
+                foreach (int symbolNumber in envTable.Keys)
+                {
+                    newDictionary[symbolNumber] = envTable[symbolNumber];
+                }
 
-			return newDictionary;
+                return newDictionary;
+            }
 		}
 
 		/// <summary>
@@ -610,18 +634,21 @@ namespace Tame.Scheme.Data
 
 		public override string ToString()
 		{
-			System.Text.StringBuilder res = new System.Text.StringBuilder();
+            lock (this)
+            {
+                System.Text.StringBuilder res = new System.Text.StringBuilder();
 
-			res.Append("{\n");
+                res.Append("{\n");
 
-			foreach (int symbolNumber in envTable.Keys)
-			{
-				res.Append("  " + SymbolTable.SymbolForNumber(symbolNumber) + " => (" + envTable[symbolNumber].ToString() + ")\n");
-			}
+                foreach (int symbolNumber in envTable.Keys)
+                {
+                    res.Append("  " + SymbolTable.SymbolForNumber(symbolNumber) + " => (" + envTable[symbolNumber].ToString() + ")\n");
+                }
 
-			res.Append("}");
+                res.Append("}");
 
-			return res.ToString();
+                return res.ToString();
+            }
 		}
 
 	}
