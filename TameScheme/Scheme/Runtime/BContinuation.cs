@@ -345,7 +345,7 @@ namespace Tame.Scheme.Runtime
 
 							// Construct the values that go in the new environment
 							newValues = new object[envDetails.numberOfValues];
-							for (int val=0; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+							// for (int val=0; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
 
 							// Create the environment
 							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
@@ -360,7 +360,7 @@ namespace Tame.Scheme.Runtime
 							// Construct the values that go in the new environment
 							newValues = new object[envDetails.numberOfValues];
 							for (int val=0; val<envDetails.numberToLoad; val++) newValues[val] = currentFrame.args[val];
-							for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+							// for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
 
 							// Create the environment
 							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
@@ -389,7 +389,7 @@ namespace Tame.Scheme.Runtime
 							newValues[envDetails.numberToLoad-1] = lastList;
 
 							// Any other values in the environment should be unspecified
-							for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+							// for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
 
 							// Create the environment
 							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);
@@ -405,7 +405,7 @@ namespace Tame.Scheme.Runtime
 							// Construct the values that go in the new environment
 							newValues = new object[envDetails.numberOfValues];
 							for (int val=0; val<envDetails.numberToLoad; val++) newValues[val] = evaluationStack.Pop();
-							for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
+							// for (int val=envDetails.numberToLoad; val<envDetails.numberOfValues; val++) newValues[val] = Data.Unspecified.Value;
 
 							// Create the environment
 							currentFrame.environment = new Data.Environment(envDetails.symbols, newValues, currentFrame.environment);

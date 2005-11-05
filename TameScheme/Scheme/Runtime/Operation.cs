@@ -211,7 +211,7 @@ namespace Tame.Scheme.Runtime
 		{
 			HybridDictionary symbols = template.CopySymbols();
 
-			// Sanity check
+			// Sanity check (variable symbols must be loaded in the right order)
 			for (int desiredOffset=0; desiredOffset<variableSymbols.Count; desiredOffset++)
 			{
 				object symbolHash = ((Data.ISymbolic)variableSymbols[desiredOffset]).HashValue;
