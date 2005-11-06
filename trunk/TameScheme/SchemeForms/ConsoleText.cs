@@ -125,8 +125,7 @@ namespace Tame.Scheme.Forms
             // TODO: find a better way of stopping people from deleting the character before the input position
             while (base.Text.Length < inputPos)
             {
-                base.Text += " ";
-                SelectionStart = base.Text.Length;
+                AppendText(" ");
             }
         }
 
@@ -169,6 +168,52 @@ namespace Tame.Scheme.Forms
 
         #region Dealing with output
 
+        /// <summary>
+        /// Omission from the .NET interface: method to insert text at a given location
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="location"></param>
+        public virtual void InsertText(string text, int location)
+        {
+            //
+            // You know, there are some design desicions that flabbergast you in their sheer idiocy. The ICollection/IList interfaces is one
+            // of them (immutability apparently not being something that should be checked at compile time. Genius, that). Here's another.
+            //
+            // Someone decided that 'all strings are immutable'. I'm beginning to see a blind spot here. I'm not a big fan of Strostrup, but
+            // I'm pretty sure someone at MS must have read the C++ standard and perhaps glanced on the chapters that discuss mutability and
+            // how it works there. It's overcomplicated, but a damn sight better than what we have to do here.
+            //
+            // This edits the string through a side-channel. Because while the rich text box presents an immutable string because that's all
+            // .NET has, it's got a secret mutable string store that it uses itself and selfishly refuses to let anyone access to.
+            // Generality of design suggests two things that aren't done here: if one class needs a mutable string, then possibly others do too,
+            // and this class should present it's mutable store as an interface so that it can be changed (which you might want to do if you
+            // were, oh I don't know, TRYING TO DO EXACTLY WHAT THIS CONSOLETEXT CLASS DOES. ARRRGH. There are more things that can be done
+            // with text than just displaying and editing it, guys)
+            //
+            // This causes selection events that go nowhere to be raised as an unavoidable side-effect. But this also happens if you set fonts,
+            // because Microsoft have failed to seperate the notion of view and model for the rich text box class.
+            //
+
+            // Rememeber the old selection position
+            int oldSelectionPos = SelectionStart;
+            int oldSelectionLength = SelectionLength;
+
+            // Move to the place where the text will be inserted
+            // Note side effects (selection changed events will be generated, selection might flicker)
+            SelectionStart = location;
+            SelectionLength = 0;
+
+            // Change the selection text (wow, this is so much easier than [[text textStorage] insertString: @"Foo" atPosition: pos]. Things have really come on since NeXT designed that in 1989)
+            SelectedText = text;
+
+            // Selection is displaced by the inserted text
+            if (oldSelectionPos >= location) oldSelectionPos += SelectedText.Length;
+
+            // Move the position back
+            SelectionStart = oldSelectionPos;
+            SelectionLength = oldSelectionLength;
+        }
+
         public override string Text
         {
             get
@@ -210,13 +255,8 @@ namespace Tame.Scheme.Forms
             int textLen = base.Text.Length;
 
             // Insert the specified text
-
-            // TODO: this causes flicker, which needs to be fixed
-            // Could use double-buffering here, but that's less than ideal
-            // Microsoft don't seem to provide methods for inserting in the middle of a textbox, preferring to keep that as something that can
-            // only be done by typing characters? We'd have to write an entirely new control if there isn't any way around this (SURELY there is!
-            // Even Apple's super-fragile NSTextView class can do this with ease)
-            base.Text = base.Text.Insert(inputPos, text);
+            // Use our work-around for .NETs design failure
+            InsertText(text, inputPos);
 
             // Move the selection position if it's after the input position
             if (selStart >= inputPos)
