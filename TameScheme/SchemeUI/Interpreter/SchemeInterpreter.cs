@@ -177,6 +177,8 @@ namespace Tame.Scheme.UI.Interpreter
 
         #endregion
 
+        #region Settings
+
         SchemeStream interpreterStream = new SchemeStream();            // The stream where interpreter output should go/come from
         Encoding encoding = Encoding.Unicode;                           // The encoding to use for commuicating with the stream
         bool bracketPrompt = true;                                      // Whether or not to show the '4]' prompt while inputting scheme over several lines.
@@ -184,6 +186,53 @@ namespace Tame.Scheme.UI.Interpreter
 
         Thread interpreterThread = null;                                // The thread the interpreter is running on
         bool shuttingDown = false;                                      // True if the interpreter is shutting down
+
+        /// <summary>
+        /// The SchemeStream used for interpreter IO
+        /// </summary>
+        [Bindable(false)]
+        public SchemeStream InterpreterStream
+        {
+            get
+            {
+                return interpreterStream;
+            }
+            set
+            {
+                if (interpreterThread != null) throw new NotSupportedException("Interpreter settings may not be changed while the intepreter is running");
+                interpreterStream = value;
+            }
+        }
+
+        /// <summary>
+        /// Whether or not prompts for input continuation are sent to the output stream
+        /// </summary>
+        [Bindable(true)]
+        public bool ShowBracketPrompt
+        {
+            get { return bracketPrompt; }
+            set
+            {
+                if (interpreterThread != null) throw new NotSupportedException("Interpreter settings may not be changed while the intepreter is running");
+                bracketPrompt = value;
+            }
+        }
+
+        /// <summary>
+        /// Whether or not to automatically add indentation for lines beginning with brackets
+        /// </summary>
+        [Bindable(true)]
+        public bool IndentBrackets
+        {
+            get { return indent; }
+            set
+            {
+                if (interpreterThread != null) throw new NotSupportedException("Interpreter settings may not be changed while the intepreter is running");
+                indent = value;
+            }
+        }
+
+        #endregion
 
         #region The interpreter thread
 
