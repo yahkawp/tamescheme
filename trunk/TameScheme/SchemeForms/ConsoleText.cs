@@ -122,23 +122,17 @@ namespace Tame.Scheme.Forms
             // Give everyone else the opportunity to mess with the changed text
             base.OnTextChanged(e);
 
-            SuspendLayout();
-
             // TODO: find a better way of stopping people from deleting the character before the input position
             while (base.Text.Length < inputPos)
             {
                 base.Text += " ";
                 SelectionStart = base.Text.Length;
             }
-
-            ResumeLayout();
         }
 
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
             base.OnKeyPress(e);
-
-            SuspendLayout();
 
             // If the key pressed was return and the input position is at the end of the text, then see if we can execute the current scheme
             if ((e.KeyChar == '\n' || e.KeyChar == '\r') && SelectionStart == base.Text.Length)
@@ -169,8 +163,6 @@ namespace Tame.Scheme.Forms
                     base.SelectionStart = base.Text.Length;
                 }
             }
-
-            ResumeLayout();
         }
 
         #endregion
@@ -213,13 +205,17 @@ namespace Tame.Scheme.Forms
 
         public void WriteText(string text)
         {
-            SuspendLayout();
-
             // Get the current selection
             int selStart = SelectionStart;
             int textLen = base.Text.Length;
 
             // Insert the specified text
+
+            // TODO: this causes flicker, which needs to be fixed
+            // Could use double-buffering here, but that's less than ideal
+            // Microsoft don't seem to provide methods for inserting in the middle of a textbox, preferring to keep that as something that can
+            // only be done by typing characters? We'd have to write an entirely new control if there isn't any way around this (SURELY there is!
+            // Even Apple's super-fragile NSTextView class can do this with ease)
             base.Text = base.Text.Insert(inputPos, text);
 
             // Move the selection position if it's after the input position
@@ -232,8 +228,6 @@ namespace Tame.Scheme.Forms
             // Move the input position along
             inputPos += base.Text.Length - textLen;
             if (inputPos > base.Text.Length) inputPos = base.Text.Length;
-
-            ResumeLayout();
         }
 
         void consoleStream_TextWritten(object sender, SchemeStream.WriteEventArgs e)
