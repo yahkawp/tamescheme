@@ -36,6 +36,10 @@ namespace Tame.Scheme.Forms
     /// <summary>
     /// Control that provides a scheme console
     /// </summary>
+    /// <remarks>
+    /// If VS 2005 was less buggy, you could drag this into the designer to create scheme interpreters. Unfortunately, the RTM version
+    /// currently crashes if you try this.
+    /// </remarks>
     public class Console : UserControl
     {
         public Console()
@@ -51,6 +55,8 @@ namespace Tame.Scheme.Forms
             // Start the interpreter running
             schemeInterpreter.Go();
         }
+
+        public Scheme.UI.Interpreter.SchemeInterpreter SchemeInterpreter { get { return schemeInterpreter; } }
 
         private ConsoleText consoleOutput;
         private Tame.Scheme.UI.Interpreter.SchemeInterpreter schemeInterpreter;
