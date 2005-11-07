@@ -125,7 +125,7 @@ namespace Tame.Scheme.UI.Interpreter
         }
 
         /// <summary>
-        /// Starts the interpreter running
+        /// Starts the interpreter running in interactive mode
         /// </summary>
         public void Go()
         {
@@ -173,6 +173,35 @@ namespace Tame.Scheme.UI.Interpreter
         public void InterpreterInput(string input)
         {
             interpreterStream.Input(input);
+        }
+
+        /// <summary>
+        /// Event sent when the interpreter is beginning to run some code (the cached versions of the environment will be out of date until it finishes, for example)
+        /// </summary>
+        /// <remarks>
+        /// This event is raised in the interpreter thread
+        /// </remarks>
+        public event EventHandler BeginningToExecute;
+
+        /// <summary>
+        /// Event sent when the interpreter has finished executing some code
+        /// </summary>
+        public event EventHandler FinishedExecuting;
+
+        public virtual void OnBeginningToExecute()
+        {
+            if (BeginningToExecute != null)
+            {
+                BeginningToExecute(this, new EventArgs());
+            }
+        }
+
+        public virtual void OnFinishedExecuting()
+        {
+            if (FinishedExecuting != null)
+            {
+                FinishedExecuting(this, new EventArgs());
+            }
         }
 
         #endregion
@@ -395,12 +424,23 @@ namespace Tame.Scheme.UI.Interpreter
 
                         // Run the expression through the interpreter
                         lock (this) evaluating = true;
-                        object result;
-                        lock (interpreter)
+                        object result = null;
+
+                        try
                         {
-                            result = interpreter.Evaluate(schemeExpression);
+                            OnBeginningToExecute();
+
+                            lock (interpreter)
+                            {
+                                result = interpreter.Evaluate(schemeExpression);
+                            }
                         }
-                        lock (this) evaluating = false;
+                        finally
+                        {
+                            lock (this) evaluating = false;
+
+                            OnFinishedExecuting();
+                        }
 
                         // Display the result
                         output.WriteLine("\n" + Runtime.Interpreter.ToString(result) + "\n");

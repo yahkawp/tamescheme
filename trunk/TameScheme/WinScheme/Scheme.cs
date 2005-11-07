@@ -12,6 +12,8 @@ namespace WinScheme
 {
     public partial class Scheme : Form
     {
+        Tame.Scheme.Forms.Console schemeConsole;                    // The scheme console control
+
         public Scheme()
         {
             InitializeComponent();
@@ -25,8 +27,35 @@ namespace WinScheme
             toolStrip.ContentPanel.Controls.Add(schemeConsole);
 
             toolStrip.ActiveControl = schemeConsole;
+
+            schemeConsole.SchemeInterpreter.BeginningToExecute += new EventHandler(SchemeInterpreter_BeginningToExecute);
+            schemeConsole.SchemeInterpreter.FinishedExecuting += new EventHandler(SchemeInterpreter_FinishedExecuting);
         }
 
-        Tame.Scheme.Forms.Console schemeConsole;
+        #region Interpreter events
+
+        delegate void ProgressDelegate();
+
+        void SchemeInterpreter_FinishedExecuting(object sender, EventArgs e)
+        {
+            this.Invoke(new ProgressDelegate(EndProgressBar));
+        }
+
+        void SchemeInterpreter_BeginningToExecute(object sender, EventArgs e)
+        {
+            this.Invoke(new ProgressDelegate(StartProgressBar));
+        }
+
+        void StartProgressBar()
+        {
+            progressBar.Style = ProgressBarStyle.Marquee;
+        }
+
+        void EndProgressBar()
+        {
+            progressBar.Style = ProgressBarStyle.Blocks;
+        }
+
+        #endregion
     }
 }
