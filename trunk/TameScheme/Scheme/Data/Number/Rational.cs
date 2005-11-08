@@ -85,7 +85,7 @@ namespace Tame.Scheme.Data.Number
 			long t = numerator*(ratNum.denominator/d1) + ratNum.numerator*(denominator/d1);
 			long d2 = NumberUtils.Gcd(t, d1);
 
-			return new Rational(t/d2, (denominator/d1)*(ratNum.denominator/d2), true);
+			return new Rational(checked(t/d2), checked(denominator/d1)*checked(ratNum.denominator/d2), true);
 		}
 
 		public INumber Subtract(INumber number)
@@ -99,10 +99,10 @@ namespace Tame.Scheme.Data.Number
 				return new Rational(numerator*ratNum.denominator - ratNum.numerator*denominator, denominator*ratNum.denominator, true);
 			}
 
-			long t = numerator*(ratNum.denominator/d1) - ratNum.numerator*(denominator/d1);
+			long t = checked(numerator*(ratNum.denominator/d1) - ratNum.numerator*(denominator/d1));
 			long d2 = NumberUtils.Gcd(t, d1);
 
-			return new Rational(t/d2, (denominator/d1)*(ratNum.denominator/d2), true);
+			return new Rational(checked(t/d2), checked((denominator/d1)*(ratNum.denominator/d2)), true);
 		}
 
 		public INumber Multiply(INumber number)
@@ -112,7 +112,7 @@ namespace Tame.Scheme.Data.Number
 			long d1 = NumberUtils.Gcd(numerator, ratNum.denominator);
 			long d2 = NumberUtils.Gcd(denominator, ratNum.numerator);
 
-			return new Rational((numerator/d1)*(ratNum.numerator/d2), (denominator/d2)*(ratNum.denominator/d1), true);
+			return new Rational(checked((numerator/d1)*(ratNum.numerator/d2)), checked((denominator/d2)*(ratNum.denominator/d1)), true);
 		}
 
 		public INumber Divide(INumber number)
@@ -127,10 +127,10 @@ namespace Tame.Scheme.Data.Number
 			long d1 = NumberUtils.Gcd(numerator, ratNum.numerator);
 			long d2 = NumberUtils.Gcd(denominator, ratNum.denominator);
 
-			long newDenom = (denominator/d2)*(ratNum.numerator/d1);
+			long newDenom = checked((denominator/d2)*(ratNum.numerator/d1));
 			if (newDenom < 0) newDenom = -newDenom;
 
-			return new Rational((numerator/d1)*(ratNum.denominator/d2)*(ratNum.numerator<0?-1:1), newDenom, true);
+			return new Rational(checked((numerator/d1)*(ratNum.denominator/d2)*(ratNum.numerator<0?-1:1)), newDenom, true);
 		}
 
 		public object Simplify()

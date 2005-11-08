@@ -88,22 +88,22 @@ namespace Tame.Scheme.Procedure.Arithmetic
 		decimal Tame.Scheme.Data.INumberIterator.Iterate(decimal one, decimal two)
 		{
 			// TODO: decimal division is not exact (eg, evaluate (* (/ #e1.2 #e3.4) #e3.4)
-			return one/two;
+			return checked(one/two);
 		}
 
 		float Tame.Scheme.Data.INumberIterator.Iterate(float one, float two)
 		{
-			return one/two;
+			return checked(one/two);
 		}
 
 		double Tame.Scheme.Data.INumberIterator.Iterate(double one, double two)
 		{
-			return one/two;
+			return checked(one/two);
 		}
 
 		Tame.Scheme.Data.INumber Tame.Scheme.Data.INumberIterator.Iterate(Tame.Scheme.Data.INumber one, Tame.Scheme.Data.INumber two)
 		{
-			return one.Divide(two);
+			return checked(one.Divide(two));
 		}
 
 		#endregion

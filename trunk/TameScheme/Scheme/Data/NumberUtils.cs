@@ -55,13 +55,13 @@ namespace Tame.Scheme.Data
 		{
 			if (number is long) return (long)number;
 			else if (number is int) return (long)(int)number;
-			else if (number is float) return (long)(float)number;
-			else if (number is double) return (long)(double)number;
+			else if (number is float) return checked((long)(float)number);
+			else if (number is double) return checked((long)(double)number);
 			else if (number is Number.Rational)
 			{
 				Number.Rational num = (Number.Rational)number;
 
-				return num.Numerator/num.Denominator;
+				return checked(num.Numerator/num.Denominator);
 			}
 
 			// TODO: complex types can be cast to long if they have a 0 imaginary part
@@ -276,21 +276,21 @@ namespace Tame.Scheme.Data
 			// Initialise
 			int t = ((u&1)==0)?(u>>1):-v;
 
-			do
-			{
-			while ((t&1) == 0)	// Is t even?
-			{
-				// Halve t
-				t >>= 1;
-			}
+            do
+            {
+                while ((t & 1) == 0)	// Is t even?
+                {
+                    // Halve t
+                    t >>= 1;
+                }
 
-				// Reset max(u,v)
-				if (t > 0) u = t; else v = -t;
+                // Reset max(u,v)
+                if (t > 0) u = t; else v = -t;
 
-				// Subtract
-				t = u - v;
-			}
-			while (t != 0);
+                // Subtract
+                t = u - v;
+            }
+            while (t != 0);
 
 			return u << k;
 		}
@@ -319,21 +319,21 @@ namespace Tame.Scheme.Data
 			// Initialise
 			long t = ((u&1)==0)?(u>>1):-v;
 
-			do
-			{
-			while ((t&1) == 0)	// Is t even?
-			{
-				// Halve t
-				t >>= 1;
-			}
+            do
+            {
+                while ((t & 1) == 0)	// Is t even?
+                {
+                    // Halve t
+                    t >>= 1;
+                }
 
-				// Reset max(u,v)
-				if (t > 0) u = t; else v = -t;
+                // Reset max(u,v)
+                if (t > 0) u = t; else v = -t;
 
-				// Subtract
-				t = u - v;
-			}
-			while (t != 0);
+                // Subtract
+                t = u - v;
+            }
+            while (t != 0);
 
 			return u << k;
 		}

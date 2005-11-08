@@ -53,6 +53,7 @@ namespace Tame.Scheme.Runtime.Parse
 		// Lexical errors
 		BadHash,						// # followed by an unrecognised sequence (ie, #X or something)
 		BadNumber,						// #b222 or similar - a badly formatted number
+        BadSyntax,                      // A syntax error of some kind (eg, missing ")
 
 		// Extended scheme types
 		Object,							// #[System.IO.Stream(45)]
