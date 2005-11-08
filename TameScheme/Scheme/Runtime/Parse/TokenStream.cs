@@ -388,7 +388,21 @@ namespace Tame.Scheme.Runtime.Parse
 			else if (complexNumber[offset] == '+' || complexNumber[offset] == '-')
 			{
 				// Might be 1+2i
-				Token imaginary = ReadSimpleNumber(complexNumber, offset, radix);
+				Token imaginary;
+
+                if (offset + 1 < complexNumber.Length && char.ToLower(complexNumber[offset + 1]) == 'i')
+                {
+                    // Specical case: 1+i and friends
+                    long value = 1;
+                    if (complexNumber[offset] == '-') value = -1;
+
+                    imaginary = new Token(TokenType.Integer, complexNumber[offset].ToString(), value);
+                }
+                else
+                {
+                    // Parse the imaginary part as a number
+                    imaginary = ReadSimpleNumber(complexNumber, offset, radix);
+                }
 
 				if (imaginary == null) return null;					// Not a number
 
