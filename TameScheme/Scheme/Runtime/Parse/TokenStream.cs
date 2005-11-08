@@ -76,19 +76,19 @@ namespace Tame.Scheme.Runtime.Parse
 		{
 			int chr = stream.Read();
 
-			characterCount++;
-			lineCharacter++;
+			if (chr != -1)
+			{
+                characterCount++;
+                lineCharacter++;
+
+                context[contextPos++] = (char)chr;
+				if (contextPos >= contextLen) contextPos = 0;
+			}
 
 			if (chr == '\n') 
 			{
 				lineCount++;
 				lineCharacter = 0;
-			}
-
-			if (chr != -1)
-			{
-				context[contextPos++] = (char)chr;
-				if (contextPos >= contextLen) contextPos = 0;
 			}
 
 			return chr;
