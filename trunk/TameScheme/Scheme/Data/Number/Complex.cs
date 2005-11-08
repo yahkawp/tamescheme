@@ -99,13 +99,21 @@ namespace Tame.Scheme.Data.Number
 
             string res = real.ToString();
 
-            if (imaginary > 0)
+            if (imaginary != 1 && imaginary != -1)
             {
-                res += "+" + imaginary.ToString();
+                if (imaginary > 0)
+                {
+                    res += "+" + imaginary.ToString();
+                }
+                else
+                {
+                    res += imaginary.ToString();
+                }
             }
             else
             {
-                res += imaginary.ToString();
+                if (imaginary > 0) res += "+";
+                else res += "-";
             }
 
             res += "i";

@@ -116,7 +116,16 @@ namespace Tame.Scheme.Data.Number
                 res += "+";
             }
 
-            res += imaginary.Simplify().ToString() + "i";
+            if (imaginary.Denominator != 1 || (imaginary.Numerator != 1 && imaginary.Numerator != -1))
+            {
+                res += imaginary.Simplify().ToString();
+            }
+            else
+            {
+                if (imaginary.Numerator == -1) res += "-";
+            }
+            
+            res += "i";
 
             return res;
         }
