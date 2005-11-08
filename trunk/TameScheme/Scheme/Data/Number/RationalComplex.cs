@@ -52,34 +52,73 @@ namespace Tame.Scheme.Data.Number
 
 		public INumber Add(INumber number)
 		{
-			// TODO:  Add RationalComplex.Add implementation
-			return null;
+            RationalComplex complex = (RationalComplex)number;
+
+            return new RationalComplex(
+                (Rational)real.Add(complex.real),
+                (Rational)imaginary.Add(complex.imaginary)
+                );
 		}
 
 		public INumber Subtract(INumber number)
 		{
-			// TODO:  Add RationalComplex.Subtract implementation
-			return null;
-		}
+            RationalComplex complex = (RationalComplex)number;
+
+            return new RationalComplex(
+                (Rational)real.Subtract(complex.real),
+                (Rational)imaginary.Subtract(complex.imaginary)
+                );
+        }
 
 		public INumber Multiply(INumber number)
 		{
-			// TODO:  Add RationalComplex.Multiply implementation
-			return null;
+            RationalComplex complex = (RationalComplex)number;
+
+            return new RationalComplex(
+                (Rational)real.Multiply(complex.real).Subtract(imaginary.Multiply(complex.imaginary)),
+                (Rational)real.Multiply(complex.imaginary).Add(imaginary.Multiply(complex.real))
+                );
 		}
 
 		public INumber Divide(INumber number)
 		{
-			// TODO:  Add RationalComplex.Divide implementation
-			return null;
-		}
+            RationalComplex complex = (RationalComplex)number;
+
+            // Divisor is c^2 + d^2
+            Rational divisor = (Rational)complex.real.Multiply(complex.real).Add(complex.imaginary.Multiply(complex.imaginary));
+
+            return new RationalComplex(
+                (Rational)(real.Multiply(complex.real).Add(imaginary.Multiply(complex.imaginary))).Divide(divisor),
+                (Rational)(real.Multiply(complex.imaginary).Subtract(imaginary.Multiply(complex.real))).Divide(divisor)
+                );
+        }
 
 		public object Simplify()
 		{
-			// TODO:  Add RationalComplex.Simplify implementation
-			return null;
+            if (imaginary.Numerator == 0) return real.Simplify();
+
+            return this;
 		}
 
 		#endregion
+
+        public override string ToString()
+        {
+            if (real.Numerator == 0)
+            {
+                return imaginary.Simplify().ToString() + "i";
+            }
+
+            string res = real.Simplify().ToString();
+
+            if (imaginary.Numerator > 0)
+            {
+                res += "+";
+            }
+
+            res += imaginary.Simplify().ToString() + "i";
+
+            return res;
+        }
 	}
 }
