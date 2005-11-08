@@ -51,32 +51,32 @@ namespace Tame.Scheme.Procedure.Arithmetic
 
 		public int Iterate(int one, int two)
 		{
-			return one + two;
+			return checked(one + two);
 		}
 
 		long Tame.Scheme.Data.INumberIterator.Iterate(long one, long two)
 		{
-			return one + two;
+			return checked(one + two);
 		}
 
 		decimal Tame.Scheme.Data.INumberIterator.Iterate(decimal one, decimal two)
 		{
-			return one + two;
+			return checked(one + two);
 		}
 
 		float Tame.Scheme.Data.INumberIterator.Iterate(float one, float two)
 		{
-			return one+two;
+			return checked(one+two);
 		}
 
 		double Tame.Scheme.Data.INumberIterator.Iterate(double one, double two)
 		{
-			return one+two;
+			return checked(one+two);
 		}
 
 		Tame.Scheme.Data.INumber Tame.Scheme.Data.INumberIterator.Iterate(Tame.Scheme.Data.INumber one, Tame.Scheme.Data.INumber two)
 		{
-			return one.Add(two);
+			return checked(one.Add(two));
 		}
 
 		#endregion

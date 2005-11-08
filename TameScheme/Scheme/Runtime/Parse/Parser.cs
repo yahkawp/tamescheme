@@ -195,7 +195,20 @@ namespace Tame.Scheme.Runtime.Parse
         public virtual int RemainingBrackets(TokenReader reader)
         {
             int bracketCount = 0;
-            Token thisToken = reader.ReadToken();
+            Token thisToken;
+
+            try
+            {
+                thisToken = reader.ReadToken();
+            }
+            catch (Exception.SchemeException)
+            {
+                thisToken = new Token(TokenType.BadSyntax, "", null);
+            }
+            catch (ArithmeticException)
+            {
+                thisToken = new Token(TokenType.BadNumber, "", null);
+            }
 
             while (thisToken != null)
             {

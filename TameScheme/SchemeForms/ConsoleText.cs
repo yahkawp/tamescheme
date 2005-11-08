@@ -146,7 +146,7 @@ namespace Tame.Scheme.Forms
                 {
                     bracketCount = testParser.RemainingBrackets(new TokenReader(new StringReader(inputText)));
                 }
-                catch (Exception.SyntaxError)
+                catch (System.Exception)
                 {
                     bracketCount = 0;
                 }

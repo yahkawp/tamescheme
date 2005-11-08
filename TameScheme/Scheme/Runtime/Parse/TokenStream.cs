@@ -201,94 +201,99 @@ namespace Tame.Scheme.Runtime.Parse
 			if (numberOffset == currentOffset) return null;			// No digits
 
 			// Parse the number
-			try
-			{
-				if (isFloat)
-				{
-					double res = 0;
-					int digit;
+            try
+            {
+                if (isFloat)
+                {
+                    double res = 0;
+                    int digit;
 
-					// Produce the integer part of the number
-					double radixD = (double)radix;
-					int lastInteger = floatOffset-1;
-					if (lastInteger < 0) lastInteger = exponentOffset-1;
-					if (lastInteger < 0) lastInteger = currentOffset;
-					for (digit=numberOffset; digit<lastInteger; digit++)
-					{
-						int digitValue = DigitValue(complexNumber[digit], radix);
-						if (digitValue < 0) return null;
-						// .NET bug?
-						// res *= radixD
-						// res += (double)digitValue
-						// ^^ Optimiser bug? Doing this results in every digit being processed, but res misses out the last calculation: ie, if you enter '123.3', you get '12.3' back
-						res = (res*radixD)+((double)digitValue);
-					}
+                    // Produce the integer part of the number
+                    double radixD = (double)radix;
+                    int lastInteger = floatOffset - 1;
+                    if (lastInteger < 0) lastInteger = exponentOffset - 1;
+                    if (lastInteger < 0) lastInteger = currentOffset;
+                    for (digit = numberOffset; digit < lastInteger; digit++)
+                    {
+                        int digitValue = DigitValue(complexNumber[digit], radix);
+                        if (digitValue < 0) return null;
+                        // .NET bug?
+                        // res *= radixD
+                        // res += (double)digitValue
+                        // ^^ Optimiser bug? Doing this results in every digit being processed, but res misses out the last calculation: ie, if you enter '123.3', you get '12.3' back
+                        res = checked((res * radixD) + ((double)digitValue));
+                    }
 
-					// Produce the fractional part of the number
-					if (floatOffset > -1)
-					{
-						double fractional = 0;
-						double pos = 1/radixD;
+                    // Produce the fractional part of the number
+                    if (floatOffset > -1)
+                    {
+                        double fractional = 0;
+                        double pos = 1 / radixD;
 
-						int lastFloat = exponentOffset-1;
-						if (lastFloat < 0) lastFloat = currentOffset;
+                        int lastFloat = exponentOffset - 1;
+                        if (lastFloat < 0) lastFloat = currentOffset;
 
-						for (digit=floatOffset; digit<lastFloat; digit++)
-						{
-							int digitValue = DigitValue(complexNumber[digit], radix);
-							if (digitValue < 0) return null;
-							fractional += pos * (double)digitValue;
-							pos /= radixD;
-						}
+                        for (digit = floatOffset; digit < lastFloat; digit++)
+                        {
+                            int digitValue = DigitValue(complexNumber[digit], radix);
+                            if (digitValue < 0) return null;
+                            fractional += checked(pos * (double)digitValue);
+                            pos /= radixD;
+                        }
 
-						res += fractional;
-					}
+                        res += fractional;
+                    }
 
-					// Add the exponent part of the number
-					if (exponentOffset > -1)
-					{
-						int exponent = 0;
-						for (digit=exponentOffset; digit<currentOffset; digit++)
-						{
-							int digitValue = DigitValue(complexNumber[digit], radix);
-							if (digitValue < 0) return null;
-							exponent *= radix;
-							exponent += digitValue;
-						}
+                    // Add the exponent part of the number
+                    if (exponentOffset > -1)
+                    {
+                        int exponent = 0;
+                        for (digit = exponentOffset; digit < currentOffset; digit++)
+                        {
+                            int digitValue = DigitValue(complexNumber[digit], radix);
+                            if (digitValue < 0) return null;
+                            exponent = checked(exponent * radix + digitValue);
+                        }
 
-						res *= Math.Pow(radix, exponent);
-					}
+                        res *= checked(Math.Pow(radix, exponent));
+                    }
 
-					if (isNegative) res = -res;
+                    if (isNegative) res = -res;
 
-					// Return the result
-					return new Token(TokenType.Floating, complexNumber.Substring(offset, currentOffset-offset), res);
-				}
-				else
-				{
-					long res = 0;
-					int digit;
+                    // Return the result
+                    return new Token(TokenType.Floating, complexNumber.Substring(offset, currentOffset - offset), res);
+                }
+                else
+                {
+                    long res = 0;
+                    int digit;
 
-					// Parse as a simple long value
-					for (digit=numberOffset; digit<currentOffset; digit++)
-					{
-						int digitValue = DigitValue(complexNumber[digit], radix);
-						if (digitValue < 0) return null;
-						res *= radix;
-						res += digitValue;
-					}
+                    // Parse as a simple long value
+                    for (digit = numberOffset; digit < currentOffset; digit++)
+                    {
+                        int digitValue = DigitValue(complexNumber[digit], radix);
+                        if (digitValue < 0) return null;
+                        res = checked(res * radix + digitValue);
+                    }
 
-					if (isNegative) res = -res;
+                    if (isNegative) res = -res;
 
-					// Return the result
-					return new Token(TokenType.Integer, complexNumber.Substring(offset, currentOffset-offset), res);
-				}
-			}
-			catch (System.Exception)
-			{
-				// Failed to parse the number for some more weird reason
-				return null;
-			}
+                    // Return the result
+                    return new Token(TokenType.Integer, complexNumber.Substring(offset, currentOffset - offset), res);
+                }
+            }
+            catch (ArithmeticException)
+            {
+                // Number too big/small
+                throw;
+            }
+            catch (System.Exception)
+            {
+                // Failed to parse the number for some more weird reason
+
+                // TODO: classify these reasons better
+                return null;
+            }
 		}
 
 		/// <summary>
