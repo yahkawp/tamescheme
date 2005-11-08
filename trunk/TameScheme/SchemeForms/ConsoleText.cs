@@ -141,7 +141,15 @@ namespace Tame.Scheme.Forms
 
                 // See if it represents some scheme we can run in the interpreter
                 Parser testParser = new Parser();
-                int bracketCount = testParser.RemainingBrackets(new TokenReader(new StringReader(inputText)));
+                int bracketCount;
+                try
+                {
+                    bracketCount = testParser.RemainingBrackets(new TokenReader(new StringReader(inputText)));
+                }
+                catch (Exception.SyntaxError)
+                {
+                    bracketCount = 0;
+                }
 
                 if (bracketCount <= 0)
                 {
