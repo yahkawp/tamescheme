@@ -36,6 +36,8 @@ namespace WinScheme
 
         delegate void ProgressDelegate();
 
+        DateTime lastTimeStarted;
+
         void SchemeInterpreter_FinishedExecuting(object sender, EventArgs e)
         {
             this.Invoke(new ProgressDelegate(EndProgressBar));
@@ -49,13 +51,42 @@ namespace WinScheme
         void StartProgressBar()
         {
             progressBar.Style = ProgressBarStyle.Marquee;
+
+            status.Text = "Running...";
+            lastTimeStarted = DateTime.Now;
         }
 
         void EndProgressBar()
         {
+            DateTime finished = DateTime.Now;
+
             progressBar.Style = ProgressBarStyle.Blocks;
+
+            TimeSpan timeRunning = finished.Subtract(lastTimeStarted);
+
+            if (timeRunning.Hours >= 1)
+            {
+                status.Text = string.Format("Finished (total run time {0}:{1})", timeRunning.Hours, timeRunning.Minutes);
+            }
+            else if (timeRunning.Minutes >= 1)
+            {
+                status.Text = string.Format("Finished (total run time {0}:{1}m)", timeRunning.Minutes, timeRunning.Seconds);
+            }
+            else if (timeRunning.Seconds >= 1)
+            {
+                status.Text = string.Format("Finished (total run time {0}.{1}s)", timeRunning.Seconds, (timeRunning.Milliseconds / 10) % 100);
+            }
+            else
+            {
+                status.Text = string.Format("Finished (total run time {0}ms)", timeRunning.TotalMilliseconds);
+            }
         }
 
         #endregion
+
+        private void interruptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            schemeConsole.SchemeInterpreter.Interrupt();
+        }
     }
 }

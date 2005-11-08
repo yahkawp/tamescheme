@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections;
+using System.Threading;
 
 namespace Tame.Scheme.Runtime
 {
@@ -121,11 +122,17 @@ namespace Tame.Scheme.Runtime
 
 		#region IContinuation Members
 
+        const int tickBreakCount = 100;                         // Branch points before a thread interuption point is added
+        int ticker = 0;                                         // Number of branch points encountered
+
 		public object Continue()
 		{
 			lock (this)
 			{
 				object[] newValues = null;
+
+                ticker++;
+                Thread.Sleep(0);
 
 				// Run this continuation
 				for (;currentExpression!=null; currentExpression.pc++)
@@ -200,6 +207,14 @@ namespace Tame.Scheme.Runtime
 						case Op.TailCallIProcedure:
 						case Op.CallIProcedure:
 						{
+                            // Provide a thread interruption opportunity
+                            ticker++;
+                            if (ticker >= tickBreakCount)
+                            {
+                                ticker = 0;
+                                Thread.Sleep(0);
+                            }
+
 							// Fetch the procedure object from the top of the stack
 							Procedure.IProcedure proc;
 							object procObj = evaluationStack.Pop();
@@ -267,7 +282,15 @@ namespace Tame.Scheme.Runtime
 							break;
 
 						case Op.Branch:
-							// Move on
+                            // Provide a thread interruption opportunity
+                            ticker++;
+                            if (ticker >= tickBreakCount)
+                            {
+                                ticker = 0;
+                                Thread.Sleep(0);
+                            }
+                            
+                            // Move on
 							currentExpression.pc += (int)opArg;
 							break;
 
@@ -294,7 +317,15 @@ namespace Tame.Scheme.Runtime
 
 						case Op.If:
 						{
-							// Move on if the value on top of the stack is not false
+                            // Provide a thread interruption opportunity
+                            ticker++;
+                            if (ticker >= tickBreakCount)
+                            {
+                                ticker = 0;
+                                Thread.Sleep(0);
+                            }
+                            
+                            // Move on if the value on top of the stack is not false
 							object compareObj = evaluationStack.Pop();
 
 							if (!(compareObj is bool) || (bool)compareObj != false)
@@ -356,7 +387,7 @@ namespace Tame.Scheme.Runtime
 							// Construct the values that go in the new environment
                             if (currentFrame.args.Length != envDetails.numberToLoad)
                             {
-                                // TODO: can this ever happen in places other than a function call
+                                // TODO: can this ever happen in places other than a function call? (or top-level let)
                                 // TODO: if we check at calling time, maybe we can give some more information?
                                 if (currentFrame.args.Length > envDetails.numberToLoad)
                                     throw new Exception.RuntimeException("Too many arguments for function call");

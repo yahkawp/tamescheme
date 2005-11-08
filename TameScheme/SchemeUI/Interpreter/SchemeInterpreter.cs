@@ -144,6 +144,20 @@ namespace Tame.Scheme.UI.Interpreter
             }
         }
 
+        /// <summary>
+        /// Sends an interruption to the interpreter
+        /// </summary>
+        public void Interrupt()
+        {
+            lock (this)
+            {
+                if (interpreterThread != null)
+                {
+                    interpreterThread.Interrupt();
+                }
+            }
+        }
+
         #endregion
 
         #region Events
