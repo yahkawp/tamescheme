@@ -34,10 +34,14 @@ namespace Tame.Scheme.Data.Number
 	{
 		public Complex(double real, double imaginary)
 		{
-			//
-			// TODO: Add constructor logic here
-			//
+            this.real = real;
+            this.imaginary = imaginary;
 		}
+
+        double real, imaginary;
+
+        public double Real { get { return real; } }
+        public double Imaginary { get { return Imaginary; } }
 
 		#region INumber Members
 
@@ -48,34 +52,65 @@ namespace Tame.Scheme.Data.Number
 
 		public INumber Add(INumber number)
 		{
-			// TODO:  Add Complex.Add implementation
-			return null;
+            Complex complex = (Complex)number;
+
+            return new Complex(real + complex.real, imaginary + complex.imaginary);
 		}
 
 		public INumber Subtract(INumber number)
 		{
-			// TODO:  Add Complex.Subtract implementation
-			return null;
-		}
+            Complex complex = (Complex)number;
+
+            return new Complex(real - complex.real, imaginary - complex.imaginary);
+        }
 
 		public INumber Multiply(INumber number)
 		{
-			// TODO:  Add Complex.Multiply implementation
-			return null;
-		}
+            Complex complex = (Complex)number;
+
+            return new Complex(real*complex.real - imaginary*complex.imaginary, 
+                real*complex.imaginary + imaginary*complex.real);
+        }
 
 		public INumber Divide(INumber number)
 		{
-			// TODO:  Add Complex.Divide implementation
-			return null;
+            Complex complex = (Complex)number;
+
+            double divisor = complex.real*complex.real + complex.imaginary*complex.imaginary;
+
+            return new Complex((real*complex.real + imaginary*complex.imaginary) / divisor,
+                (imaginary*complex.real - real*complex.imaginary) / divisor);
 		}
 
 		public object Simplify()
 		{
-			// TODO:  Add Complex.Simplify implementation
-			return null;
+            if (imaginary == 0.0) return real;
+            return this;
 		}
 
 		#endregion
-	}
+
+        public override string ToString()
+        {
+            if (real == 0)
+            {
+                return imaginary.ToString() + "i";
+            }
+
+            string res = real.ToString();
+
+            if (imaginary > 0)
+            {
+                res += "+" + imaginary.ToString();
+            }
+            else
+            {
+                res += imaginary.ToString();
+            }
+
+            res += "i";
+
+            return res;
+        }
+    }
 }

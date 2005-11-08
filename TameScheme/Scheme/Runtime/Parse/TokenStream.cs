@@ -157,7 +157,7 @@ namespace Tame.Scheme.Runtime.Parse
 			if (complexNumber[currentOffset] == '-' || complexNumber[currentOffset] == '+')
 			{
 				// Negative/Positive number
-				isNegative = true;
+				if (complexNumber[currentOffset] == '-') isNegative = true;
 				currentOffset++;
 			}
 
