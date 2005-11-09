@@ -158,6 +158,44 @@ namespace Tame.Scheme.UI.Interpreter
             }
         }
 
+        Hashtable valuesToDefine = null;                                            // Values that the interpreter thread should define at the next possible opportunity
+
+        /// <summary>
+        /// Allows alteration/reading of the interpreter's top-level environment
+        /// </summary>
+        /// <param name="sym">The symbol to get/set</param>
+        public object this[Data.ISymbolic sym]
+        {
+            get
+            {
+                throw new NotImplementedException("Reading the interpreter environment is not implemented yet");
+            }
+            set
+            {
+                lock (this)
+                {
+                    if (interpreter != null && !evaluating)
+                    {
+                        // The interpreter isn't running: we can define something directly in the top-level environment
+                        interpreter.TopLevelEnvironment[sym] = value;
+                    }
+                    else
+                    {
+                        // Let the interpreter thread define this value on the next run-through
+                        if (valuesToDefine == null) valuesToDefine = new Hashtable();
+
+                        valuesToDefine[sym] = value;
+                    }
+                }
+            }
+        }
+
+        public object this[string symbolName]
+        {
+            get { return this[new Data.Symbol(symbolName)]; }
+            set { this[new Data.Symbol(symbolName)] = value; }
+        }
+
         #endregion
 
         #region Events
@@ -361,6 +399,20 @@ namespace Tame.Scheme.UI.Interpreter
                     {
                         // Begin by sleeping: this is to indicate that this thread can accept interruptions
                         Thread.Sleep(0);
+
+                        // Define any values that any other threads have requested
+                        lock (this)
+                        {
+                            if (valuesToDefine != null)
+                            {
+                                foreach (Data.ISymbolic symbol in valuesToDefine.Keys)
+                                {
+                                    interpreter.TopLevelEnvironment[symbol] = valuesToDefine[symbol];
+                                }
+
+                                valuesToDefine = null;
+                            }
+                        }
 
                         // Write a prompt
                         output.Write("> ");
