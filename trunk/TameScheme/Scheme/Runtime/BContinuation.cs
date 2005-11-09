@@ -270,10 +270,11 @@ namespace Tame.Scheme.Runtime
 							}
                             else if (procObj is Delegate)
                             {
-                                // Call as a delegate (these can't be automatically defined, but allow standard .NET calls to be turned into scheme procedures)
+                                // Call as a delegate (these can't be automatically defined, but allow standard .NET calls to be turned into 
+                                // scheme procedures; they're also somewhat slower to call)
                                 Delegate dg = (Delegate)procObj;
 
-                                dg.DynamicInvoke(args);
+                                evaluationStack.Push(dg.DynamicInvoke(args));
                             }
                             else
                             {
