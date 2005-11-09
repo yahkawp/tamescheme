@@ -43,6 +43,13 @@ namespace Tame.SchemeTest
             Console.Out.Flush();
         }
 
+        delegate long TestDelegate(long x, long y);
+
+        static long TestAdd(long x, long y)
+        {
+            return x + y;
+        }
+
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>
@@ -51,6 +58,9 @@ namespace Tame.SchemeTest
 		{
             // Create the interpreter
             SchemeInterpreter terp = new SchemeInterpreter();
+
+            // Register a test delegate function
+            terp["long+"] = new TestDelegate(TestAdd);
 
             // Register for the output event
             terp.InterpreterOutput += Output;
