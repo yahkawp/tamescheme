@@ -41,7 +41,7 @@ namespace Tame.Scheme.Procedure.Number
 
         public object Call(Tame.Scheme.Data.Environment environment, ref object[] args)
         {
-            if (args.Length != 1) throw new Exception.RuntimeException("complex? takes exactly one argument");
+            if (args.Length != 1) throw new Exception.RuntimeException("rational? takes exactly one argument");
 
             // Simplify if necessary
             object num = args[0];
