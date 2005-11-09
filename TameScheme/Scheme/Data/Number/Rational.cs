@@ -46,6 +46,37 @@ namespace Tame.Scheme.Data.Number
 			}
 		}
 
+        public Rational(decimal val)
+        {
+            // Tease out the bits of the decimal value
+            int[] bits = decimal.GetBits(val);
+
+            // Certain values are too big to represent
+            // TODO: some large values may be representable if the GCD brings their size back under the limit
+            if (bits[2] != 0) throw new OverflowException("Decimal value is too large to be converted to a Rational");
+
+            // The numerator is the (maximum 64-bit) numerical part of the value
+            this.numerator = ((long)bits[0]) | (((long)bits[1]) << 32);
+
+            // Work out the sign and the denominator
+            bool sign = (bits[3] & (1 << 31)) != 0;
+            int power = (bits[3] >> 16) & 0xff;
+
+            this.denominator = (long)Math.Pow(10, power);
+
+            // Apply the sign
+            if (sign) this.numerator = -this.numerator;
+
+            // Simplify
+            long gcd = NumberUtils.Gcd(this.numerator, this.denominator);
+
+            if (gcd != 1)
+            {
+                this.numerator /= gcd;
+                this.denominator /= gcd;
+            }
+        }
+
 		private Rational(long numerator, long denominator, bool unused)
 		{
 			// Constructor used internally to build a Rational without normalising it first (ie, already simplified)

@@ -127,10 +127,9 @@ namespace Tame.Scheme.Data
 
 			if (number is decimal) 
 			{
-				// TODO: work out a way to convert decimals to rationals (be nice if we could deconstruct the fixed point value)
-				//decimal dec = (decimal)number;
-				//if (promoteTo == typeof(Number.Rational)) return new Number.Rational(dec, 1);
-				//if (promoteTo == typeof(Number.RationalComplex)) return new Number.RationalComplex(new Number.Rational((int)number, 1), rationalZero);
+				decimal dec = (decimal)number;
+				if (promoteTo == typeof(Number.Rational)) return new Number.Rational(dec);
+				if (promoteTo == typeof(Number.RationalComplex)) return new Number.RationalComplex(new Number.Rational(dec), rationalZero);
 				return null;
 			}
 					
