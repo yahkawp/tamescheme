@@ -269,6 +269,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Procedure\Number\IsComplex.cs" />
+    <Compile Include="Procedure\Number\IsExact.cs" />
     <Compile Include="Procedure\Number\IsInteger.cs" />
     <Compile Include="Procedure\Number\IsNumber.cs" />
     <Compile Include="Procedure\Number\IsRational.cs" />
