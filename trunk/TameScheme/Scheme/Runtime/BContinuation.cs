@@ -219,17 +219,7 @@ namespace Tame.Scheme.Runtime
 							Procedure.IProcedure proc;
 							object procObj = evaluationStack.Pop();
 						
-							try
-							{ 
-								proc = (Procedure.IProcedure)procObj;
-
-								if (proc == null) 
-									throw new Exception.NotAProcedureException(procObj);
-							}
-							catch (System.InvalidCastException ex)
-							{
-								throw new Exception.NotAProcedureException(procObj, ex);
-							}
+							proc = procObj as Procedure.IProcedure;
 
 							// Fetch the new arguments from the stack
 							int argCount = (int)opArg;
@@ -273,11 +263,23 @@ namespace Tame.Scheme.Runtime
 									expressionStack.Push(currentExpression); currentExpression = newExpr;
 								}
 							}
-							else
+							else if (proc != null)
 							{
 								// Call the procedure, and push the result
 								evaluationStack.Push(proc.Call(currentFrame.environment, ref args));
 							}
+                            else if (procObj is Delegate)
+                            {
+                                // Call as a delegate (these can't be automatically defined, but allow standard .NET calls to be turned into scheme procedures)
+                                Delegate dg = (Delegate)procObj;
+
+                                dg.DynamicInvoke(args);
+                            }
+                            else
+                            {
+                                // Not a procedure
+                                throw new Exception.NotAProcedureException(procObj);
+                            }
 						}
 							break;
 
