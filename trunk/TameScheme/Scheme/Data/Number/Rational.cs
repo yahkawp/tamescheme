@@ -98,8 +98,15 @@ namespace Tame.Scheme.Data.Number
 
 		public int Compare(INumber number)
 		{
-			// TODO: implement me
-			return 0;
+            Rational ratNum = (Rational)number;
+            Rational comp = (Rational)Subtract(ratNum);
+
+            if (comp.numerator > 0)
+                return 1;
+            else if (comp.numerator < 0)
+                return -1;
+            else
+                return 0;
 		}
 
 		public INumber Add(INumber number)
