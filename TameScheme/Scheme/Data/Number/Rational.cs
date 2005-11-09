@@ -54,9 +54,10 @@ namespace Tame.Scheme.Data.Number
             // Certain values are too big to represent
             // TODO: some large values may be representable if the GCD brings their size back under the limit
             if (bits[2] != 0) throw new OverflowException("Decimal value is too large to be converted to a Rational");
+            if ((bits[1] & (1 << 31)) != 0) throw new OverflowException("Decimal value is too large to be converted to a Rational");
 
             // The numerator is the (maximum 64-bit) numerical part of the value
-            this.numerator = ((long)bits[0]) | (((long)bits[1]) << 32);
+            this.numerator = ((long)(uint)bits[0]) | (((long)(uint)bits[1]) << 32);
 
             // Work out the sign and the denominator
             bool sign = (bits[3] & (1 << 31)) != 0;
