@@ -54,8 +54,8 @@ namespace Tame.Scheme.Data.Number
 		
 		public int Compare(INumber number)
 		{
-			return 0;
-		}
+            throw new Exception.RuntimeException("There is no natural ordering for complex numbers");
+        }
 
 		public INumber Add(INumber number)
 		{
