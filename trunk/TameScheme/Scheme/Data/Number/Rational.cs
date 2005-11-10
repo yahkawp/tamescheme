@@ -186,6 +186,14 @@ namespace Tame.Scheme.Data.Number
 			return this;
 		}
 
+        public object Abs()
+        {
+            if (numerator > 0)
+                return this;
+            else
+                return new Rational(-numerator, denominator, false);
+        }
+
 		#endregion
 
 		public override string ToString()

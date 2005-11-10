@@ -95,6 +95,11 @@ namespace Tame.Scheme.Data.Number
             return this;
 		}
 
+        public object Abs()
+        {
+            return Math.Sqrt(real * real + imaginary * imaginary);
+        }
+
 		#endregion
 
         public override string ToString()
