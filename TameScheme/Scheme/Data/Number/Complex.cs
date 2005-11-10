@@ -41,7 +41,7 @@ namespace Tame.Scheme.Data.Number
         double real, imaginary;
 
         public double Real { get { return real; } }
-        public double Imaginary { get { return Imaginary; } }
+        public double Imaginary { get { return imaginary; } }
 
 		#region INumber Members
 
