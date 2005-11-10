@@ -270,6 +270,7 @@
     </Compile>
     <Compile Include="Procedure\Number\Abs.cs" />
     <Compile Include="Procedure\Number\ExactToInexact.cs" />
+    <Compile Include="Procedure\Number\Gcd.cs" />
     <Compile Include="Procedure\Number\IsComplex.cs" />
     <Compile Include="Procedure\Number\IsEven.cs" />
     <Compile Include="Procedure\Number\IsExact.cs" />
@@ -281,6 +282,7 @@
     <Compile Include="Procedure\Number\IsRational.cs" />
     <Compile Include="Procedure\Number\IsReal.cs" />
     <Compile Include="Procedure\Number\IsZero.cs" />
+    <Compile Include="Procedure\Number\MinMax.cs" />
     <Compile Include="Procedure\Number\Quotient.cs" />
     <Compile Include="Procedure\Number\Remainder.cs" />
     <Compile Include="Runtime\BContinuation.cs">
