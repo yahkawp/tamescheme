@@ -434,5 +434,65 @@ namespace SchemeUnit
         }
 
         #endregion
+
+        #region Property assertions
+
+        [Test("zero?")]
+        public void IsZero()
+        {
+            Assert.True((bool)terp.Evaluate("(zero? 0)"));
+            Assert.True((bool)terp.Evaluate("(zero? 0.0)"));
+            Assert.True((bool)terp.Evaluate("(zero? #e0.0)"));
+            Assert.True((bool)terp.Evaluate("(zero? 0/1)"));
+            Assert.True((bool)terp.Evaluate("(zero? 0+0i)"));
+            Assert.True((bool)terp.Evaluate("(zero? 0.0+0.0i)"));
+
+            Assert.False((bool)terp.Evaluate("(zero? 1)"));
+            Assert.False((bool)terp.Evaluate("(zero? 0-1i)"));
+        }
+
+        [Test("positive?")]
+        public void IsPositive()
+        {
+            Assert.True((bool)terp.Evaluate("(positive? 1)"));
+            Assert.True((bool)terp.Evaluate("(positive? 1.2)"));
+            Assert.True((bool)terp.Evaluate("(positive? #e1.2)"));
+            Assert.True((bool)terp.Evaluate("(positive? 1/2)"));
+
+            Assert.False((bool)terp.Evaluate("(positive? -1)"));
+            Assert.False((bool)terp.Evaluate("(positive? -1.2)"));
+            Assert.False((bool)terp.Evaluate("(positive? #e-1.2)"));
+            Assert.False((bool)terp.Evaluate("(positive? -1/2)"));
+        }
+
+        [Test("negative?")]
+        public void IsNegative()
+        {
+            Assert.True((bool)terp.Evaluate("(negative? -1)"));
+            Assert.True((bool)terp.Evaluate("(negative? -1.2)"));
+            Assert.True((bool)terp.Evaluate("(negative? #e-1.2)"));
+            Assert.True((bool)terp.Evaluate("(negative? -1/2)"));
+
+            Assert.False((bool)terp.Evaluate("(negative? 1)"));
+            Assert.False((bool)terp.Evaluate("(negative? 1.2)"));
+            Assert.False((bool)terp.Evaluate("(negative? #e1.2)"));
+            Assert.False((bool)terp.Evaluate("(negative? 1/2)"));
+        }
+
+        [Test("odd?")]
+        public void IsOdd()
+        {
+            Assert.True((bool)terp.Evaluate("(odd? 3)"));
+            Assert.False((bool)terp.Evaluate("(odd? 4)"));
+        }
+
+        [Test("even?")]
+        public void IsEven()
+        {
+            Assert.False((bool)terp.Evaluate("(even? 3)"));
+            Assert.True((bool)terp.Evaluate("(even? 4)"));
+        }
+
+        #endregion
     }
 }
