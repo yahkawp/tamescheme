@@ -45,6 +45,13 @@ namespace Tame.Scheme.Data.Number
 
 		#region INumber Members
 
+        public bool IsEqualTo(INumber number)
+        {
+            Complex complex = (Complex)number;
+
+            return real == complex.real && imaginary == complex.imaginary;
+        }
+
 		public int Compare(INumber number)
 		{
 			return 0;
