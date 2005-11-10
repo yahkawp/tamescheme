@@ -530,41 +530,56 @@ namespace Tame.Scheme.Runtime
 				res.Append("\"");
 				return res.ToString();
 			}
-			else if (obj is int || obj is float || obj is double || obj is long || obj is INumber)
+			else if (obj is int || obj is long || obj is INumber)
 			{
 				// Convert these numbers to a string
 				return obj.ToString();
 			}
-			else if (obj is decimal)
-			{
-				// Decimals are exact, so make that clear
-				return "#e" + obj.ToString();
-			}
-			else if (obj is IList)
-			{
-				// ILists are vectors
-				IList vector = (IList)obj;
+            else if (obj is float || obj is double)
+            {
+                // Convert these floating point numbers to a string
+                double val = (double)obj;
+                double abs = Math.Abs(val);
 
-				StringBuilder res = new StringBuilder("#(");
+                if (abs >= 0.00001 && abs < 100000000.0)
+                {
+                    return val.ToString("0.0##########");
+                }
+                else
+                {
+                    return val.ToString("0.0##########e+0");
+                }
+            }
+            else if (obj is decimal)
+            {
+                // Decimals are exact, so make that clear
+                return "#e" + obj.ToString();
+            }
+            else if (obj is IList)
+            {
+                // ILists are vectors
+                IList vector = (IList)obj;
 
-				// Convert each item to a string
-				foreach (object o in vector)
-				{
-					res.Append(ToString(o));
-					res.Append(" ");
-				}
+                StringBuilder res = new StringBuilder("#(");
 
-				// Remove the last space, and add a closing bracket
-				res.Remove(res.Length-1, 1);
-				res.Append(")");
+                // Convert each item to a string
+                foreach (object o in vector)
+                {
+                    res.Append(ToString(o));
+                    res.Append(" ");
+                }
 
-				return res.ToString();
-			}
-			else
-			{
-				// General .NET object
-				return "#[" + obj.GetType().FullName + " " + obj.ToString() + "]";
-			}
+                // Remove the last space, and add a closing bracket
+                res.Remove(res.Length - 1, 1);
+                res.Append(")");
+
+                return res.ToString();
+            }
+            else
+            {
+                // General .NET object
+                return "#[" + obj.GetType().FullName + " " + obj.ToString() + "]";
+            }
 		}
 
 		#endregion
