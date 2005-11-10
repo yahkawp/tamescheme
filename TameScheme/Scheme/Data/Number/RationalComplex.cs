@@ -44,6 +44,13 @@ namespace Tame.Scheme.Data.Number
 		public Rational Imaginary { get { return imaginary; } }
 
 		#region INumber Members
+
+        public bool IsEqualTo(INumber number)
+        {
+            RationalComplex complex = (RationalComplex)number;
+
+            return real.IsEqualTo(complex.real) && imaginary.IsEqualTo(complex.imaginary);
+        }
 		
 		public int Compare(INumber number)
 		{

@@ -63,7 +63,7 @@ namespace Tame.Scheme.Procedure.Comparison
 
 		protected override bool Compare(Tame.Scheme.Data.INumber a, Tame.Scheme.Data.INumber b)
 		{
-			return a.Compare(b) == 0;
+			return a.IsEqualTo(b);
 		}
 	}
 }

@@ -97,6 +97,13 @@ namespace Tame.Scheme.Data.Number
 
 		#region INumber Members
 
+        public bool IsEqualTo(INumber number)
+        {
+            Rational ratNum = (Rational)number;
+
+            return numerator == ratNum.numerator && denominator == ratNum.denominator;
+        }
+
 		public int Compare(INumber number)
 		{
             Rational ratNum = (Rational)number;

@@ -66,8 +66,14 @@ namespace Tame.Scheme.Data
 
 		#region Comparison
 
+        /// <summary>
+        /// Compares this number to another of the same type, testing for equality rather than ordering
+        /// </summary>
+        /// <returns>true if the numbers are equal, false otherwise</returns>
+        bool IsEqualTo(INumber compareTo);
+
 		/// <summary>
-		/// Compares this number to another of the same type
+		/// Compares this number to another of the same type, testing for ordering rather than equality
 		/// </summary>
 		/// <returns>-1 if the compareTo is less than this number, 0 if equal, 1 if greater than</returns>
 		int Compare(INumber compareTo);
