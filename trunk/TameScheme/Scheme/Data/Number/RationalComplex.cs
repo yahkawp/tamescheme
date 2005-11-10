@@ -109,6 +109,13 @@ namespace Tame.Scheme.Data.Number
 
 		#endregion
 
+        public override bool Equals(object obj)
+        {
+            if (obj is RationalComplex) return IsEqualTo((INumber)obj);
+
+            return false;
+        }
+
         public override string ToString()
         {
             if (real.Numerator == 0)
@@ -136,5 +143,14 @@ namespace Tame.Scheme.Data.Number
 
             return res;
         }
-	}
+
+        public override int GetHashCode()
+        {
+            int hashCode = typeof(RationalComplex).GetHashCode();
+
+            hashCode ^= real.GetHashCode() + imaginary.GetHashCode();
+
+            return hashCode;
+        }
+    }
 }

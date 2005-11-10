@@ -193,5 +193,20 @@ namespace Tame.Scheme.Data.Number
 			return numerator.ToString() + "/" + denominator.ToString();
 		}
 
-	}
+        public override bool Equals(object obj)
+        {
+            if (obj is Rational) return IsEqualTo((INumber)obj);
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = typeof(Rational).GetHashCode();
+
+            hashCode ^= numerator.GetHashCode() + denominator.GetHashCode();
+
+            return hashCode;
+        }
+    }
 }

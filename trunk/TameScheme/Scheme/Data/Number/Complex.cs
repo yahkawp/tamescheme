@@ -127,5 +127,21 @@ namespace Tame.Scheme.Data.Number
 
             return res;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Complex) return IsEqualTo((INumber)obj);
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = typeof(Complex).GetHashCode();
+
+            hashCode ^= real.GetHashCode() + imaginary.GetHashCode();
+
+            return hashCode;
+        }
     }
 }

@@ -583,6 +583,9 @@ namespace Tame.Scheme.Runtime
 			Type typeA = a.GetType();
 			Type typeB = b.GetType();
 
+            if (a is INumber) a = ((INumber)a).Simplify();
+            if (b is INumber) b = ((INumber)b).Simplify();
+
 			// Numeric types (exact)
 			if (a is int || a is decimal || a is long)
 			{
@@ -590,6 +593,10 @@ namespace Tame.Scheme.Runtime
 				{
 					return a.Equals(b);
 				}
+                else if (b is Data.Number.Rational && a is decimal)
+                {
+                    return new Data.Number.Rational((decimal)a).IsEqualTo((Data.Number.Rational)b);
+                }
 				return false;
 			}
 			else if (a is Data.Number.Rational)
@@ -600,12 +607,17 @@ namespace Tame.Scheme.Runtime
 					return a.Equals(new Data.Number.Rational((int)b, 1));
 				else if (b is long)
 					return a.Equals(new Data.Number.Rational((long)b, 1));
-
-				// TODO: decimals
-				// TODO: RationalComplex
+                else if (b is decimal)
+                    return a.Equals(new Data.Number.Rational((decimal)b));
 
 				return false;
 			}
+            else if (a is Data.Number.RationalComplex)
+            {
+                if (b is Data.Number.RationalComplex) return a.Equals(b);
+
+                return false;
+            }
 
 			// Numeric types (inexact)
 			else if (a is float || a is double)
@@ -618,7 +630,9 @@ namespace Tame.Scheme.Runtime
 			}
 			else if (a is Data.Number.Complex)
 			{
-				// TODO: complex numbers
+                if (b is Data.Number.Complex) return a.Equals(b);
+
+                return false;
 			}
 
 			// Objects must be the same type if they're not numbers
