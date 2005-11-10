@@ -541,7 +541,7 @@ namespace Tame.Scheme.Runtime
                 double val = (double)obj;
                 double abs = Math.Abs(val);
 
-                if (abs >= 0.00001 && abs < 100000000.0)
+                if (abs == 0 || (abs >= 0.00001 && abs < 100000000.0))
                 {
                     return val.ToString("0.0##########");
                 }
