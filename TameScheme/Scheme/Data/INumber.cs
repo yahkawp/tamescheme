@@ -80,7 +80,16 @@ namespace Tame.Scheme.Data
 
 		#endregion
 
-		/// <summary>
+        #region Singular operations
+
+        /// <summary>
+        /// Returns the absolute value of this number
+        /// </summary>
+        object Abs();
+
+        #endregion
+
+        /// <summary>
 		/// Changes a number to a simpler form (for example, normalises a rational, or turns it into an integer)
 		/// </summary>
 		/// <returns>The number, or a simpler version if one is available</returns>

@@ -107,6 +107,11 @@ namespace Tame.Scheme.Data.Number
             return this;
 		}
 
+        public object Abs()
+        {
+            return Math.Sqrt(real.ToDouble() * real.ToDouble() + imaginary.ToDouble() * imaginary.ToDouble());
+        }
+
 		#endregion
 
         public override bool Equals(object obj)

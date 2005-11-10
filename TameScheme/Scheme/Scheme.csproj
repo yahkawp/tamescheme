@@ -268,6 +268,7 @@
     <Compile Include="Procedure\Lists\SetCdr.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Procedure\Number\Abs.cs" />
     <Compile Include="Procedure\Number\IsComplex.cs" />
     <Compile Include="Procedure\Number\IsEven.cs" />
     <Compile Include="Procedure\Number\IsExact.cs" />
