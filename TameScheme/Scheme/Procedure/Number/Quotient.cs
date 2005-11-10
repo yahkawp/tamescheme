@@ -55,6 +55,10 @@ namespace Tame.Scheme.Procedure.Number
         {
             Quot res;
 
+            // Simplify any INumbers (so (quotient 1+0i 2+0i) will work)
+            if (num1 is INumber) num1 = ((INumber)num1).Simplify();
+            if (num2 is INumber) num2 = ((INumber)num2).Simplify();
+
             // Use the number utilities to promote the numbers as appropriate
             object[] num = NumberUtils.Convert(num1, num2);
 
