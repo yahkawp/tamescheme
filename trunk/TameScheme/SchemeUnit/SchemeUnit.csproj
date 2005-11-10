@@ -94,6 +94,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Assert.cs" />
+    <Compile Include="Numbers.cs" />
     <Compile Include="Pair.cs">
       <SubType>Code</SubType>
     </Compile>
