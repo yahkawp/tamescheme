@@ -113,7 +113,7 @@ namespace Tame.Scheme.Data.Number
 
             if (imaginary != 1 && imaginary != -1)
             {
-                if (imaginary > 0)
+                if (imaginary >= 0)
                 {
                     res += "+" + imaginary.ToString();
                 }

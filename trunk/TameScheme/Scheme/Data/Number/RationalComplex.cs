@@ -130,7 +130,7 @@ namespace Tame.Scheme.Data.Number
 
             string res = real.Simplify().ToString();
 
-            if (imaginary.Numerator > 0)
+            if (imaginary.Numerator >= 0)
             {
                 res += "+";
             }
