@@ -280,6 +280,8 @@
     <Compile Include="Procedure\Number\IsRational.cs" />
     <Compile Include="Procedure\Number\IsReal.cs" />
     <Compile Include="Procedure\Number\IsZero.cs" />
+    <Compile Include="Procedure\Number\Quotient.cs" />
+    <Compile Include="Procedure\Number\Remainder.cs" />
     <Compile Include="Runtime\BContinuation.cs">
       <SubType>Code</SubType>
     </Compile>
