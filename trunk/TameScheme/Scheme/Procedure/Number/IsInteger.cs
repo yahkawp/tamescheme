@@ -63,7 +63,7 @@ namespace Tame.Scheme.Procedure.Number
             {
                 decimal decValue = (decimal)num;
 
-                if (Math.Floor(decValue) == decValue)
+                if (decimal.Floor(decValue) == decValue)
                     return true;
                 else
                     return false;
