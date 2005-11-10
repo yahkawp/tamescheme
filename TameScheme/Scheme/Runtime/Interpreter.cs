@@ -553,7 +553,18 @@ namespace Tame.Scheme.Runtime
             else if (obj is decimal)
             {
                 // Decimals are exact, so make that clear
-                return "#e" + obj.ToString();
+                decimal val = (decimal)obj;
+                decimal abs = val;
+                if (abs < 0) abs = -abs;
+
+                if (abs == 0 || (abs >= (decimal)0.00001 && abs < (decimal)100000000.0))
+                {
+                    return "#e" + val.ToString("0.0##########");
+                }
+                else
+                {
+                    return "#e" + val.ToString("0.0##########e+0");
+                }
             }
             else if (obj is IList)
             {
