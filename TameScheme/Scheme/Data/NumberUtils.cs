@@ -79,23 +79,48 @@ namespace Tame.Scheme.Data
 		/// <summary>
 		/// Makes number into an inexact number
 		/// </summary>
-		static object MakeInexact(object number)
+		static public object MakeInexact(object number)
 		{
-			if (number is int)
-				return (float)(int)number;
-			if (number is long)
-				return (double)(long)number;
-			if (number is decimal)
-				return (double)(decimal)number;
-			if (number is Number.Rational)
-				return ((Number.Rational)number).ToDouble();
-			if (number is Number.RationalComplex) 
-			{
-				Number.RationalComplex rc = (Number.RationalComplex)number;
-				return new Number.Complex(rc.real.ToDouble(), rc.imaginary.ToDouble());
-			}
-			return number;
+            if (number is int)
+                return checked((float)(int)number);
+            else if (number is long)
+                return checked((double)(long)number);
+            else if (number is decimal)
+                return checked((double)(decimal)number);
+            else if (number is Number.Rational)
+                return ((Number.Rational)number).ToDouble();
+            else if (number is Number.RationalComplex)
+            {
+                Number.RationalComplex rc = (Number.RationalComplex)number;
+                return new Number.Complex(rc.real.ToDouble(), rc.imaginary.ToDouble());
+            }
+            else if (number is float || number is double || number is INumber)
+                return number;
+            else
+                throw new Exception.RuntimeException("Can't translate a non-numeric type to its inexact equivalent");
 		}
+
+        /// <summary>
+        /// Makes number into an exact number
+        /// </summary>
+        static public object MakeExact(object number)
+        {
+            if (number is float)
+                return checked((decimal)(float)number);
+            else if (number is double)
+                return checked((decimal)(double)number);
+            else if (number is decimal)
+                return (double)(decimal)number;
+            else if (number is Number.Complex)
+            {
+                Number.Complex complex = (Number.Complex)number;
+                return new Number.RationalComplex(new Number.Rational((decimal)complex.Real), new Number.Rational((decimal)complex.Imaginary));
+            }
+            else if (number is int || number is long || number is INumber)
+                return number;
+            else
+                throw new Exception.RuntimeException("Can't translate a non-numeric type to its inexact equivalent");
+        }
 
 		static Number.Rational rationalZero = new Number.Rational(0, 1);
 
