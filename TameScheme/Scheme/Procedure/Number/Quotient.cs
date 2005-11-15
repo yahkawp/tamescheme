@@ -85,9 +85,15 @@ namespace Tame.Scheme.Procedure.Number
 
                 decimal quot = decNum1 / decNum2;
                 if (quot < 0)
-                    quot = decimal.Ceiling(quot);
+                {
+                    decimal floor = decimal.Floor(quot);
+
+                    if (floor != quot) quot = floor + 1;
+                }
                 else
+                {
                     quot = decimal.Floor(quot);
+                }
 
                 decimal remainder = decNum1 - (quot * decNum2);
                 decimal modulo = negative ? (decNum2 + remainder) : remainder;
