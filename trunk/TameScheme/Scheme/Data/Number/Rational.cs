@@ -28,7 +28,7 @@ using System;
 namespace Tame.Scheme.Data.Number
 {
 	/// <summary>
-	/// Summary description for Rational.
+	/// Implementation of a rational number.
 	/// </summary>
 	public sealed class Rational : INumber
 	{
@@ -196,7 +196,29 @@ namespace Tame.Scheme.Data.Number
 
 		#endregion
 
-		public override string ToString()
+        #region Utility functions
+
+        public long Floor()
+        {
+            long res = numerator/denominator;
+            if (numerator > 0 || (numerator%denominator)==0)
+                return res;
+            else
+                return res - 1;
+        }
+
+        public long Ceiling()
+        {
+            long res = numerator / denominator;
+            if (numerator < 0 || (numerator % denominator) == 0)
+                return res;
+            else
+                return res + 1;
+        }
+
+        #endregion
+
+        public override string ToString()
 		{
 			return numerator.ToString() + "/" + denominator.ToString();
 		}
