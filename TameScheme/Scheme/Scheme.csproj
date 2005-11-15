@@ -285,6 +285,7 @@
     <Compile Include="Procedure\Number\MinMax.cs" />
     <Compile Include="Procedure\Number\NumDenom.cs" />
     <Compile Include="Procedure\Number\Quotient.cs" />
+    <Compile Include="Procedure\Number\Rationalize.cs" />
     <Compile Include="Procedure\Number\Remainder.cs" />
     <Compile Include="Runtime\BContinuation.cs">
       <SubType>Code</SubType>
