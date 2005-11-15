@@ -283,6 +283,7 @@
     <Compile Include="Procedure\Number\IsReal.cs" />
     <Compile Include="Procedure\Number\IsZero.cs" />
     <Compile Include="Procedure\Number\MinMax.cs" />
+    <Compile Include="Procedure\Number\NumDenom.cs" />
     <Compile Include="Procedure\Number\Quotient.cs" />
     <Compile Include="Procedure\Number\Remainder.cs" />
     <Compile Include="Runtime\BContinuation.cs">
