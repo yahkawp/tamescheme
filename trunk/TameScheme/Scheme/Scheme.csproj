@@ -329,6 +329,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Syntax\ISyntaxGroup.cs" />
+    <Compile Include="Syntax\ITransformingSyntax.cs" />
     <Compile Include="Syntax\Library\Begin.cs">
       <SubType>Code</SubType>
     </Compile>
