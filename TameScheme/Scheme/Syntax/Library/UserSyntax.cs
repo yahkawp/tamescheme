@@ -35,7 +35,7 @@ namespace Tame.Scheme.Syntax.Library
 	/// UserSyntax represents syntax defined by the define-syntax operator.
 	/// </summary>
     [SchemeGroup(SchemeGroup.UserExtension), SchemeUsage(SchemeUsage.Normal)]
-	public class UserSyntax : SchemeSyntax, ISyntax
+	public class UserSyntax : SchemeSyntax, ISyntax, ITransformingSyntax
 	{
 		public UserSyntax(Syntax syntaxMatcher, ArrayList transformers) : base(syntaxMatcher, null)
 		{
@@ -62,5 +62,30 @@ namespace Tame.Scheme.Syntax.Library
 		}
 
 		#endregion
-	}
+
+        #region ITransformingSyntax Members
+
+        public object TransformScheme(object scheme, CompileState state)
+        {
+            // Match the scheme against our syntax
+            // TODO: do we need to skip the first symbol?
+            SyntaxEnvironment binding;
+            int match = Syntax.Match(scheme, state, out binding);
+
+            // Get the transformation to use
+            // TODO: throw a nice exception if we failed to get a match
+			Transformation matchingTransformer = (Transformation)transformers[match];
+
+            // Perform the transformation
+            object translatedScheme = matchingTransformer.Transform(binding.SyntaxTree);
+
+            // Rename any temporary variables
+            translatedScheme = state.TemporaryBinder.BindScheme(translatedScheme, state);
+
+            // Return the result
+            return translatedScheme;
+        }
+
+        #endregion
+    }
 }
