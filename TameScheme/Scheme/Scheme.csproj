@@ -94,7 +94,6 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Compiler\Compiler.cs" />
     <Compile Include="Compiler\Compiler.cs">
       <SubType>Code</SubType>
     </Compile>
