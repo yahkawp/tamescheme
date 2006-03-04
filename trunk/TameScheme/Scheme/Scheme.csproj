@@ -94,6 +94,10 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Compiler\Compiler.cs" />
+    <Compile Include="Compiler\Compiler.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Data\Environment.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -319,6 +323,9 @@
     </Compile>
     <Compile Include="SchemeGroupAttribute.cs" />
     <Compile Include="SchemeUsageAttribute.cs" />
+    <Compile Include="Compiler\Analysis\Location.cs" />
+    <Compile Include="Compiler\Analysis\State.cs" />
+    <Compile Include="Compiler\Analysis\SymbolUsage.cs" />
     <Compile Include="Syntax\IBinding.cs">
       <SubType>Code</SubType>
     </Compile>
