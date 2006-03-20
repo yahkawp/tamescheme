@@ -113,14 +113,15 @@ namespace Tame.Scheme.Runtime
                 }
 
                 // Create a new environment from the template
+                Data.Environment result = new Data.Environment();
                 HybridDictionary symbolsToOffsets = new HybridDictionary();
 
                 foreach (object hash in environmentTemplate.Keys)
                 {
-                    symbolsToOffsets[hash] = environmentTemplate[hash];
+                    result[hash] = environmentValuesTemplate[(int)environmentTemplate[hash]];
                 }
 
-                return new Data.Environment(symbolsToOffsets, environmentValuesTemplate, null);
+                return result;
             }
         }
 

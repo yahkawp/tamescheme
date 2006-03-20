@@ -83,7 +83,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			{
 				// Use a new environment
 				useNewEnvironment = true;
-				letLocal = new Data.Environment(state.Local);
+				letLocal = new Data.Environment(state.Local, false);
 			}
 			else
 			{
