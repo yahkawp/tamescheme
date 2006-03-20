@@ -63,6 +63,16 @@ namespace SchemeUnit
 			Assert.Equals(1+2, terp.Evaluate(terp.ParseScheme("(basic-improper + 1 2)")));
 		}
 
+        [Test("define-syntax")]
+        public void LiteralBug()
+        {
+            // (Found when adapting the Environment to a new form: was acting as if there was some environment above the top-level for syntax literals)
+            terp.Evaluate(terp.ParseScheme("(define-syntax literal-bug (syntax-rules (some-literal) ((literal-bug some-literal) 1)))"));
+            Assert.Equals(1, terp.Evaluate(terp.ParseScheme("(literal-bug some-literal)")));
+            terp.Evaluate(terp.ParseScheme("(define some-literal 2)"));
+            Assert.Equals(1, terp.Evaluate(terp.ParseScheme("(literal-bug some-literal)")));
+        }
+
 		[Test("define-syntax")]
 		public void TempBindingQuote()
 		{
