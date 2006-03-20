@@ -66,6 +66,7 @@ namespace Tame.Scheme.Data
 
 		public static int NumberForSymbol(string symbolName)
 		{
+            int res;
 			lock (symbolTable.SyncRoot)
 			{
 				// Scheme symbols are case-insensitive
@@ -75,13 +76,27 @@ namespace Tame.Scheme.Data
 				if (symbolTable.Contains(symbolName)) return (int)symbolTable[symbolName];
 
 				// Create a new symbol if not
-				int res = symbols.Count;
+				res = symbols.Count;
 				symbols.Add(symbolName);
 				symbolTable[symbolName] = res;
-
-				return res;
 			}
-		}
+
+            OnNewSymbol(new Symbol(symbolName), res);
+
+            return res;
+        }
+
+        public static object SyncRoot { get { return symbolTable.SyncRoot; } }
+
+        public static IList AllSymbols { get { return symbols; } }
+
+        public delegate void NewSymbolEvent(Symbol newSymbol, int number);
+        public static event NewSymbolEvent NewSymbol;
+
+        public static void OnNewSymbol(Symbol newSymbol, int number)
+        {
+            if (NewSymbol != null) NewSymbol(newSymbol, number);
+        }
 
 		#endregion
 	}

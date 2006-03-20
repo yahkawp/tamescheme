@@ -55,7 +55,7 @@ namespace Tame.Scheme.Syntax.Primitives
 			bool lastIsAList = false;								// If 'true', then the list of arguments is improper: the last argument is a list of all the remaining arguments
 
 			// Create a new local environment from the arguments
-			Data.Environment argumentEnvironment = new Data.Environment(state.Local);
+			Data.Environment argumentEnvironment = new Data.Environment(state.Local, false);
 			CompileState lambdaState = new CompileState(state, false);
 			lambdaState.Local = argumentEnvironment;
 

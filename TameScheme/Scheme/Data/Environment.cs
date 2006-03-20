@@ -32,24 +32,107 @@ namespace Tame.Scheme.Data
 	/// <summary>
 	/// Representation of a scheme environment.
 	/// </summary>
-	public sealed class Environment
+    /// <remarks>
+    /// 'Top-Level' environments maintain entries for every symbol that is defined, and must be disposed when it is no longer required.
+    /// 'Top-Level' environments can only be environments with no parent.
+    /// </remarks>
+	public sealed class Environment : IDisposable
 	{
+        private void MakeEmptyTopLevel()
+        {
+            lock (SymbolTable.SyncRoot)
+            {
+                int count = 0;
+                foreach (string sym in SymbolTable.AllSymbols)
+                {
+                    envTable[new Data.Symbol(sym).HashValue] = count++;
+                }
+
+                values = new object[count];
+                nextAvailable = count;
+
+                for (int x = 0; x < values.Length; x++) values[x] = Data.Unspecified.Value;
+
+                SymbolTable.NewSymbol += this.NewTopLevelSymbol;
+            }
+        }
+
+        /// <summary>
+        /// Constructs a new, empty, top-level environment.
+        /// </summary>
 		public Environment()
 		{
 			envTable = new HybridDictionary();
-            values = new object[0];
-            nextAvailable = 0;
+
+            // This is a top-level environment
+            this.IsTopLevel = true;
+            this.TopLevel = this;
+
+            MakeEmptyTopLevel();
 		}
 
-		public Environment(Environment parent)
+        /// <summary>
+        /// Constructs a new, empty local or top-level environment
+        /// </summary>
+        /// <param name="parent">null if this is a top-level environment, or a parent environment</param>
+        public Environment(Environment parent)
 		{
 			envTable = new HybridDictionary();
             values = new object[0];
             nextAvailable = 0;
 
 			this.parent = parent;
+
+            if (parent == null)
+            {
+                this.IsTopLevel = true;
+                this.TopLevel = this;
+
+                MakeEmptyTopLevel();
+            }
+            else
+            {
+                this.IsTopLevel = false;
+                this.TopLevel = parent.TopLevel;
+            }
 		}
 
+        /// <summary>
+        /// Constructs a new environment. This may create a local environment with no parent if parent is null and topLevel is false.
+        /// </summary>
+        /// <param name="parent">The 'parent' environment, or null if this should be a top-level environment.</param>
+        /// <param name="topLevel">If false, then this call will always create a local environment and never a top-level one, even when parent is null.</param>
+        public Environment(Environment parent, bool topLevel)
+        {
+            envTable = new HybridDictionary();
+            values = new object[0];
+            nextAvailable = 0;
+
+            this.parent = parent;
+
+            if (parent == null && topLevel)
+            {
+                this.IsTopLevel = true;
+                this.TopLevel = this;
+
+                MakeEmptyTopLevel();
+            }
+            else
+            {
+                this.IsTopLevel = false;
+                if (parent != null)
+                    this.TopLevel = parent.TopLevel;
+                else
+                    this.TopLevel = null;
+            }
+        }
+        
+        /// <summary>
+        /// Constructs a new local environment containing the specified symbols and values.
+        /// </summary>
+        /// <param name="symbolsToOffsets">A dictionary mapping symbol HashValues to offsets into the values array.</param>
+        /// <param name="values">The values to store in this environment.</param>
+        /// <param name="parent">The parent environment. This must not be null.</param>
 		public Environment(HybridDictionary symbolsToOffsets, ICollection values, Environment parent)
 		{
 			this.envTable = symbolsToOffsets;
@@ -58,8 +141,17 @@ namespace Tame.Scheme.Data
             this.nextAvailable = values.Count;
 
 			this.parent = parent;
-		}
+            this.IsTopLevel = false;
+            this.TopLevel = parent.TopLevel;
+        }
 
+        /// <summary>
+        /// Constructs a new local environment containing the specified symbols and values.
+        /// </summary>
+        /// <param name="symbolsToOffsets">A dictionary mapping symbol HashValues to offsets into the values array.</param>
+        /// <param name="values">The values to store in this environment.</param>
+        /// <param name="totalSize">The total size of the environment (must be greater than values.Count). Extra fields are initialised to null (not Unspecified!)</param>
+        /// <param name="parent">The parent environment.</param>
         public Environment(HybridDictionary symbolsToOffsets, ICollection values, int totalSize, Environment parent)
         {
             this.envTable = symbolsToOffsets;
@@ -68,8 +160,16 @@ namespace Tame.Scheme.Data
             this.nextAvailable = this.values.Length;
 
             this.parent = parent;
+            this.IsTopLevel = false;
+            this.TopLevel = parent.TopLevel;
         }
 
+        /// <summary>
+        /// Constructs a local, empty environment with the symbols mapped to specific values.
+        /// </summary>
+        /// <param name="symbolsToOffsets">A dictionary mapping symbols to offsets.</param>
+        /// <param name="initialSize">The total size of the environment.</param>
+        /// <param name="parent">The parent environment.</param>
         public Environment(HybridDictionary symbolsToOffsets, int initialSize, Environment parent)
         {
             this.envTable = symbolsToOffsets;
@@ -77,6 +177,8 @@ namespace Tame.Scheme.Data
             this.nextAvailable = values.Length;
 
             this.parent = parent;
+            this.IsTopLevel = false;
+            this.TopLevel = parent.TopLevel;
         }
 
 		#region Variables
@@ -97,8 +199,9 @@ namespace Tame.Scheme.Data
         /// <remarks>
         /// Exactly ONE thread (the interpreter thread) is allowed to write object values without locking. Other threads should lock:
         /// this does not guarantee the values won't change, but does guarantee that the location array won't be reallocated.
+        /// This is public, as very fast access is often required.
         /// </remarks>
-        internal object[] values;
+        public object[] values;
 
         /// <summary>
         /// Size to grow the environment by (when necessary)
@@ -114,6 +217,16 @@ namespace Tame.Scheme.Data
 		/// The environment this one should inherit from.
 		/// </summary>
 		Environment parent = null;
+
+        /// <summary>
+        /// Whether or not this environment is a top-level environment
+        /// </summary>
+        public readonly bool IsTopLevel;
+
+        /// <summary>
+        /// The top-level environment relative to this one.
+        /// </summary>
+        public readonly Environment TopLevel;
 
 		#endregion
 
@@ -136,6 +249,8 @@ namespace Tame.Scheme.Data
 		{
             lock (this)
             {
+                if (IsTopLevel) throw new InvalidOperationException("BindTemporary() is not valid for a top-level environment");
+
                 // Construct a history object
                 if (temporaryHistory == null) temporaryHistory = new HybridDictionary();
 
@@ -231,6 +346,7 @@ namespace Tame.Scheme.Data
                 {
                     if (!envTable.Contains(hashValue))
                     {
+                        if (IsTopLevel) throw new InvalidOperationException("Unable to define a new symbol in a top level environment (only symbols defined in the SymbolTable may be accessed in a top-level environment)");
                         lock (this)
                         {
                             // Add a new value
@@ -657,5 +773,41 @@ namespace Tame.Scheme.Data
             }
 		}
 
-	}
+        /// <summary>
+        /// Event handler called when a new symbol is defined (only if this is a top-level environment)
+        /// </summary>
+        private void NewTopLevelSymbol(Symbol newSymbol, int number)
+        {
+            lock (this)
+            {
+                if (number != nextAvailable) throw new InvalidOperationException("A top-level environment received a new symbol that does not correspond monotonically to the last defined symbol value (got " + number + " but was expecting " + nextAvailable + ")");
+
+                // Reallocate the values if necessary
+                if (nextAvailable >= values.Length)
+                {
+                    object[] newValues = new object[values.Length + valueGrowth];
+                    values.CopyTo(newValues, 0);
+                    values = newValues;
+                }
+
+                // Define the new symbol
+                envTable[newSymbol.HashValue] = number;
+                values[number] = Data.Unspecified.Value;
+
+                nextAvailable++;
+            }
+        }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            if (IsTopLevel)
+            {
+                SymbolTable.NewSymbol -= NewTopLevelSymbol;
+            }
+        }
+
+        #endregion
+    }
 }
