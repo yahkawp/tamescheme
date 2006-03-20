@@ -28,7 +28,7 @@ namespace Tame.Scheme.Compiler.BOp
             }
             else if (op.a is long)
             {
-                il.Emit(OpCodes.Ldc_I8, (int)op.a);
+                il.Emit(OpCodes.Ldc_I8, (long)op.a);
             }
             else if (op.a is string)
             {

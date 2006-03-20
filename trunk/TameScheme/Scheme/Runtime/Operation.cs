@@ -39,9 +39,9 @@ namespace Tame.Scheme.Runtime
 		// Basic operations
 		Pop,							// pop - pops an object from the stack and discards it
 		Push,							// push a - pushes object a onto the stack
-		PushContext,					// push-context a - pushes object a (which must implement IContextual) to the stack
-		PushBindingValue,				// push-binding-value a - pushes the value of a literal binding onto the stack
-		PushRelativeValue,				// push-relative-value a - pushes the value of a relative binding onto the stack
+		PushContext,					// push-context a - pushes object a (which must implement IContextual - ie, normally a function) to the stack
+		PushBindingValue,				// push-binding-value a - pushes the value of a literal binding onto the stack (a binding to a specific environment)
+		PushRelativeValue,				// push-relative-value a - pushes the value of a relative binding onto the stack (a binding to the current environment or a 'higher' one)
 		PushFrameItem,					// push-frame-item a - pushes frame item a (an int) onto the stack
 		PushFrameList,					// push-frame-list a - pushes frame list a onto the stack (ie everything after a in the frame as a list)
 		DefineBinding,					// define-binding a - defines a (an Environment.Binding) to the value of the top object on the stack

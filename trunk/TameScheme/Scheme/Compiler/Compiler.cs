@@ -279,7 +279,8 @@ namespace Tame.Scheme.Compiler
             }
             else
             {
-                throw new NotSupportedException("A compiler was asked to compile an operation - " + op.operation.ToString() + " - which it does not have an IL assembler for");
+                return; // TODO: change to the exception (this is useful for debugging, though)
+                //throw new NotSupportedException("A compiler was asked to compile an operation - " + op.operation.ToString() + " - which it does not have an IL assembler for");
             }
         }
 
