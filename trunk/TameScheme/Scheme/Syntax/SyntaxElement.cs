@@ -375,7 +375,8 @@ namespace Tame.Scheme.Syntax
 						// If no binding is found, symbol must be undefined or in the top-level environment
 						if (symbolBinding == null && (matchLocation != null && matchLocation != state.TopLevel)) return false;
 
-						// Otherwise, environments MUST be the same
+						// Otherwise, environments MUST be the same (the null environment is considered to be the top-level one)
+                        if (symbolBinding != null && matchLocation == null) matchLocation = state.TopLevel;
 						if (symbolBinding != null && matchLocation != symbolBinding.Environment) return false;
 					}
 
