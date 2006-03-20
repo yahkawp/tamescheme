@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using System.Reflection;
 
 namespace Tame.Scheme.Compiler.Analysis
 {
@@ -10,36 +10,69 @@ namespace Tame.Scheme.Compiler.Analysis
     public class SymbolUsage
     {
         #region Initialisation
+
+        public SymbolUsage(Location where, FieldInfo field)
+        {
+            this.field = field;
+            this.localVariable = -1;
+            this.where = where;
+        }
+
+        public SymbolUsage(Location where, int localVariable)
+        {
+            this.localVariable = localVariable;
+            this.field = null;
+            this.where = where;
+        }
+
+        public SymbolUsage(Location where)
+        {
+            this.localVariable = -1;
+            this.field = null;
+            this.where = where;
+        }
+
         #endregion
 
         #region Symbol information
 
-        /// <summary>
-        /// Set to true if this is a top level symbol
-        /// </summary>
-        private bool isTopLevel;
+        private readonly FieldInfo field;
+        private readonly int localVariable;
 
-        /// <summary>
-        /// Set to true if this symbol is assigned to a local variable, instead of being part of the environment
-        /// passed to the function. (Symbols declared in environment functions have this property)
-        /// </summary>
-        private bool isLocal;
+        public readonly Location where;
 
-        /// <summary>
-        /// Set to true if this symbol is a field in the containing class (used for lambda expressions: ie
-        /// SProcedures.
-        /// </summary>
-        private bool isField;
+        public FieldInfo Field
+        {
+            get
+            {
+                if (field == null) throw new InvalidOperationException("Tried to retrieve a FieldInfo structure for a variable that is stored in a local location (or that is invalid)");
+                return field;
+            }
+        }
 
-        /// <summary>
-        /// The first instruction in the BExpression that this symbol is used.
-        /// </summary>
-        private int firstUsage;
+        public int LocalVariable
+        {
+            get
+            {
+                if (localVariable < 0) throw new InvalidOperationException("Tried to retrieve a local variable location for a variable that is stored in a class field (or that is invalid)");
+                return localVariable;
+            }
+        }
 
-        /// <summary>
-        /// The last time in the BExpression that this symbol is used.
-        /// </summary>
-        private int lastUsage;
+        public bool IsField
+        {
+            get { return field != null; }
+        }
+
+        public bool IsLocalVariable
+        {
+            get { return localVariable >= 0; }
+        }
+
+        public bool IsInvalid
+        {
+            get { return field == null && localVariable < 0; }
+        }
 
         #endregion
     }

@@ -24,6 +24,7 @@
 // +----------------------------------------------------------------------------+
 
 using System;
+using System.Collections;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -40,9 +41,21 @@ namespace Tame.Scheme.Compiler
 
         public Compiler()
         {
-            // Construct a default assembly and module builder
+            // Set the module that we're building in
+            module = defaultModule;
+
+            // Set the set of instruction assemblers that we should use for this type
+            assemblers = GetOpcodesForType(GetType());
+        }
+
+        static Compiler()
+        {
             lock (typeof(Compiler))
             {
+                // Initialise all the opcodes in this assembly
+                LoadOpcodesForType(typeof(Compiler), new Assembly[] { typeof(Compiler).Assembly });
+
+                // Construct a default assembly and module builder
                 if (defaultAssembly == null)
                 {
                     AppDomain theDomain = System.Threading.Thread.GetDomain();
@@ -52,7 +65,6 @@ namespace Tame.Scheme.Compiler
                 }
             }
 
-            module = defaultModule;
         }
 
         #endregion
@@ -131,9 +143,18 @@ namespace Tame.Scheme.Compiler
         /// <returns>A new IProcedure object that executes the given scheme.</returns>
         public Type Compile(BExpression expr, string typeName)
         {
+            Analysis.State state = new Analysis.State();
+
             // Construct a TypeBuilder to compile the type into
             TypeBuilder builder = TypeBuilderForFunction(typeName, null);
-            CompileCall(builder, expr);
+            state.RootType = builder;
+
+            // Compile the call itself
+            CompileCall(builder, expr, state);
+
+            // Compile anything that's needed into the root/static types
+            state.FinishStaticType();
+            state.BuildInitialiser(state.RootType.DefineTypeInitializer().GetILGenerator(8192));
 
             // Build the type
             return builder.CreateType();
@@ -200,80 +221,173 @@ namespace Tame.Scheme.Compiler
             return call;
         }
 
-        protected void CompileCall(TypeBuilder type, BExpression expr)
+        protected void CompileCall(TypeBuilder type, BExpression expr, Analysis.State state)
         {
             // Create the MethodBuilder that will define this function
             MethodBuilder call = DefineCall(type, null);
 
-            // Create the IL code generator
-            ILGenerator il = call.GetILGenerator(8192);
+            // Tell the state we're compiling a new BExpression from scratch
+            state.StartBExpression();
 
-            il.Emit(OpCodes.Ret);
+            try
+            {
+                // Create the IL code generator
+                ILGenerator il = call.GetILGenerator(8192);
 
-            // Stage 1: analyse the symbol/environment usage
+                // Precompile the BExpression
+                for (int instruction = 0; instruction < expr.expression.Length; instruction++)
+                {
+                    // Compile this operation
+                    PreCompileOp(expr.expression[instruction], state);
+                }
 
-            // Stage 2: create the type and begin compiling the main method
+                // Begin compiling the BExpression into IL
+                for (int instruction = 0; instruction < expr.expression.Length; instruction++)
+                {
+                    // Mark a label here
+                    state.DefineNextLabel(il);
 
-            // Stage 3: compile the bulk of the BExpression
+                    // Compile this operation
+                    CompileOp(expr.expression[instruction], il, state);
+                }
+            }
+            finally
+            {
+                // Finished with this BExpression
+                state.FinishBExpression();
+            }
         }
 
-        /// <summary>
-        /// Compiles the specified scheme object into a new .NET method. The signature of the method will match 
-        /// the IProcedure Call method.
-        /// 
-        /// I'm defuncting this; too much weight in one function.
-        /// </summary>
-        /// <param name="scheme">The scheme expression to compile into an IL method.</param>
-        /// <param name="argSymbols">The symbols that represents the arguments passed into this method.</param>
-        /// <param name="attributes">The attributes to attach to the function that we're going to generate.</param>
-        /// <param name="dot">If true, the arguments were created as an improper list: the last argument is turned into a list.</param>
-        /// <param name="state">The compiler state for this function (used, for example, to specify what to expect as the Environment parameter)</param>
-        /// <param name="methodName">The name for the method that will be created in the typeBuilder.</param>
-        /// <param name="typeBuilder">The typeBuilder object to use to add the method to.</param>
-        /// <returns>A new MethodBuilder object with the specified scheme compiled into it.</returns>
-        public MethodBuilder CompileScheme(object scheme, Data.Symbol[] argSymbols, bool dot, CompileState state, ref TypeBuilder typeBuilder, string methodName, MethodAttributes attributes)
+        private IList assemblers;
+
+        protected void PreCompileOp(Operation op, Analysis.State state)
         {
-            // Construct the method builder object (TODO: objects are passed in as 'refs': how do we declare this?)
-            MethodBuilder schemeBuilder = typeBuilder.DefineMethod(methodName, attributes, typeof(object), new Type[] { typeof(Data.Environment), typeof(object[]) });
+            IOpCode assembler;
 
-            // We don't want to initialise the locals (we do this ourselves)
-            schemeBuilder.InitLocals = false;
-
-            // The compile state for this function
-            CompileState compileState = new CompileState(state, false);
-
-            // The initial local environment depends on the symbols that are passed as arguments
-            compileState.Local = new Data.Environment(compileState.Local);
-
-            foreach (Data.Symbol symbol in argSymbols)
+            if ((int)op.operation < assemblers.Count)
             {
-                compileState.Local[symbol] = Data.Unspecified.Value;
+                assembler = (IOpCode)assemblers[(int)op.operation];
+            }
+            else
+            {
+                assembler = null;
             }
 
-            // Compile the scheme into a BExpression
-            BExpression expr = BExpression.BuildExpression(scheme, compileState);
+            if (assembler != null)
+            {
+                assembler.PreCompileOp(op, state, this);
+            }
+            else
+            {
+                throw new NotSupportedException("A compiler was asked to compile an operation - " + op.operation.ToString() + " - which it does not have an IL assembler for");
+            }
+        }
 
-            // = Compile the BExpression into IL =
 
-            ILGenerator il = schemeBuilder.GetILGenerator(8192);
+        protected void CompileOp(Operation op, ILGenerator il, Analysis.State state)
+        {
+            IOpCode assembler;
 
-            // Construct the environment this function will run in
-            LocalBuilder localEnv = il.DeclareLocal(typeof(Data.Environment));
+            if ((int)op.operation < assemblers.Count)
+            {
+                assembler = (IOpCode)assemblers[(int)op.operation];
+            }
+            else
+            {
+                assembler = null;
+            }
 
-            il.Emit(OpCodes.Ldnull);                // TODO: do something about reconstructing the HybridDictionary for this object
-            il.Emit(OpCodes.Ldind_I, compileState.Local.Size);
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Newobj, typeof(Data.Environment).GetConstructor(new Type[] { typeof(System.Collections.Specialized.HybridDictionary), typeof(int), typeof(Data.Environment) }));
+            if (assembler != null)
+            {
+                assembler.CompileOp(op, il, state, this);
+            }
+            else
+            {
+                throw new NotSupportedException("A compiler was asked to compile an operation - " + op.operation.ToString() + " - which it does not have an IL assembler for");
+            }
+        }
 
-            // Set it as the local environment
-            il.Emit(OpCodes.Stloc, localEnv.LocalIndex);
+        #endregion
 
-            // Load the arguments from the object list
+        #region Operations
 
-            // Actually compile the BExpression opcodes
+        private static IDictionary opcodeTables = new Hashtable();
 
-            // Done, return the result
-            return schemeBuilder;
+        protected static IList GetOpcodesForType(Type whichType)
+        {
+            // Sanity check
+            if (!typeof(Compiler).IsAssignableFrom(whichType)) throw new InvalidOperationException("Compiler.GetOpcodesForType can only be called with a type that is a subclass of Compiler");
+
+            lock (typeof(Compiler))
+            {
+                while (whichType != null && whichType != typeof(object))
+                {
+                    // See if there's an entry for this type
+                    if (opcodeTables.Contains(whichType)) return (IList)opcodeTables[whichType];
+
+                    // Try the base type
+                    whichType = whichType.BaseType;
+                }
+
+                return null;
+            }
+        }
+
+        protected static void SetOpcodesForType(Type whichType, IList opcodes)
+        {
+            // Sanity check
+            if (!typeof(Compiler).IsAssignableFrom(whichType)) throw new InvalidOperationException("Compiler.SetOpcodesForType can only be called with a type that is a subclass of Compiler");
+
+            // Set the opcodes that this type can use
+            lock (typeof(Compiler))
+            {
+                opcodeTables[whichType] = opcodes;
+            }
+        }
+
+        protected static void LoadOpcodesForType(Type whichType, Assembly[] whichAssemblies) {
+            // Sanity check
+            if (!typeof(Compiler).IsAssignableFrom(whichType)) throw new InvalidOperationException("Compiler.LoadOpcodesForType can only be called with a type that is a subclass of Compiler");
+
+            // Construct the array that will hold the results
+            ArrayList result = new ArrayList(256);
+            for (int x = 0; x < 256; x++) result.Add(null);
+
+            // The opcode interface type
+            Type opcodeType = typeof(IOpCode);
+
+            // Iterate through the list of assemblies
+            foreach (Assembly assembly in whichAssemblies)
+            {
+                // Get the types from the current assembly
+                Type[] types = assembly.GetExportedTypes();
+
+                // Go through and find the types that derive from IOpCode and have a CompilesOpCodeAttribute applied to them
+                foreach (Type candidateOpcodeType in types)
+                {
+                    // Must be a class
+                    if (!candidateOpcodeType.IsClass) continue;
+
+                    // Must be assignable from IOpCode
+                    if (opcodeType.IsAssignableFrom(candidateOpcodeType))
+                    {
+                        CompilesOpAttribute[] opcodeAttribute = (CompilesOpAttribute[])candidateOpcodeType.GetCustomAttributes(typeof(CompilesOpAttribute), true);
+                        ConstructorInfo simpleConstructor = candidateOpcodeType.GetConstructor(new Type[0]);
+
+                        int opcodeNumber = (int)opcodeAttribute[0].Op;
+
+                        // Must have an attribute indicating what assigns it, a () constructor and not be already defined
+                        if (opcodeAttribute.Length > 0 && simpleConstructor != null && result[(int)opcodeAttribute[0].Op] == null)
+                        {
+                            // Construct this object
+                            result[(int)opcodeAttribute[0].Op] = simpleConstructor.Invoke(new object[0]);
+                        }
+                    }
+                }
+            }
+
+            // Define these opcodes
+            SetOpcodesForType(whichType, result);
         }
 
         #endregion

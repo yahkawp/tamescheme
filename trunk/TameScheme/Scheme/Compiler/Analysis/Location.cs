@@ -5,7 +5,7 @@ namespace Tame.Scheme.Compiler.Analysis
     /// <summary>
     /// Represents the location of an environment value.
     /// </summary>
-    public struct Location
+    public sealed class Location
     {
         #region Construction
 

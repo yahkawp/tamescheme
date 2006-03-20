@@ -59,6 +59,12 @@ namespace Tame.SchemeTest
             // Create the interpreter
             SchemeInterpreter terp = new SchemeInterpreter();
 
+            // Test out the compiler
+            Interpreter foo = new Interpreter();
+
+            Tame.Scheme.Compiler.Compiler compiler = new Tame.Scheme.Compiler.Compiler();
+            Type compiledFunction = compiler.Compile(foo.ParseScheme("(+ 1 2)"), foo.TopLevelEnvironment);
+
             // Register a test delegate function
             terp["long+"] = new TestDelegate(TestAdd);
 

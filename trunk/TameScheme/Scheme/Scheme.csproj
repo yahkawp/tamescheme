@@ -94,9 +94,13 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Compiler\BOp\Push.cs" />
+    <Compile Include="Compiler\BOp\PushRelativeValue.cs" />
     <Compile Include="Compiler\Compiler.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Compiler\CompilesOpCodeAttribute.cs" />
+    <Compile Include="Compiler\IOpCode.cs" />
     <Compile Include="Data\Environment.cs">
       <SubType>Code</SubType>
     </Compile>
