@@ -43,9 +43,9 @@ namespace Tame.Scheme.Data
             lock (SymbolTable.SyncRoot)
             {
                 int count = 0;
-                foreach (string sym in SymbolTable.AllSymbols)
+                foreach (ISymbolic sym in SymbolTable.AllSymbols)
                 {
-                    envTable[new Data.Symbol(sym).HashValue] = count++;
+                    envTable[sym.HashValue] = count++;
                 }
 
                 values = new object[count];
@@ -346,7 +346,11 @@ namespace Tame.Scheme.Data
                 {
                     if (!envTable.Contains(hashValue))
                     {
-                        if (IsTopLevel) throw new InvalidOperationException("Unable to define a new symbol in a top level environment (only symbols defined in the SymbolTable may be accessed in a top-level environment)");
+                        if (IsTopLevel)
+                        {
+                            throw new InvalidOperationException("Unable to define a new symbol in a top level environment (only symbols defined in the SymbolTable may be accessed in a top-level environment)");
+                        }
+
                         lock (this)
                         {
                             // Add a new value
@@ -776,7 +780,7 @@ namespace Tame.Scheme.Data
         /// <summary>
         /// Event handler called when a new symbol is defined (only if this is a top-level environment)
         /// </summary>
-        private void NewTopLevelSymbol(Symbol newSymbol, int number)
+        private void NewTopLevelSymbol(ISymbolic newSymbol, int number)
         {
             lock (this)
             {

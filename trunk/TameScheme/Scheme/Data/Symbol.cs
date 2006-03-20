@@ -36,6 +36,8 @@ namespace Tame.Scheme.Data
 		public Symbol(int symbolNumber)
 		{
 			this.symbolNumber = symbolNumber;
+
+            if (symbolNumber < 0) SymbolTable.DeclareTemporarySymbol(this);
 		}
 
 		public Symbol(string symbolName)
