@@ -184,6 +184,13 @@ namespace Tame.Scheme.Compiler.Analysis
             envState.DefineSymbol(where, new SymbolUsage(where, whichField));
         }
 
+        public SymbolUsage UsageForSymbol(Location where)
+        {
+            if (envState == null) return null;
+
+            return envState.UsageForSymbol(where);
+        }
+
         /// <summary>
         /// Retrieve the list of variables that have been defined as fields for this state.
         /// </summary>
@@ -228,7 +235,7 @@ namespace Tame.Scheme.Compiler.Analysis
             }
         }
 
-        protected string FieldNameForSymbol(Data.Symbol symbol)
+        protected string FieldNameForSymbol(Data.ISymbolic symbol)
         {
             // Get the scheme name for this symbol
             string schemeSymbol = symbol.ToString();
@@ -263,7 +270,7 @@ namespace Tame.Scheme.Compiler.Analysis
         /// <remarks>You must set a root type to use this function.</remarks>
         /// <param name="symbol">The symbol that we need a field for</param>
         /// <returns>The </returns>
-        public FieldInfo Symbol(Data.Symbol symbol)
+        public FieldInfo Symbol(Data.ISymbolic symbol)
         {
             // Get the name for this symbol
             string symbolName = FieldNameForSymbol(symbol);

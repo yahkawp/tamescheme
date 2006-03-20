@@ -488,6 +488,8 @@ namespace Tame.Scheme.Data
 			Data.ISymbolic symbol;
 
 			public ISymbolic Symbol { get { return symbol; } }
+            public int Offset { get { return offset; } }
+            public int ParentCount { get { return parentCount; } }
 
 			#endregion
 
