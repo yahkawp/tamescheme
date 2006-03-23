@@ -65,8 +65,8 @@ namespace Tame.Scheme.Data
 			envTable = new HybridDictionary();
 
             // This is a top-level environment
-            this.IsTopLevel = true;
-            this.TopLevel = this;
+            this.isTopLevel = true;
+            this.topLevel = this;
 
             MakeEmptyTopLevel();
 		}
@@ -85,15 +85,15 @@ namespace Tame.Scheme.Data
 
             if (parent == null)
             {
-                this.IsTopLevel = true;
-                this.TopLevel = this;
+                this.isTopLevel = true;
+                this.topLevel = this;
 
                 MakeEmptyTopLevel();
             }
             else
             {
-                this.IsTopLevel = false;
-                this.TopLevel = parent.TopLevel;
+                this.isTopLevel = false;
+                this.topLevel = parent.topLevel;
             }
 		}
 
@@ -112,18 +112,18 @@ namespace Tame.Scheme.Data
 
             if (parent == null && topLevel)
             {
-                this.IsTopLevel = true;
-                this.TopLevel = this;
+                this.isTopLevel = true;
+                this.topLevel = this;
 
                 MakeEmptyTopLevel();
             }
             else
             {
-                this.IsTopLevel = false;
+                this.isTopLevel = false;
                 if (parent != null)
-                    this.TopLevel = parent.TopLevel;
+                    this.topLevel = parent.topLevel;
                 else
-                    this.TopLevel = null;
+                    this.topLevel = null;
             }
         }
         
@@ -141,8 +141,8 @@ namespace Tame.Scheme.Data
             this.nextAvailable = values.Count;
 
 			this.parent = parent;
-            this.IsTopLevel = false;
-            this.TopLevel = parent.TopLevel;
+            this.isTopLevel = false;
+            this.topLevel = parent.topLevel;
         }
 
         /// <summary>
@@ -160,8 +160,8 @@ namespace Tame.Scheme.Data
             this.nextAvailable = this.values.Length;
 
             this.parent = parent;
-            this.IsTopLevel = false;
-            this.TopLevel = parent.TopLevel;
+            this.isTopLevel = false;
+            this.topLevel = parent.topLevel;
         }
 
         /// <summary>
@@ -177,8 +177,8 @@ namespace Tame.Scheme.Data
             this.nextAvailable = values.Length;
 
             this.parent = parent;
-            this.IsTopLevel = false;
-            this.TopLevel = parent.TopLevel;
+            this.isTopLevel = false;
+            this.topLevel = parent.topLevel;
         }
 
 		#region Variables
@@ -221,12 +221,12 @@ namespace Tame.Scheme.Data
         /// <summary>
         /// Whether or not this environment is a top-level environment
         /// </summary>
-        public readonly bool IsTopLevel;
+        public readonly bool isTopLevel;
 
         /// <summary>
         /// The top-level environment relative to this one.
         /// </summary>
-        public readonly Environment TopLevel;
+        public readonly Environment topLevel;
 
 		#endregion
 
@@ -249,7 +249,7 @@ namespace Tame.Scheme.Data
 		{
             lock (this)
             {
-                if (IsTopLevel) throw new InvalidOperationException("BindTemporary() is not valid for a top-level environment");
+                if (isTopLevel) throw new InvalidOperationException("BindTemporary() is not valid for a top-level environment");
 
                 // Construct a history object
                 if (temporaryHistory == null) temporaryHistory = new HybridDictionary();
@@ -346,7 +346,7 @@ namespace Tame.Scheme.Data
                 {
                     if (!envTable.Contains(hashValue))
                     {
-                        if (IsTopLevel)
+                        if (isTopLevel)
                         {
                             throw new InvalidOperationException("Unable to define a new symbol in a top level environment (only symbols defined in the SymbolTable may be accessed in a top-level environment)");
                         }
@@ -806,7 +806,7 @@ namespace Tame.Scheme.Data
 
         public void Dispose()
         {
-            if (IsTopLevel)
+            if (isTopLevel)
             {
                 SymbolTable.NewSymbol -= NewTopLevelSymbol;
             }

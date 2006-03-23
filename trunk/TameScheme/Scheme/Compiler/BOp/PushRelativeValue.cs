@@ -13,6 +13,10 @@ namespace Tame.Scheme.Compiler.BOp
 
         public void PreCompileOp(Operation op, Tame.Scheme.Compiler.Analysis.State compilerState, Compiler whichCompiler)
         {
+            Data.Environment.RelativeBinding relBinding = (Data.Environment.RelativeBinding)op.a;
+
+            if (relBinding.ParentCount == compilerState.Level) compilerState.NeedTopLevel = true;
+            if (relBinding.ParentCount > compilerState.Level) throw new InvalidOperationException("The compiler currently does not support retrieving values from environments other than the top-level one, or local environments declared directly as part of the BExpression being compiled.");
         }
 
         public void CompileOp(Operation op, ILGenerator il, Tame.Scheme.Compiler.Analysis.State compilerState, Compiler whichCompiler)
@@ -30,10 +34,10 @@ namespace Tame.Scheme.Compiler.BOp
                 //
                 FieldInfo topLevelSymbol = compilerState.Symbol(relBinding.Symbol);
 
-                // environment[symbol]
-                il.Emit(OpCodes.Ldfld, topLevelSymbol);
-                il.Emit(OpCodes.Ldarg_0);
-                il.EmitCall(OpCodes.Call, typeof(Data.Environment).GetProperty("Item", new Type[] { typeof(Data.Symbol) }).GetGetMethod(), null);
+                // environment.topLevel.values[symbol]
+                il.Emit(OpCodes.Ldloc, compilerState.TopLevelLocal);
+                il.Emit(OpCodes.Ldsfld, compilerState.Symbol(relBinding.Symbol));
+                il.Emit(OpCodes.Ldelem, typeof(object));
             }
             else
             {

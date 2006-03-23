@@ -154,7 +154,10 @@ namespace Tame.Scheme.Compiler
 
             // Compile anything that's needed into the root/static types
             state.FinishStaticType();
-            state.BuildInitialiser(state.RootType.DefineTypeInitializer().GetILGenerator(8192));
+
+            ILGenerator initGen = state.RootType.DefineTypeInitializer().GetILGenerator(8192);
+            state.BuildInitialiser(initGen);
+            initGen.Emit(OpCodes.Ret);
 
             // Build the type
             return builder.CreateType();
@@ -173,7 +176,7 @@ namespace Tame.Scheme.Compiler
                 // Make up a new type name
                 lock (typeof(Compiler))
                 {
-                    typeName = "__SchemeFunction__" + (functionNumber++).ToString();
+                    typeName = "TS__SchemeFunction__" + (functionNumber++).ToString();
                 }
             }
 
@@ -241,6 +244,17 @@ namespace Tame.Scheme.Compiler
                     PreCompileOp(expr.expression[instruction], state);
                 }
 
+                // Put the top level environment into a local variable, if it's needed (PreCompilation should have established that)
+                if ( state.NeedTopLevel)
+                {
+                    state.TopLevelLocal = il.DeclareLocal(typeof(object[]));
+
+                    il.Emit(OpCodes.Ldarg_1);
+                    il.Emit(OpCodes.Ldfld, typeof(Data.Environment).GetField("topLevel"));
+                    il.Emit(OpCodes.Ldfld, typeof(Data.Environment).GetField("values"));
+                    il.Emit(OpCodes.Stloc, state.TopLevelLocal);
+                }
+
                 // Begin compiling the BExpression into IL
                 for (int instruction = 0; instruction < expr.expression.Length; instruction++)
                 {
@@ -250,6 +264,9 @@ namespace Tame.Scheme.Compiler
                     // Compile this operation
                     CompileOp(expr.expression[instruction], il, state);
                 }
+
+                // Return
+                il.Emit(OpCodes.Ret);
             }
             finally
             {
