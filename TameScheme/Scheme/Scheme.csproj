@@ -94,6 +94,7 @@
     <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Compiler\BOp\CallIProcedure.cs" />
     <Compile Include="Compiler\BOp\Push.cs" />
     <Compile Include="Compiler\BOp\PushRelativeValue.cs" />
     <Compile Include="Compiler\Compiler.cs">

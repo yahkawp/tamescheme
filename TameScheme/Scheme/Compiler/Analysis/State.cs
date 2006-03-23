@@ -103,7 +103,7 @@ namespace Tame.Scheme.Compiler.Analysis
             /// <summary>
             /// If this is set, any variables in the state 'below' this one are considered invalid (no long current)
             /// </summary>
-            private bool invalidBelow;
+            public readonly bool invalidBelow;
 
             /// <summary>
             /// The environment state 'below' this one
@@ -114,6 +114,15 @@ namespace Tame.Scheme.Compiler.Analysis
             {
                 this.PreviousState = previousState;
                 this.invalidBelow = invalidBelow;
+
+                if (!invalidBelow && previousState != null)
+                {
+                    this.needTopLevel = previousState.needTopLevel;
+                }
+                else
+                {
+                    this.needTopLevel = false;
+                }
             }
 
             /// <summary>
@@ -149,6 +158,9 @@ namespace Tame.Scheme.Compiler.Analysis
                 return null;
             }
 
+            /// <summary>
+            /// The fields declared as part of this environment state
+            /// </summary>
             public ArrayList Fields
             {
                 get
@@ -156,6 +168,16 @@ namespace Tame.Scheme.Compiler.Analysis
                     return fields;
                 }
             }
+
+            /// <summary>
+            /// Set to true during pre-compilation if the top-level environment is used in this function
+            /// </summary>
+            public bool needTopLevel;
+
+            /// <summary>
+            /// A dictionary of local variables
+            /// </summary>
+            public IDictionary localDictionary;
         }
 
         private EnvironmentState envState;
@@ -202,6 +224,145 @@ namespace Tame.Scheme.Compiler.Analysis
             }
         }
 
+        /// <summary>
+        /// Whether or not the current environment state has used any values from a top-level environment.
+        /// </summary>
+        public bool NeedTopLevel
+        {
+            get
+            {
+                if (envState == null) return true;
+
+                return envState.needTopLevel;
+            }
+            set
+            {
+                EnvironmentState state = envState;
+
+                while (state != null)
+                {
+                    state.needTopLevel = value;
+
+                    if (state.invalidBelow) return;
+                    state = state.PreviousState;
+                }
+            }
+        }
+
+        private enum BuiltinLocals
+        {
+            TopLevel, Argument, IProcedure, TempStorage
+        }
+
+        /// <summary>
+        /// The LocalBuilder containing the object[] array with the top-level environment in it
+        /// </summary>
+        public LocalBuilder TopLevelLocal
+        {
+            get
+            {
+                return (LocalBuilder)LocalDictionary[BuiltinLocals.TopLevel];
+            }
+            set
+            {
+                LocalDictionary[BuiltinLocals.TopLevel] = value;
+            }
+        }
+
+        /// <summary>
+        /// The local variable that should contain the IProcedure that we're going to call (used while building the argument arrays)
+        /// </summary>
+        public LocalBuilder IProcedureLocal
+        {
+            get
+            {
+                return (LocalBuilder)LocalDictionary[BuiltinLocals.IProcedure];
+            }
+            set
+            {
+                LocalDictionary[BuiltinLocals.IProcedure] = value;
+            }
+        }
+
+        /// <summary>
+        /// The object[] array that contains the list of arguments for a array.
+        /// </summary>
+        public LocalBuilder ArgumentLocal
+        {
+            get
+            {
+                return (LocalBuilder)LocalDictionary[BuiltinLocals.Argument];
+            }
+            set
+            {
+                LocalDictionary[BuiltinLocals.Argument] = value;
+            }
+        }
+
+        /// <summary>
+        /// The object local that is used for temporary storage.
+        /// </summary>
+        public LocalBuilder TempLocal
+        {
+            get
+            {
+                return (LocalBuilder)LocalDictionary[BuiltinLocals.TempStorage];
+            }
+            set
+            {
+                LocalDictionary[BuiltinLocals.TempStorage] = value;
+            }
+        }
+
+        IDictionary localDictionary = new Hashtable();
+
+        /// <summary>
+        /// The dictionary containing local variables
+        /// </summary>
+        protected IDictionary LocalDictionary
+        {
+            get
+            {
+                EnvironmentState state = envState;
+
+                while (state != null)
+                {
+                    if (state.localDictionary != null) return state.localDictionary;
+
+                    if (state.invalidBelow)
+                    {
+                        state.localDictionary = new Hashtable();
+                        return state.localDictionary;
+                    }
+                    state = state.PreviousState;
+                }
+
+                return localDictionary;
+            }
+        }
+
+        /// <summary>
+        /// A 'named' local variable, within the current context (up to the point an environment state was created
+        /// invalidating the current context). This is a more general version of the TopLevelLocal, ArgumentLocal and
+        /// IProcedureLocal properties.
+        /// </summary>
+        /// <param name="name">The name of the local variable to look up.</param>
+        /// <returns>null if the local variable is not defined, or a LocalBuilder otherwise</returns>
+        public LocalBuilder NamedLocal(string name)
+        {
+            return (LocalBuilder)LocalDictionary[name];
+        }
+
+        /// <summary>
+        /// Defines a named local variable to have a specific value.
+        /// </summary>
+        /// <param name="name">The name of the local variable to define</param>
+        /// <param name="definition">The definition of the local variable</param>
+        public void DefineLocal(string name, LocalBuilder definition)
+        {
+            LocalDictionary[name] = definition;
+        }
+
         #endregion
 
         #region Building types
@@ -210,6 +371,7 @@ namespace Tame.Scheme.Compiler.Analysis
         // For this reason we keep a 'core' typebuilder that we can add new fields to to store this data.
 
         private TypeBuilder rootType;
+        private IDictionary rootTypeDefinedFields = new Hashtable();
 
         /// <summary>
         /// The 'root' type is a type used to store the static values associated with a particular object. This includes values that need to
@@ -276,17 +438,20 @@ namespace Tame.Scheme.Compiler.Analysis
             string symbolName = FieldNameForSymbol(symbol);
             
             // Return the existing field if one has already been created.
-            FieldInfo symbolField = rootType.GetField(symbolName);
+            FieldInfo symbolField = (FieldBuilder)rootTypeDefinedFields[symbolName];
             if (symbolField != null) return symbolField;
 
             // Construct the field for this symbol
             FieldBuilder symbolBuilder = rootType.DefineField(symbolName, typeof(int), FieldAttributes.InitOnly | FieldAttributes.Static | FieldAttributes.FamANDAssem);
 
+            if (symbolBuilder == null) throw new InvalidOperationException("Failed to define symbol field " + symbolName);
+
             // Add this to the list of symbols to initialise
             initialiseSymbols.Add(symbol);
+            rootTypeDefinedFields[symbolName] = symbolBuilder;
 
             // Return the result
-            return symbolField;
+            return symbolBuilder;
         }
 
         /// <summary>
@@ -303,13 +468,14 @@ namespace Tame.Scheme.Compiler.Analysis
             {
                 // Get the field that will contain this symbol
                 string symbolName = FieldNameForSymbol(symbol);
-                FieldInfo symbolField = rootType.GetField(symbolName);
+                FieldInfo symbolField = (FieldInfo)this.rootTypeDefinedFields[symbolName];
 
                 // Add code to construct a suitable symbol object
                 // TODO: should probably be serialising/deserialising the symbol here; will stick with the name for now.
                 initCode.Emit(OpCodes.Ldstr, symbol.ToString());
                 initCode.Emit(OpCodes.Newobj, symbolConstructor);
-                initCode.Emit(OpCodes.Stfld, symbolField);
+                initCode.EmitCall(OpCodes.Call, typeof(Data.Symbol).GetProperty("SymbolNumber").GetGetMethod(), null);
+                initCode.Emit(OpCodes.Stsfld, symbolField);
             }
         }
 
@@ -335,7 +501,7 @@ namespace Tame.Scheme.Compiler.Analysis
             {
                 if (staticDataBuilder == null)
                 {
-                    staticDataBuilder = RootType.DefineNestedType("__TS_staticData");
+                    staticDataBuilder = RootType.DefineNestedType("ts__staticData");
                 }
 
                 return staticDataBuilder;
@@ -381,7 +547,7 @@ namespace Tame.Scheme.Compiler.Analysis
             staticObjects.Add(staticObject);
 
             // Create a field to eventually store it
-            FieldBuilder builder = StaticData.DefineField("__TS_static_" + staticObjects.Count.ToString(), staticObject.GetType(), FieldAttributes.FamORAssem | FieldAttributes.Static|FieldAttributes.InitOnly);
+            FieldBuilder builder = StaticData.DefineField("ts__static_" + staticObjects.Count.ToString(), staticObject.GetType(), FieldAttributes.FamORAssem | FieldAttributes.Static|FieldAttributes.InitOnly);
             staticFields.Add(builder);
 
             return builder;
@@ -406,8 +572,8 @@ namespace Tame.Scheme.Compiler.Analysis
             byte[] staticData = stream.ToArray();
 
             // Define the static data in the type
-            FieldBuilder staticDataField = StaticData.DefineInitializedData("__TS_static_serialised", staticData, FieldAttributes.Static | FieldAttributes.Private);
-            FieldBuilder dataArrayField = StaticData.DefineField("__TS_static_array", typeof(object[]), FieldAttributes.Static | FieldAttributes.Private | FieldAttributes.InitOnly);
+            FieldBuilder staticDataField = StaticData.DefineInitializedData("ts__static_serialised", staticData, FieldAttributes.Static | FieldAttributes.Private);
+            FieldBuilder dataArrayField = StaticData.DefineField("ts__static_array", typeof(object[]), FieldAttributes.Static | FieldAttributes.Private | FieldAttributes.InitOnly);
 
             // Define the initialiser
             ConstructorBuilder typeInit = StaticData.DefineTypeInitializer();
@@ -415,9 +581,9 @@ namespace Tame.Scheme.Compiler.Analysis
 
             // Assemble the initialiser
 
-            // stream = new MemoryStream(__TS_static_serialised)
+            // stream = new MemoryStream(ts__static_serialised)
             LocalBuilder memStream = il.DeclareLocal(typeof(MemoryStream));
-            il.Emit(OpCodes.Ldfld, staticDataField);
+            il.Emit(OpCodes.Ldsfld, staticDataField);
             il.Emit(OpCodes.Newobj, typeof(MemoryStream).GetConstructor(new Type[] { typeof(byte[]) }));
             il.Emit(OpCodes.Stloc, memStream);
 
@@ -431,7 +597,7 @@ namespace Tame.Scheme.Compiler.Analysis
             il.Emit(OpCodes.Ldloc, format);
             il.EmitCall(OpCodes.Call, typeof(BinaryFormatter).GetMethod("Deserialize", new Type[] { typeof(Stream) }), null);
             il.Emit(OpCodes.Castclass, typeof(object[]));
-            il.Emit(OpCodes.Stfld, dataArrayField);
+            il.Emit(OpCodes.Stsfld, dataArrayField);
 
             // Define all the static fields
             for (int index = 0; index < staticFields.Count; index++)
@@ -439,7 +605,7 @@ namespace Tame.Scheme.Compiler.Analysis
                 FieldBuilder field = (FieldBuilder)staticFields[index];
 
                 // Load the value for this field
-                il.Emit(OpCodes.Ldfld, dataArrayField);
+                il.Emit(OpCodes.Ldsfld, dataArrayField);
                 il.Emit(OpCodes.Ldc_I4, index);
                 il.Emit(OpCodes.Ldelem, typeof(object));
 
@@ -447,7 +613,7 @@ namespace Tame.Scheme.Compiler.Analysis
                 il.Emit(OpCodes.Castclass, field.FieldType);
 
                 // Store in the field
-                il.Emit(OpCodes.Stfld, field);
+                il.Emit(OpCodes.Stsfld, field);
             }
 
             // Return

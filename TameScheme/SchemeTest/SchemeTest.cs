@@ -65,6 +65,11 @@ namespace Tame.SchemeTest
             Tame.Scheme.Compiler.Compiler compiler = new Tame.Scheme.Compiler.Compiler();
             Type compiledFunction = compiler.Compile(foo.ParseScheme("(+ 1 2)"), foo.TopLevelEnvironment);
 
+            Tame.Scheme.Procedure.IProcedure testProc = (Tame.Scheme.Procedure.IProcedure)compiledFunction.GetConstructor(new Type[0]).Invoke(new object[0]);
+            object[] emptyObj = new object[0];
+            object result = testProc.Call(foo.TopLevelEnvironment, ref emptyObj);
+            Console.Out.Write(result.ToString());
+
             // Register a test delegate function
             terp["long+"] = new TestDelegate(TestAdd);
 

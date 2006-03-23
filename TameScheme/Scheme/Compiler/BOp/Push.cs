@@ -25,22 +25,27 @@ namespace Tame.Scheme.Compiler.BOp
             if (op.a is int)
             {
                 il.Emit(OpCodes.Ldc_I4, (int)op.a);
+                il.Emit(OpCodes.Box, typeof(int));
             }
             else if (op.a is long)
             {
                 il.Emit(OpCodes.Ldc_I8, (long)op.a);
+                il.Emit(OpCodes.Box, typeof(long));
             }
             else if (op.a is string)
             {
                 il.Emit(OpCodes.Ldstr, (string)op.a);
+                il.Emit(OpCodes.Box, typeof(string));
             }
             else if (op.a is float)
             {
                 il.Emit(OpCodes.Ldc_R4, (float)op.a);
+                il.Emit(OpCodes.Box, typeof(float));
             }
             else if (op.a is double)
             {
                 il.Emit(OpCodes.Ldc_R8, (double)op.a);
+                il.Emit(OpCodes.Box, typeof(double));
             }
             else
             {
