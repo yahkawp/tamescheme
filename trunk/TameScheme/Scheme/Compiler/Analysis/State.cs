@@ -55,7 +55,7 @@ namespace Tame.Scheme.Compiler.Analysis
         /// Retrieves the 'level' of this environment (how many times it has been pushed: this is the level value that should be used for
         /// locations that are considered to be in the most recently pushed environment)
         /// </summary>
-        public int Level
+        public int FrameLevel
         {
             get
             {
@@ -609,6 +609,7 @@ namespace Tame.Scheme.Compiler.Analysis
             // stream = new MemoryStream(ts__static_serialised)
             LocalBuilder memStream = il.DeclareLocal(typeof(MemoryStream));
             il.Emit(OpCodes.Ldsfld, staticDataField);
+            il.Emit(OpCodes.Castclass, typeof(byte[]));
             il.Emit(OpCodes.Newobj, typeof(MemoryStream).GetConstructor(new Type[] { typeof(byte[]) }));
             il.Emit(OpCodes.Stloc, memStream);
 
@@ -618,8 +619,8 @@ namespace Tame.Scheme.Compiler.Analysis
             il.Emit(OpCodes.Stloc, format);
 
             // dataArrayField = formatter.Deserialize(stream);
-            il.Emit(OpCodes.Ldloc, memStream);
             il.Emit(OpCodes.Ldloc, format);
+            il.Emit(OpCodes.Ldloc, memStream);
             il.EmitCall(OpCodes.Call, typeof(BinaryFormatter).GetMethod("Deserialize", new Type[] { typeof(Stream) }), null);
             il.Emit(OpCodes.Castclass, typeof(object[]));
             il.Emit(OpCodes.Stsfld, dataArrayField);
@@ -632,7 +633,7 @@ namespace Tame.Scheme.Compiler.Analysis
                 // Load the value for this field
                 il.Emit(OpCodes.Ldsfld, dataArrayField);
                 il.Emit(OpCodes.Ldc_I4, index);
-                il.Emit(OpCodes.Ldelem, typeof(object));
+                il.Emit(OpCodes.Ldelem_Ref);
 
                 // Cast to the appropriate type
                 il.Emit(OpCodes.Castclass, field.FieldType);

@@ -1,6 +1,6 @@
 // +----------------------------------------------------------------------------+
 // |                               = TAMESCHEME =                               |
-// | Compiler for the PushRelativeValue opcode             PushRelativeValue.cs |
+// | Compiler for the Branch opcode                                   Branch.cs |
 // +----------------------------------------------------------------------------+
 // | Copyright (c) 2005 Andrew Hunter                                           |
 // |                                                                            |
@@ -32,42 +32,21 @@ using Tame.Scheme.Runtime;
 namespace Tame.Scheme.Compiler.BOp
 {
     /// <summary>
-    /// IL Compiler for the PushRelativeValue opcode.
+    /// Compiler for the Branch opcode.
     /// </summary>
-    [CompilesOp(Op.PushRelativeValue)]
-    public sealed class PushRelativeValue : IOpCode
+    [CompilesOp(Op.Branch)]
+    public class Branch : IOpCode
     {
         #region IOpCode Members
 
         public void PreCompileOp(Operation op, Tame.Scheme.Compiler.Analysis.State compilerState, Compiler whichCompiler)
         {
-            Data.Environment.RelativeBinding relBinding = (Data.Environment.RelativeBinding)op.a;
-
-            // Tell the compiler to load the top-level environment if it's used in this BExpression
-            if (relBinding.ParentCount == compilerState.FrameLevel) compilerState.NeedTopLevel = true;
-
-            // We don't currently support 'external' environments other than the top-level environment.
-            if (relBinding.ParentCount > compilerState.FrameLevel) throw new InvalidOperationException("The compiler currently does not support retrieving values from environments other than the top-level one, or local environments declared directly as part of the BExpression being compiled.");
         }
 
-        public void CompileOp(Operation op, ILGenerator il, Tame.Scheme.Compiler.Analysis.State compilerState, Compiler whichCompiler)
+        public void CompileOp(Operation op, ILGenerator il, Analysis.State compilerState, Compiler whichCompiler)
         {
-            Data.Environment.RelativeBinding relBinding = (Data.Environment.RelativeBinding)op.a;
-
-            if (relBinding.ParentCount >= compilerState.FrameLevel)
-            {
-                // environment.topLevel.values[symbol]
-                il.Emit(OpCodes.Ldloc, compilerState.TopLevelLocal);                    // object[] array of the top-level environment (set up by the Compiler object)
-                il.Emit(OpCodes.Ldsfld, compilerState.Symbol(relBinding.Symbol));       // Symbol number we want (in top-level environments, corresponds to the array entry)
-                il.Emit(OpCodes.Ldelem_Ref);                                            // Load the value from the environment
-
-                // TODO: maybe throw exception if this is Undefined.Value?
-            }
-            else
-            {
-                // Get information about where this field is stored
-                Analysis.SymbolUsage usage = compilerState.UsageForSymbol(new Analysis.Location(relBinding.Offset, compilerState.FrameLevel - relBinding.ParentCount));
-            }
+            // Pretty simple, really
+            il.Emit(OpCodes.Br, compilerState.LabelWithOffset(il, (int)op.a));
         }
 
         #endregion

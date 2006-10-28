@@ -78,7 +78,13 @@ namespace Tame.Scheme.Compiler.BOp
             else
             {
                 if (CanBeLiteral(op.a)) throw new InvalidOperationException("BUG in the opcode compiler for Push: CanBeLiteral() returned true for a value we do not have a literal form for");
-                il.Emit(OpCodes.Ldfld, compilerState.DefineStaticData(op.a));
+                il.Emit(OpCodes.Ldsfld, compilerState.DefineStaticData(op.a));
+
+                Type argType = op.a.GetType();
+                if (argType.IsValueType)
+                {
+                    //il.Emit(OpCodes.Box, argType);
+                }
             }
         }
 

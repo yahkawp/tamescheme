@@ -375,6 +375,24 @@ namespace Tame.Scheme.Runtime
 
 		#region Evaluation
 
+        bool compile = true;
+        Compiler.Compiler compiler = new Compiler.Compiler();
+
+        /// <summary>
+        /// Whether or not the IL compiler is turned on
+        /// </summary>
+        public bool Compile
+        {
+            get
+            {
+                return compile;
+            }
+            set
+            {
+                compile = value;
+            }
+        }
+
 		/// <summary>
 		/// Treats the given string as a scheme expression, and compiles and evaluates it
 		/// </summary>
@@ -396,12 +414,23 @@ namespace Tame.Scheme.Runtime
 			lock (this)
 			{
 				// Prepare the expression for evaluation
-				expression.RemoveLabels();								// Strip out any labels that the expression might have
-				expression = expression.RemoveNops();					// Remove any No-Ops that the expression might have
+                if (!compile)
+                {
+                    expression.RemoveLabels();								// Strip out any labels that the expression might have
+                    expression = expression.RemoveNops();					// Remove any No-Ops that the expression might have
 
-				BContinuation continuation = new BContinuation(expression, topLevel);
+                    BContinuation continuation = new BContinuation(expression, topLevel);
 
-				return continuation.Continue();
+                    return continuation.Continue();
+                }
+                else
+                {
+                    // Really, this is only good for debugging: when the compiler is on, we probably want to only compile lambda, not
+                    // every expression!
+                    object[] noObj = new object[0];
+                    Type compiledExpression = compiler.Compile(expression, null);
+                    return ((Procedure.IProcedure)compiledExpression.GetConstructor(new Type[0]).Invoke(new object[0])).Call(topLevel, ref noObj);
+                }
 			}
 		}
 
