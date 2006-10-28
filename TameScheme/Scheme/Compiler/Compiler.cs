@@ -265,6 +265,9 @@ namespace Tame.Scheme.Compiler
                     CompileOp(expr.expression[instruction], il, state);
                 }
 
+                // Mark the final label
+                state.DefineNextLabel(il);
+
                 // Return
                 il.Emit(OpCodes.Ret);
             }

@@ -1,6 +1,6 @@
 // +----------------------------------------------------------------------------+
 // |                               = TAMESCHEME =                               |
-// | Compiler for the PushRelativeValue opcode             PushRelativeValue.cs |
+// | Compiler for the If opcode                                           If.cs |
 // +----------------------------------------------------------------------------+
 // | Copyright (c) 2005 Andrew Hunter                                           |
 // |                                                                            |
@@ -31,43 +31,45 @@ using Tame.Scheme.Runtime;
 
 namespace Tame.Scheme.Compiler.BOp
 {
-    /// <summary>
-    /// IL Compiler for the PushRelativeValue opcode.
-    /// </summary>
-    [CompilesOp(Op.PushRelativeValue)]
-    public sealed class PushRelativeValue : IOpCode
+    [CompilesOp(Op.If)]
+    public sealed class If : IOpCode
     {
         #region IOpCode Members
 
         public void PreCompileOp(Operation op, Tame.Scheme.Compiler.Analysis.State compilerState, Compiler whichCompiler)
         {
-            Data.Environment.RelativeBinding relBinding = (Data.Environment.RelativeBinding)op.a;
-
-            // Tell the compiler to load the top-level environment if it's used in this BExpression
-            if (relBinding.ParentCount == compilerState.FrameLevel) compilerState.NeedTopLevel = true;
-
-            // We don't currently support 'external' environments other than the top-level environment.
-            if (relBinding.ParentCount > compilerState.FrameLevel) throw new InvalidOperationException("The compiler currently does not support retrieving values from environments other than the top-level one, or local environments declared directly as part of the BExpression being compiled.");
         }
 
-        public void CompileOp(Operation op, ILGenerator il, Tame.Scheme.Compiler.Analysis.State compilerState, Compiler whichCompiler)
+        public void CompileOp(Operation op, ILGenerator il, Analysis.State compilerState, Compiler compiler)
         {
-            Data.Environment.RelativeBinding relBinding = (Data.Environment.RelativeBinding)op.a;
+            // Get the label to branch to if the value on top of the stack isn't false
+            Label labelOffset = compilerState.LabelWithOffset(il, (int)op.a);
 
-            if (relBinding.ParentCount >= compilerState.FrameLevel)
-            {
-                // environment.topLevel.values[symbol]
-                il.Emit(OpCodes.Ldloc, compilerState.TopLevelLocal);                    // object[] array of the top-level environment (set up by the Compiler object)
-                il.Emit(OpCodes.Ldsfld, compilerState.Symbol(relBinding.Symbol));       // Symbol number we want (in top-level environments, corresponds to the array entry)
-                il.Emit(OpCodes.Ldelem_Ref);                                            // Load the value from the environment
+            // Location to branch to if the test fails
+            Label notFalsePop = il.DefineLabel();
+            Label notFalseNoPop = labelOffset;
+            Label isFalse = il.DefineLabel();
 
-                // TODO: maybe throw exception if this is Undefined.Value?
-            }
-            else
-            {
-                // Get information about where this field is stored
-                Analysis.SymbolUsage usage = compilerState.UsageForSymbol(new Analysis.Location(relBinding.Offset, compilerState.FrameLevel - relBinding.ParentCount));
-            }
+            // Check that we've got a boolean value on top of the stack
+            il.Emit(OpCodes.Isinst, typeof(bool));
+            il.Emit(OpCodes.Dup);
+
+            // Branch if it's null: the result is not false (and we've left a value on the stack)
+            il.Emit(OpCodes.Ldnull);
+            il.Emit(OpCodes.Beq, notFalsePop);
+
+            // Unbox, and branch to labelOffset if false (no values left on the stack)
+            il.Emit(OpCodes.Unbox, typeof(bool));
+            il.Emit(OpCodes.Brtrue, notFalseNoPop);
+            il.Emit(OpCodes.Br, isFalse);
+
+            // Is not false: continue with the following code
+            il.MarkLabel(notFalsePop);
+            il.Emit(OpCodes.Pop);
+            il.Emit(OpCodes.Br, labelOffset);
+
+            // Is false: continue from this point
+            il.MarkLabel(isFalse);
         }
 
         #endregion
